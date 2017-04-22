@@ -9,7 +9,7 @@ const startTime = process.hrtime();
 const createDebug = require("debug");
 const http = require("http");
 const app = require("./app/app");
-const debug = createDebug('chevre-frontend:index');
+const debug = createDebug('chevre-frontend:server');
 /**
  * Get port from environment and store in Express.
  */
@@ -75,5 +75,5 @@ function onListening() {
         : 'port ' + addr.port.toString();
     debug('Listening on ' + bind);
     const diff = process.hrtime(startTime);
-    debug(`api server listening took ${diff[0]} seconds and ${diff[1]} nanoseconds.`);
+    debug(`server listening took ${diff[0]} seconds and ${diff[1]} nanoseconds.`);
 }
