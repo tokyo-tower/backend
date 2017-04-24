@@ -1,0 +1,4 @@
+<input type="hidden" name="apiEndpoint" value="<%= process.env.API_ENDPOINT %>">
+<% if (req && req.staffUser) { %>
+  <input type="hidden" name="userId" value="<%- req.staffUser.get('user_id') %>">
+<% } %>
