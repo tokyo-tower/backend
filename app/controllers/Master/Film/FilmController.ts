@@ -69,11 +69,14 @@ export default class FilmController extends MasterBaseController {
      */
     public getList(): void {
         if (!this.req.staffUser) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+        // 表示件数・表示ページ
         const limit: number = (this.req.query.limit) ? parseInt(this.req.query.limit, DEFAULT_RADIX) : DEFAULT_LINES;
         const page: number = (this.req.query.page) ? parseInt(this.req.query.page, DEFAULT_RADIX) : 1;
         // 作品コード
-        const filmNameCode: string = (this.req.query.filmNameCode) ? this.req.query.filmNameCode : null;
+        const filmCode: string = (this.req.query.filmCode) ? this.req.query.filmCode : null;
         // 登録日
+        const createDateFrom: string = (this.req.query.dateFrom) ? this.req.query.dateFrom : null;
+        const createDateTo: string = (this.req.query.dateTo) ? this.req.query.dateTo : null;
         // 作品名・カナ・英
         const filmNameJa: string = (this.req.query.filmNameJa) ? this.req.query.filmNameJa : null;
         const filmNameKana: string = (this.req.query.filmNameKana) ? this.req.query.filmNameKana : null;
@@ -81,20 +84,42 @@ export default class FilmController extends MasterBaseController {
 
         // 検索条件を作成
         const conditions: any = {};
-        if (filmNameCode) {
-            const keyId: string = '_id';
-            const exp: RegExp = new RegExp('^マ');
-            conditions[keyId] = filmNameCode;
-            conditions[keyId] = exp;
+        if (filmCode) {
+            const key: string = '_id';
+            conditions[key] = filmCode;
         }
+        if (createDateFrom || createDateTo) {
+            const conditionsDate: any = {};
+            const key: string = 'created_at';
+            if (createDateFrom) {
+                const keyFrom = '$gte';
+                conditionsDate[keyFrom] = MasterBaseController.toISOStringJapan(createDateFrom);
+            }
+            if (createDateTo) {
+                const keyFrom = '$lt';
+                conditionsDate[keyFrom] = MasterBaseController.toISOStringJapan(createDateTo, 1);
+            }
+            conditions[key] = conditionsDate;
+            //const dateStr: string = createDateFrom.replace(/\//g, '');
+            // tslint:disable-next-line:max-line-length
+            //const date1 = moment(`${dateStr.substr(0, 4)}-${dateStr.substr(4, 2)}-${dateStr.substr(6, 2)}T00:00:00+9:00`);
+            // const date2 = MasterBaseController.toISOStringJapan(createDateFrom);
+            // conditions[key] = {
+            //     $gte: date2
+            // };
+            // conditions[key] = {
+            //     $gte: '2017-04-24T00:00:00+09:00'
+            // };
+        }
+        //const createDateTo: string = (this.req.query.dateTo) ? this.req.query.dateTo : null;
         if (filmNameJa) {
-            conditions['name.ja'] = filmNameJa;
+            conditions['name.ja'] = MasterBaseController.getRegxForwardMatching(filmNameJa);
         }
         if (filmNameKana) {
             conditions['name.kana'] = filmNameKana;
         }
         if (filmNameEn) {
-            conditions['name.en'] = filmNameEn;
+            conditions['name.en'] = MasterBaseController.getRegxForwardMatching(filmNameEn);
         }
         const result = {
             success: false,

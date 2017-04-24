@@ -1,4 +1,5 @@
 import { Models } from '@motionpicture/chevre-domain';
+import * as moment from 'moment';
 //import * as mongoose from 'mongoose';
 import BaseController from '../BaseController';
 /**
@@ -9,6 +10,26 @@ import BaseController from '../BaseController';
  * @extends {BaseController}
  */
 export default class MasterBaseController extends BaseController {
+    /**
+     * 前方一致正規表現取得
+     *
+     * @param {string} value
+     * @returns {RegExp}
+     */
+    protected static getRegxForwardMatching(value: string): RegExp {
+        return new RegExp('^' + value);
+    }
+    protected static toISOStringJapan(dateStr: string, addDay: number = 0): string {
+        const m = moment(dateStr, 'YYYY/MM/DD');
+        const m2 = m.add(addDay, 'days');
+        const dateWk: string = m2.format('YYYYMMDD');
+        //const dateWk: string = dateStr.replace(/'\/'/g, '');
+        const year: string =  dateWk.substr(0, 4);
+        const month: string =  dateWk.substr(4, 2);
+        const day: string =  dateWk.substr(6, 2);
+        // tslint:disable-next-line:no-magic-numbers
+        return year + '-' + month + '-' + day + 'T00:00:00+09:00';
+    }
     /**
      * 画面入力値のモデルセット処理
      *

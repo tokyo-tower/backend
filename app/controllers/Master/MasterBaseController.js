@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
+const moment = require("moment");
 //import * as mongoose from 'mongoose';
 const BaseController_1 = require("../BaseController");
 /**
@@ -11,6 +12,26 @@ const BaseController_1 = require("../BaseController");
  * @extends {BaseController}
  */
 class MasterBaseController extends BaseController_1.default {
+    /**
+     * 前方一致正規表現取得
+     *
+     * @param {string} value
+     * @returns {RegExp}
+     */
+    static getRegxForwardMatching(value) {
+        return new RegExp('^' + value);
+    }
+    static toISOStringJapan(dateStr, addDay = 0) {
+        const m = moment(dateStr, 'YYYY/MM/DD');
+        const m2 = m.add(addDay, 'days');
+        const dateWk = m2.format('YYYYMMDD');
+        //const dateWk: string = dateStr.replace(/'\/'/g, '');
+        const year = dateWk.substr(0, 4);
+        const month = dateWk.substr(4, 2);
+        const day = dateWk.substr(6, 2);
+        // tslint:disable-next-line:no-magic-numbers
+        return year + '-' + month + '-' + day + 'T00:00:00+09:00';
+    }
     /**
      * 画面入力値のモデルセット処理
      *
