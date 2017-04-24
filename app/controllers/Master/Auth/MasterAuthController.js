@@ -16,7 +16,7 @@ class MasterAuthController extends MasterBaseController_1.default {
     constructor() {
         super(...arguments);
         this.layout = 'layouts/master/layoutLogin';
-        this.masterHome = 'master.film.add';
+        this.masterHome = '/master/film/add';
     }
     /**
      * マスタ管理ログイン
@@ -27,7 +27,7 @@ class MasterAuthController extends MasterBaseController_1.default {
         this.res.locals.title = this.req.__('Master.Title.Login.Name');
         this.res.locals.isValid = false;
         if (this.req.staffUser && this.req.staffUser.isAuthenticated()) {
-            return this.res.redirect(this.router.build(this.masterHome));
+            return this.res.redirect(this.masterHome);
         }
         if (this.req.method === 'POST') {
             masterLoginForm_1.default(this.req)(this.req, this.res, () => {
@@ -81,7 +81,7 @@ class MasterAuthController extends MasterBaseController_1.default {
                                     this.req.session[MasterAdminUser_1.default.AUTH_SESSION_NAME].locale = form.language;
                                     // if exist parameter cb, redirect to cb.
                                     // 作品マスタ登録へ＜とりあえず@@@@@
-                                    const cb = (this.req.query.cb) ? this.req.query.cb : this.router.build(this.masterHome);
+                                    const cb = (this.req.query.cb) ? this.req.query.cb : this.masterHome;
                                     this.res.redirect(cb);
                                 });
                             }
@@ -108,7 +108,7 @@ class MasterAuthController extends MasterBaseController_1.default {
             if (err)
                 return this.next(err);
             this.res.clearCookie('remember_master_admin');
-            this.res.redirect(this.router.build('master.login'));
+            this.res.redirect('/master/login');
         });
     }
 }

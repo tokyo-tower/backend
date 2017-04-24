@@ -88,16 +88,16 @@ export default (app: any) => {
     };
 
     // ログイン・ログアウト
-    app.all('/master/login', 'master.login', baseMiddleware,
-            (req: Request, res: Response, next: NextFunction) => {
-                 (new MasterAuthController(req, res, next)).login(); });
-    app.all('/master/logout', 'master.logout', baseMiddleware,
+    app.all('/master/login', baseMiddleware,
+            (req: Request, res: Response, next: NextFunction) => { (new MasterAuthController(req, res, next)).login(); });
+    //'master.logout
+    app.all('/master/logout', baseMiddleware,
             (req: Request, res: Response, next: NextFunction) => { (new MasterAuthController(req, res, next)).logout(); });
-    // 作品登録・一覧
-    app.all('/master/film/add', 'master.film.add', baseMiddleware,
+    // 作品登録・一覧 'master.film.add' 'master.film.list' 'master.film.getlist'
+    app.all('/master/film/add', baseMiddleware,
             (req: Request, res: Response, next: NextFunction) => { (new FilmController(req, res, next)).add(); });
-    app.all('/master/film/list', 'master.film.list', baseMiddleware,
+    app.all('/master/film/list', baseMiddleware,
             (req: Request, res: Response, next: NextFunction) => { (new FilmController(req, res, next)).list(); });
-    app.all('/master/film/getlist', 'master.film.getlist', baseMiddleware,
+    app.all('/master/film/getlist', baseMiddleware,
             (req: Request, res: Response, next: NextFunction) => { (new FilmController(req, res, next)).getList(); });
 };
