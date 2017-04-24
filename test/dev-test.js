@@ -1,9 +1,9 @@
-"use strict";
 /**
  * devルーターテスト
  *
  * @ignore
  */
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -28,3 +28,4 @@ describe('GET /dev/400', () => {
         });
     }));
 });
+//# sourceMappingURL=dev-test.js.map

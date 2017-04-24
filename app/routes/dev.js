@@ -1,9 +1,9 @@
-"use strict";
 /**
  * devルーター
  *
  * @ignore
  */
+"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const express = require("express");
 const router = express.Router();
@@ -44,3 +44,4 @@ router.get('/mongoose/disconnect', (__, res, next) => {
     });
 });
 exports.default = router;
+//# sourceMappingURL=dev.js.map

@@ -29,7 +29,7 @@
         "preserveConstEnums": false,
         "pretty": false,
         "removeComments": false,
-        "sourceMap": false,
+        "sourceMap": true,
         "strictNullChecks": true,
         "stripInternal": false,
         "suppressExcessPropertyErrors": false,

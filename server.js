@@ -1,9 +1,9 @@
-"use strict";
 /**
  * サーバー起動ファイル
  *
  * @ignore
  */
+"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const startTime = process.hrtime();
 const createDebug = require("debug");
@@ -77,3 +77,4 @@ function onListening() {
     const diff = process.hrtime(startTime);
     debug(`server listening took ${diff[0]} seconds and ${diff[1]} nanoseconds.`);
 }
+//# sourceMappingURL=server.js.map

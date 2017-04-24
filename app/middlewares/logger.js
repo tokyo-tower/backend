@@ -1,9 +1,9 @@
-"use strict";
 /**
  * ロガーミドルウェア
  *
  * @module loggerMiddleware
  */
+"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const log4js = require("log4js");
 const env = (process.env.NODE_ENV !== undefined) ? process.env.NODE_ENV : 'development';
@@ -37,3 +37,4 @@ log4js.configure({
     replaceConsole: (env === 'production') ? false : true
 });
 exports.default = log4js.connectLogger(log4js.getLogger('access'), {});
+//# sourceMappingURL=logger.js.map

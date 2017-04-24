@@ -13,6 +13,7 @@ import * as express from 'express';
 // tslint:disable-next-line:no-require-imports
 import partials = require('express-partials');
 import * as helmet from 'helmet';
+import * as i18n from 'i18n';
 import * as mongoose from 'mongoose';
 import * as multer from 'multer';
 import * as favicon from 'serve-favicon';
@@ -31,6 +32,7 @@ import session from './middlewares/session';
 
 // ルーター
 import devRouter from './routes/dev';
+import masterRouter from './routes/master';
 import router from './routes/router';
 
 const debug = createDebug('chevre-backend:app');
@@ -80,11 +82,35 @@ app.use(express.static(__dirname + '/../public'));
 
 app.use(expressValidator()); // バリデーション
 
+// i18n を利用する設定
+i18n.configure({
+    locales: ['en', 'ja'],
+    defaultLocale: 'ja',
+    directory: __dirname + '/../locales',
+    objectNotation: true,
+    updateFiles: false // ページのビューで自動的に言語ファイルを更新しない
+});
+// i18n の設定を有効化
+app.use(i18n.init);
+// セッションで言語管理
+app.use((req, _res, next) => {
+    if ((<any>req.session).locale) {
+        req.setLocale((<any>req.session).locale);
+    }
+    if (req.query.locale) {
+        req.setLocale(req.query.locale);
+        (<any>req.session).locale = req.query.locale;
+    }
+    next();
+});
+
 // Use native promises
 (<any>mongoose).Promise = global.Promise;
 mongoose.connect(process.env.MONGOLAB_URI, mongooseConnectionOptions);
 
 // ルーティング登録の順序に注意！
+masterRouter(app);
+
 // routers
 app.use('/', router);
 
