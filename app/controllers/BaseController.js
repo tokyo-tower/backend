@@ -25,24 +25,6 @@ class BaseController {
         this.res.locals.numeral = numeral;
         //this.res.locals.conf = conf;
         this.res.locals.Util = Util;
-        // レイアウト指定があれば変更
-        const render = this.res.render;
-        this.res.render = (view, options, cb) => {
-            if (this.layout) {
-                if (options === undefined) {
-                    options = {};
-                }
-                else if (typeof options === 'function') {
-                    cb = options;
-                    options = {};
-                }
-                if (!options.hasOwnProperty('layout')) {
-                    options.layout = this.layout;
-                }
-            }
-            render(view, options, cb);
-        };
     }
 }
 exports.default = BaseController;
-//# sourceMappingURL=BaseController.js.map

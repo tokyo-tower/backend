@@ -266,7 +266,8 @@ class FilmController extends MasterBaseController_1.default {
         this.res.locals.displayId = 'Aa-2';
         this.res.locals.title = '作品マスタ新規登録';
         this.res.render('master/film/add', {
-            filmModel: filmModel
+            filmModel: filmModel,
+            layout: 'layouts/master/layout'
         });
     }
     /**
@@ -278,7 +279,8 @@ class FilmController extends MasterBaseController_1.default {
         this.res.locals.displayId = 'Aa-3';
         this.res.locals.title = '作品マスタ一覧';
         this.res.render('master/film/list', {
-            filmModel: filmModel
+            filmModel: filmModel,
+            layout: 'layouts/master/layout'
         });
     }
     /**
@@ -313,4 +315,3 @@ class FilmController extends MasterBaseController_1.default {
     }
 }
 exports.default = FilmController;
-//# sourceMappingURL=FilmController.js.map

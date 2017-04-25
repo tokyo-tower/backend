@@ -55,24 +55,5 @@ export default class BaseController {
         this.res.locals.numeral = numeral;
         //this.res.locals.conf = conf;
         this.res.locals.Util = Util;
-
-        // レイアウト指定があれば変更
-        const render = this.res.render;
-        this.res.render = (view: string, options?: any, cb?: (err: Error | null, html: string) => void) => {
-            if (this.layout) {
-                if (options === undefined) {
-                    options = {};
-                } else if (typeof options === 'function') {
-                    cb = options;
-                    options = {};
-                }
-
-                if (!options.hasOwnProperty('layout')) {
-                    options.layout = this.layout;
-                }
-            }
-
-            render(view, options, cb);
-        };
     }
 }

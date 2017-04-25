@@ -10,8 +10,6 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const createDebug = require("debug");
 const express = require("express");
-// tslint:disable-next-line:no-require-imports
-const partials = require("express-partials");
 const helmet = require("helmet");
 const i18n = require("i18n");
 const mongoose = require("mongoose");
@@ -19,6 +17,8 @@ const multer = require("multer");
 const favicon = require("serve-favicon");
 // tslint:disable-next-line:no-require-imports
 const expressValidator = require("express-validator");
+// tslint:disable-next-line:no-var-requires no-require-imports
+const expressLayouts = require('express-ejs-layouts');
 const mongooseConnectionOptions_1 = require("../mongooseConnectionOptions");
 // ミドルウェア
 const basicAuth_1 = require("./middlewares/basicAuth");
@@ -29,11 +29,9 @@ const notFoundHandler_1 = require("./middlewares/notFoundHandler");
 const session_1 = require("./middlewares/session");
 // ルーター
 const dev_1 = require("./routes/dev");
-const master_1 = require("./routes/master");
 const router_1 = require("./routes/router");
 const debug = createDebug('chevre-backend:app');
 const app = express();
-app.use(partials()); // レイアウト&パーシャルサポート
 if (process.env.NODE_ENV === 'development') {
     app.use(logger_1.default); // ロガー
 }
@@ -56,6 +54,9 @@ if (process.env.NODE_ENV !== 'production') {
 // view engine setup
 app.set('views', `${__dirname}/views`);
 app.set('view engine', 'ejs');
+app.use(expressLayouts);
+// tslint:disable-next-line:no-backbone-get-set-outside-model
+app.set('layout', 'layouts/layout');
 // uncomment after placing your favicon in /public
 app.use(favicon(__dirname + '/../public/favicon.ico'));
 app.use(bodyParser.json());
@@ -91,9 +92,7 @@ app.use((req, _res, next) => {
 mongoose.Promise = global.Promise;
 mongoose.connect(process.env.MONGOLAB_URI, mongooseConnectionOptions_1.default);
 // ルーティング登録の順序に注意！
-master_1.default(app);
-// routers
-app.use('/', router_1.default);
+router_1.default(app);
 if (process.env.NODE_ENV !== 'production') {
     app.use('/dev', dev_1.default);
 }
@@ -102,4 +101,3 @@ app.use(notFoundHandler_1.default);
 // error handlers
 app.use(errorHandler_1.default);
 module.exports = app;
-//# sourceMappingURL=app.js.map

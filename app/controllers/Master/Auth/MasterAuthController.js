@@ -136,9 +136,9 @@ class MasterAuthController extends MasterBaseController_1.default {
         this.res.render('master/auth/login', {
             form: form,
             errors: errors,
-            customErrors: customErrors
+            customErrors: customErrors,
+            layout: 'layouts/master/layoutLogin'
         });
     }
 }
 exports.default = MasterAuthController;
-//# sourceMappingURL=MasterAuthController.js.map

@@ -4,6 +4,10 @@
   },
   "contributors": [
     {
+      "name": "Akito Hataguchi",
+      "email": "hataguchi@motionpicture.jp"
+    },
+    {
       "name": "Mariko Kusunose",
       "email": "kusunose@motionpicture.jp"
     },
@@ -23,8 +27,8 @@
     "debug": "^2.6.3",
     "ejs": "^2.5.2",
     "express": "^4.15.2",
+    "express-ejs-layouts": "^2.3.0",
     "express-form": "^0.12.6",
-    "express-partials": "^0.3.0",
     "express-session": "^1.15.2",
     "express-validator": "^3.1.3",
     "fs-extra": "^0.28.0",
@@ -93,7 +97,7 @@
   "scripts": {
     "build": "tsc",
     "check": "tslint --type-check --project tsconfig.json -c tslint.json server.ts app/**/*.ts && nsp check && snyk auth && snyk test --ignore-policy",
-    "clean": "rimraf app/**/*.js server.js test/**/*.js docs/**/* npm-debug.log*",
+    "clean": "rimraf app/**/*.js.map app/**/*.js server.js test/**/*.js docs/**/* npm-debug.log*",
     "css": "gulp",
     "jsdoc": "node_modules/.bin/jsdoc -c jsdoc.json",
     "start": "node ./server.js",

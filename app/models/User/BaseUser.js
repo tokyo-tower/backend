@@ -19,4 +19,3 @@ class BaseUser {
     }
 }
 exports.default = BaseUser;
-//# sourceMappingURL=BaseUser.js.map

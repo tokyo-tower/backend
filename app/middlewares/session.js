@@ -28,4 +28,3 @@ exports.default = session({
         maxAge: COOKIE_MAX_AGE
     }
 });
-//# sourceMappingURL=session.js.map

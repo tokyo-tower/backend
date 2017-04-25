@@ -263,7 +263,8 @@ export default class FilmController extends MasterBaseController {
         this.res.locals.displayId = 'Aa-2';
         this.res.locals.title = '作品マスタ新規登録';
         this.res.render('master/film/add', {
-            filmModel: filmModel
+            filmModel: filmModel,
+            layout: 'layouts/master/layout'
         });
     }
     /**
@@ -275,7 +276,8 @@ export default class FilmController extends MasterBaseController {
         this.res.locals.displayId = 'Aa-3';
         this.res.locals.title = '作品マスタ一覧';
         this.res.render('master/film/list', {
-            filmModel: filmModel
+            filmModel: filmModel,
+            layout: 'layouts/master/layout'
         });
     }
     /**
