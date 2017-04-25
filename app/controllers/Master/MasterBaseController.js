@@ -77,4 +77,3 @@ class MasterBaseController extends BaseController_1.default {
     }
 }
 exports.default = MasterBaseController;
-//# sourceMappingURL=MasterBaseController.js.map

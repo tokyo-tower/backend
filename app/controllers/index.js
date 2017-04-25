@@ -1,9 +1,9 @@
+"use strict";
 /**
  * インデックスコントローラー
  *
  * @namespace controller/index
  */
-"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const createDebug = require("debug");
 const debug = createDebug('chevre-backend:controllers:index');
@@ -13,7 +13,6 @@ function index(req, res, next) {
         next(new Error(req.param('next')));
         return;
     }
-    res.render('index');
+    res.render('index', { layout: false });
 }
 exports.index = index;
-//# sourceMappingURL=index.js.map

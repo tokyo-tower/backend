@@ -10,8 +10,6 @@ import * as cookieParser from 'cookie-parser';
 import * as cors from 'cors';
 import * as createDebug from 'debug';
 import * as express from 'express';
-// tslint:disable-next-line:no-require-imports
-import partials = require('express-partials');
 import * as helmet from 'helmet';
 import * as i18n from 'i18n';
 import * as mongoose from 'mongoose';
@@ -19,6 +17,8 @@ import * as multer from 'multer';
 import * as favicon from 'serve-favicon';
 // tslint:disable-next-line:no-require-imports
 import expressValidator = require('express-validator');
+// tslint:disable-next-line:no-var-requires no-require-imports
+const expressLayouts = require('express-ejs-layouts');
 
 import mongooseConnectionOptions from '../mongooseConnectionOptions';
 
@@ -32,14 +32,11 @@ import session from './middlewares/session';
 
 // ルーター
 import devRouter from './routes/dev';
-import masterRouter from './routes/master';
 import router from './routes/router';
 
 const debug = createDebug('chevre-backend:app');
 
 const app = express();
-
-app.use(partials()); // レイアウト&パーシャルサポート
 
 if (process.env.NODE_ENV === 'development') {
     app.use(logger); // ロガー
@@ -67,6 +64,9 @@ if (process.env.NODE_ENV !== 'production') {
 // view engine setup
 app.set('views', `${__dirname}/views`);
 app.set('view engine', 'ejs');
+app.use(expressLayouts);
+// tslint:disable-next-line:no-backbone-get-set-outside-model
+app.set('layout', 'layouts/layout');
 
 // uncomment after placing your favicon in /public
 app.use(favicon(__dirname + '/../public/favicon.ico'));
@@ -109,10 +109,8 @@ app.use((req, _res, next) => {
 mongoose.connect(process.env.MONGOLAB_URI, mongooseConnectionOptions);
 
 // ルーティング登録の順序に注意！
-masterRouter(app);
+router(app);
 
-// routers
-app.use('/', router);
 
 if (process.env.NODE_ENV !== 'production') {
     app.use('/dev', devRouter);

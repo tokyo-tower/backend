@@ -16,5 +16,5 @@ export function index(req: Request, res: Response, next: NextFunction) {
         return;
     }
 
-    res.render('index');
+    res.render('index', {layout: false});
 }

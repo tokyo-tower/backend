@@ -138,11 +138,15 @@ class MasterAuthController extends MasterBaseController_1.default {
             form = { userId: '', password: '' };
         }
         this.res.render('master/auth/login', {
+<<<<<<< HEAD
             form: form,
             errors: errors,
             customErrors: customErrors
+=======
+            errors: errors,
+            layout: 'layouts/master/layoutLogin'
+>>>>>>> CHEVRE-32
         });
     }
 }
 exports.default = MasterAuthController;
-//# sourceMappingURL=MasterAuthController.js.map
