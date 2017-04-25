@@ -29,7 +29,7 @@
         "preserveConstEnums": false,
         "pretty": false,
         "removeComments": false,
-        "sourceMap": true,
+        "sourceMap": false,
         "strictNullChecks": true,
         "stripInternal": false,
         "suppressExcessPropertyErrors": false,
@@ -39,6 +39,7 @@
     },
     "exclude": [
         "node_modules",
-        "public"
+        "public",
+        "definitions"
     ]
 }

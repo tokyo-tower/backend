@@ -43,4 +43,3 @@ exports.default = (req) => {
     form.field('screeningForm', req.__('Master.Form.FieldName.screeningForm')).trim()
         .required('', req.__('Message.required{{fieldName}}', { fieldName: '%s' })));
 };
-//# sourceMappingURL=filmAddForm.js.map

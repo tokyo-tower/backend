@@ -256,7 +256,8 @@ export default class FilmController extends MasterBaseController {
      */
     private renderDisplayAdd (filmModel: FilmModel): void {
         this.res.render('master/film/add', {
-            filmModel: filmModel
+            filmModel: filmModel,
+            layout: 'layouts/master/layout'
         });
     }
     /**
@@ -266,7 +267,8 @@ export default class FilmController extends MasterBaseController {
      */
     private renderDisplayList (filmModel: FilmModel): void {
         this.res.render('master/film/list', {
-            filmModel: filmModel
+            filmModel: filmModel,
+            layout: 'layouts/master/layout'
         });
     }
 }

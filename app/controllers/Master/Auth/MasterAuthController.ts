@@ -143,7 +143,8 @@ export default class MasterAuthController extends MasterBaseController {
      */
     private renderLogin (errors: any): void {
         this.res.render('master/auth/login', {
-            errors: errors
+            errors: errors,
+            layout: 'layouts/master/layoutLogin'
         });
     }
 }

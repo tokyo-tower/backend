@@ -13,4 +13,3 @@ var Common;
     Common.required = '$fieldName$が未入力です';
     Common.unexpectedError = 'システムエラーが発生しました。ご不便をおかけして申し訳ありませんがしばらく経ってから再度お試しください。';
 })(Common = exports.Common || (exports.Common = {}));
-//# sourceMappingURL=Message.js.map

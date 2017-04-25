@@ -264,7 +264,8 @@ class FilmController extends MasterBaseController_1.default {
      */
     renderDisplayAdd(filmModel) {
         this.res.render('master/film/add', {
-            filmModel: filmModel
+            filmModel: filmModel,
+            layout: 'layouts/master/layout'
         });
     }
     /**
@@ -274,9 +275,9 @@ class FilmController extends MasterBaseController_1.default {
      */
     renderDisplayList(filmModel) {
         this.res.render('master/film/list', {
-            filmModel: filmModel
+            filmModel: filmModel,
+            layout: 'layouts/master/layout'
         });
     }
 }
 exports.default = FilmController;
-//# sourceMappingURL=FilmController.js.map

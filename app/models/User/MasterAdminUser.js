@@ -22,4 +22,3 @@ class MasterAdminUser extends BaseUser_1.default {
 }
 MasterAdminUser.AUTH_SESSION_NAME = 'CHEVREFrontendMasterAuth';
 exports.default = MasterAdminUser;
-//# sourceMappingURL=MasterAdminUser.js.map
