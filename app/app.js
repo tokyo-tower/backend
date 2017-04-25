@@ -1,9 +1,9 @@
-"use strict";
 /**
  * expressアプリケーション
  *
  * @ignore
  */
+"use strict";
 // 依存パッケージ
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");

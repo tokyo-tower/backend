@@ -1,9 +1,9 @@
-"use strict";
 /**
  * サーバー起動ファイル
  *
  * @ignore
  */
+"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const startTime = process.hrtime();
 const createDebug = require("debug");
