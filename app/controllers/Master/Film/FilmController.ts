@@ -1,5 +1,5 @@
 import { Models } from '@motionpicture/chevre-domain';
-import * as mongoose from 'mongoose';
+//import * as mongoose from 'mongoose';
 import * as Message from '../../../../common/Const/Message';
 import FilmModel from '../../../models/Master/FilmModel';
 import MasterBaseController from '../MasterBaseController';
@@ -8,14 +8,14 @@ import MasterBaseController from '../MasterBaseController';
 const DEFAULT_RADIX: number = 10;
 // 1ページに表示するデータ数
 const DEFAULT_LINES: number = 10;
-// 作品コード 半角64
-const NAME_MAX_LENGTH_CODE: number = 64;
-// 作品名・日本語 全角64
-const NAME_MAX_LENGTH_NAME_JA: number = 64;
-// 作品名・英語 半角128
-const NAME_MAX_LENGTH_NAME_EN: number = 128;
-// 上映時間・数字10
-const NAME_MAX_LENGTH_NAME_MINUTES: number = 10;
+// // 作品コード 半角64
+// const NAME_MAX_LENGTH_CODE: number = 64;
+// // 作品名・日本語 全角64
+// const NAME_MAX_LENGTH_NAME_JA: number = 64;
+// // 作品名・英語 半角128
+// const NAME_MAX_LENGTH_NAME_EN: number = 128;
+// // 上映時間・数字10
+// const NAME_MAX_LENGTH_NAME_MINUTES: number = 10;
 
 /**
  * 作品マスタコントローラー
@@ -36,8 +36,8 @@ export default class FilmController extends MasterBaseController {
             // モデルに画面入力値をセット
             filmModel = this.parseModel<FilmModel>(filmModel);
             // 検証
-            const errors = this.validateFormAdd;
-            const isValid: boolean = !errors;
+            //const errors = this.validateFormAdd;
+            //const isValid: boolean = !errors;
             // 検証
             // const form = filmAddForm(this.req);
             // form(this.req, this.res, (err) => {
@@ -228,32 +228,32 @@ export default class FilmController extends MasterBaseController {
      *
      * @param {FilmModel} filmModel
      */
-    private processAddFilm(cb: (err: Error | null, film: mongoose.Document) => void): void {
-        const digits: number = 6;
-        MasterBaseController.getId('filmId', digits, (err, id) => {
-            if (err || !id) return this.next(new Error(Message.Common.unexpectedError));
-            // 作品DB登録
-            Models.Film.create(
-                {
-                    _id: id,
-                    name: {
-                        ja: (<any>this.req.form).filmNameJa,
-                        en: (<any>this.req.form).filmNameEn
-                    },
-                    ticket_type_group: '29',
-                    minutes: (<any>this.req.form).filmMinutes,
-                    is_mx4d: true
-                },
-                (errDb: any, film: any) => {
-                    if (errDb) {
-                        cb(errDb, film);
-                    } else {
-                        cb(null, film);
-                    }
-                }
-            );
-        });
-    }
+    // private processAddFilm(cb: (err: Error | null, film: mongoose.Document) => void): void {
+    //     const digits: number = 6;
+    //     MasterBaseController.getId('filmId', digits, (err, id) => {
+    //         if (err || !id) return this.next(new Error(Message.Common.unexpectedError));
+    //         // 作品DB登録
+    //         Models.Film.create(
+    //             {
+    //                 _id: id,
+    //                 name: {
+    //                     ja: (<any>this.req.form).filmNameJa,
+    //                     en: (<any>this.req.form).filmNameEn
+    //                 },
+    //                 ticket_type_group: '29',
+    //                 minutes: (<any>this.req.form).filmMinutes,
+    //                 is_mx4d: true
+    //             },
+    //             (errDb: any, film: any) => {
+    //                 if (errDb) {
+    //                     cb(errDb, film);
+    //                 } else {
+    //                     cb(null, film);
+    //                 }
+    //             }
+    //         );
+    //     });
+    // }
     /**
      * 作品マスタ新規登録画面遷移
      *
@@ -285,32 +285,32 @@ export default class FilmController extends MasterBaseController {
      *
      * @param {FilmModel} filmModel
      */
-    private validateFormAdd(): ExpressValidator.Dictionary<ExpressValidator.MappedError> | ExpressValidator.MappedError[] {
-        // 作品コード
-        let colName: string = '作品コード';
-        this.req.assert('filmCode', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
-        this.req.assert('filmCode', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_CODE)).len({max: NAME_MAX_LENGTH_CODE});
-        //.regex(/^[ -\~]+$/, req.__('Message.invalid{{fieldName}}', { fieldName: '%s' })),
-        // 作品名
-        colName = '作品名';
-        this.req.assert('filmNameJa', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
-        this.req.assert('filmNameJa', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_CODE)).len({max: NAME_MAX_LENGTH_NAME_JA});
-        // 作品名カナ
-        colName = '作品名カナ';
-        this.req.assert('filmNameKana', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
-        this.req.assert('filmNameKana', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_NAME_JA)).len({max: NAME_MAX_LENGTH_NAME_JA});
-        // .regex(/^[ァ-ロワヲンーa-zA-Z]*$/, req.__('Message.invalid{{fieldName}}', { fieldName: '%s' })),
-        // 作品名英
-        colName = '作品名英';
-        this.req.assert('filmNameKana', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
-        this.req.assert('filmNameKana', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_NAME_EN)).len({max: NAME_MAX_LENGTH_NAME_EN});
-        // 上映時間
-        colName = '上映時間';
-        this.req.assert(
-            'filmMinutes',
-            Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_NAME_MINUTES))
-        .len({max: NAME_MAX_LENGTH_NAME_EN});
+    // private validateFormAdd(): ExpressValidator.Dictionary<ExpressValidator.MappedError> | ExpressValidator.MappedError[] {
+    //     // 作品コード
+    //     let colName: string = '作品コード';
+    //     this.req.assert('filmCode', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
+    //     this.req.assert('filmCode', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_CODE)).len({max: NAME_MAX_LENGTH_CODE});
+    //     //.regex(/^[ -\~]+$/, req.__('Message.invalid{{fieldName}}', { fieldName: '%s' })),
+    //     // 作品名
+    //     colName = '作品名';
+    //     this.req.assert('filmNameJa', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
+    //     this.req.assert('filmNameJa', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_CODE)).len({max: NAME_MAX_LENGTH_NAME_JA});
+    //     // 作品名カナ
+    //     colName = '作品名カナ';
+    //     this.req.assert('filmNameKana', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
+//     this.req.assert('filmNameKana', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_NAME_JA)).len({max: NAME_MAX_LENGTH_NAME_JA});
+    //     // .regex(/^[ァ-ロワヲンーa-zA-Z]*$/, req.__('Message.invalid{{fieldName}}', { fieldName: '%s' })),
+    //     // 作品名英
+    //     colName = '作品名英';
+    //     this.req.assert('filmNameKana', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
+//     this.req.assert('filmNameKana', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_NAME_EN)).len({max: NAME_MAX_LENGTH_NAME_EN});
+    //     // 上映時間
+    //     colName = '上映時間';
+    //     this.req.assert(
+    //         'filmMinutes',
+    //         Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_NAME_MINUTES))
+    //     .len({max: NAME_MAX_LENGTH_NAME_EN});
 
-        return this.req.validationErrors(true);
-    }
+    //     return this.req.validationErrors(true);
+    // }
 }
