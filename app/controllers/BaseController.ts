@@ -35,7 +35,7 @@ export default class BaseController {
     /**
      * ルーティング
      */
-    public router: Express.NamedRoutes;
+    //public router: Express.NamedRoutes;
 
     /**
      * レイアウトファイル
@@ -48,7 +48,7 @@ export default class BaseController {
         this.next = next;
 
         this.logger = log4js.getLogger('system');
-        this.router = this.req.app.namedRoutes;
+        //this.router = this.req.app.namedRoutes;
 
         this.res.locals.req = this.req;
         this.res.locals.moment = moment;

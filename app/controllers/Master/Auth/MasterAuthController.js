@@ -21,7 +21,6 @@ class MasterAuthController extends MasterBaseController_1.default {
     /**
      * マスタ管理ログイン
      */
-    // tslint:disable-next-line:max-func-body-length
     login() {
         this.res.locals.isValid = false;
         if (this.req.staffUser && this.req.staffUser.isAuthenticated()) {
@@ -32,17 +31,14 @@ class MasterAuthController extends MasterBaseController_1.default {
             this.req.assert('userId', Message.Common.required.replace('$fieldName$', 'ID')).notEmpty();
             this.req.assert('password', Message.Common.required.replace('$fieldName$', 'パスワード')).notEmpty();
             const errors = this.req.validationErrors(true);
-            const isValid = !errors;
-            this.res.locals.isValid = isValid;
+            this.res.locals.isValid = !errors;
             const form = {
                 userId: this.req.body.userId,
                 password: this.req.body.password
             };
             const customErrors = [];
-            if (isValid) {
-                this.res.locals.isValid = true;
+            if (this.res.locals.isValid) {
                 // ユーザー認証
-                //this.logger.debug('finding master admin... user_id:', (<any>form).userId);
                 chevre_domain_1.Models.Staff.findOne({
                     user_id: this.req.body.userId,
                     is_admin: true
