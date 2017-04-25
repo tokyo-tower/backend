@@ -1,9 +1,9 @@
+"use strict";
 /**
  * デフォルトルーター
  *
  * @ignore
  */
-"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const express = require("express");
 const IndexController = require("../controllers/index");
