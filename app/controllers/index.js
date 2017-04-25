@@ -16,3 +16,4 @@ function index(req, res, next) {
     res.render('index', { layout: false });
 }
 exports.index = index;
+//# sourceMappingURL=index.js.map

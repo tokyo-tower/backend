@@ -18,3 +18,4 @@ function index(_req, res, _next) {
     res.render('master/performance/', { layout: 'layouts/master/layout' });
 }
 exports.index = index;
+//# sourceMappingURL=performance.js.map

@@ -22,3 +22,4 @@ var Common;
     }
     Common.getMaxLength = getMaxLength;
 })(Common = exports.Common || (exports.Common = {}));
+//# sourceMappingURL=Message.js.map

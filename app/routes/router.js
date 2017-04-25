@@ -93,3 +93,4 @@ exports.default = (app) => {
     //パフォーマンス
     app.use('/master/performance', baseMiddleware, performance_1.default);
 };
+//# sourceMappingURL=router.js.map

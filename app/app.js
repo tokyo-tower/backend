@@ -101,3 +101,4 @@ app.use(notFoundHandler_1.default);
 // error handlers
 app.use(errorHandler_1.default);
 module.exports = app;
+//# sourceMappingURL=app.js.map

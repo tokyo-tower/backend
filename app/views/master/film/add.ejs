@@ -25,8 +25,8 @@
           <%- __('Master.Label.inputHankaku{{maxlength}}', { maxlength: 64 }) %>
       </p>
       <p class="error message">
-        <% if (req.form) { %>
-          <%- req.form.getErrors('filmCode')[0] %>
+        <% if (errors && errors.filmCode) { %>
+          <%- errors.filmCode.msg %>
         <% } %>
       </p>
     </div>
@@ -44,8 +44,8 @@
           <%- __('Master.Label.inputZenkaku{{maxlength}}', { maxlength: 64 }) %>
       </p>
       <p class="error message">
-        <% if (req.form) { %>
-          <%- req.form.getErrors('filmNameJa')[0] %>
+        <% if (errors && errors.filmNameJa) { %>
+          <%- errors.filmNameJa.msg %>
         <% } %>
       </p>
     </div>
@@ -63,8 +63,8 @@
           <%- __('Master.Label.inputZenkaku{{maxlength}}', { maxlength: 64 }) %>
       </p>
       <p class="error message">
-        <% if (req.form) { %>
-          <%- req.form.getErrors('filmNameKana')[0] %>
+        <% if (errors && errors.filmNameKana) { %>
+          <%- errors.filmNameKana.msg %>
         <% } %>
       </p>
     </div>
@@ -81,8 +81,8 @@
           <%- __('Master.Label.inputHankaku{{maxlength}}', { maxlength: 128 }) %>
       </p>
       <p class="error message">
-        <% if (req.form) { %>
-          <%- req.form.getErrors('filmNameEn')[0] %>
+        <% if (errors && errors.filmNameEn) { %>
+          <%- errors.filmNameEn.msg %>
         <% } %>
       </p>
     </div>
@@ -100,8 +100,8 @@
           <%- __('Master.Label.inputHankaku{{maxlength}}', { maxlength: 10 }) %>
       </p>
       <p class="error message">
-        <% if (req.form) { %>
-          <%- req.form.getErrors('filmMinutes')[0] %>
+        <% if (errors && errors.filmMinutes) { %>
+          <%- errors.filmMinutes.msg %>
         <% } %>
       </p>
     </div>
@@ -128,8 +128,8 @@
           <% } %>
       </select>
       <p class="error message">
-        <% if (req.form) { %>
-          <%- req.form.getErrors('filmRatings')[0] %>
+        <% if (errors && errors.filmRatings) { %>
+          <%- errors.filmRatings.msg %>
         <% } %>
       </p>
     </div>
@@ -154,8 +154,8 @@
           <% } %>
       </select>
       <p class="error message">
-        <% if (req.form) { %>
-          <%- req.form.getErrors('subtitleDub')[0] %>
+        <% if (errors && errors.subtitleDub) { %>
+          <%- errors.subtitleDub.msg %>
         <% } %>
       </p>
     </div>
@@ -183,8 +183,8 @@
           <% } %>
       </select>
       <p class="error message">
-        <% if (req.form) { %>
-          <%- req.form.getErrors('screeningForm')[0] %>
+        <% if (errors && errors.screeningForm) { %>
+          <%- errors.screeningForm.msg %>
         <% } %>
       </p>
     </div>

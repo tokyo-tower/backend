@@ -11,3 +11,4 @@ const performanceController = require("../controllers/Master/performance");
 const router = express_1.Router();
 router.get('', performanceController.index);
 exports.default = router;
+//# sourceMappingURL=performance.js.map
