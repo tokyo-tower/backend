@@ -1,5 +1,6 @@
 import { Models } from '@motionpicture/chevre-domain';
 import * as mongoose from 'mongoose';
+import * as Message from '../../../../common/Const/Message';
 import * as Util from '../../../../common/Util/Util';
 import masterLoginForm from '../../../forms/master/masterLoginForm';
 import MasterAdminUser from '../../../models/User/MasterAdminUser';
@@ -18,15 +19,29 @@ export default class MasterAuthController extends MasterBaseController {
     /**
      * マスタ管理ログイン
      */
+    // tslint:disable-next-line:max-func-body-length
     public login(): void {
         // 画面ID・タイトルセット
-        this.res.locals.displayId = this.req.__('Master.Title.Login.Id');
-        this.res.locals.title = this.req.__('Master.Title.Login.Name');
+        this.res.locals.displayId = 'Aa-1';
+        this.res.locals.title = 'マスタ管理ログイン';
         this.res.locals.isValid = false;
         if (this.req.staffUser && this.req.staffUser.isAuthenticated()) {
             return this.res.redirect(this.masterHome);
         }
+        const errors: any = null;
         if (this.req.method === 'POST') {
+            // this.req.assert('userId', Message.Common.required.replace('$fieldName$', 'ID')).notEmpty();
+            // this.req.assert('password', Message.Common.required.replace('$fieldName$', 'パスワード')).notEmpty();
+            // errors = this.req.validationErrors(true);
+            // if (errors) {
+            //     if ((<any>errors).userId) {
+            //         this.logger.debug((<any>errors).userId.msg);
+            //     }
+            //     if ((<any>errors).password) {
+            //         this.logger.debug((<any>errors).password.msg);
+            //     }
+            // }
+            // this.renderLogin(errors);
             masterLoginForm(this.req)(this.req, this.res, () => {
                 const form = this.req.form;
                 if (form && form.isValid) {
@@ -39,7 +54,7 @@ export default class MasterAuthController extends MasterBaseController {
                             is_admin: true
                         },
                         (findStaffErr, staff) => {
-                            if (findStaffErr) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                            if (findStaffErr) return this.next(new Error(Message.Common.unexpectedError));
                             if (!staff) {
                                 form.errors.push(
                                     this.req.__(
@@ -47,12 +62,14 @@ export default class MasterAuthController extends MasterBaseController {
                                         { fieldName: this.req.__('Form.FieldName.password') }
                                     )
                                 );
-                                this.res.render('master/auth/login');
+                                // ログイン画面遷移
+                                this.renderLogin(errors);
                             } else {
                                 // パスワードチェック
                                 if (staff.get('password_hash') !== Util.createHash((<any>form).password, staff.get('password_salt'))) {
-                                    form.errors.push(this.req.__('Master.Message.invalidUserOrPassward'));
-                                    this.res.render('master/auth/login');
+                                    form.errors.push(Message.Common.invalidUserOrPassward);
+                                    // ログイン画面遷移
+                                    this.renderLogin(errors);
                                 } else {
                                     // ログイン記憶
                                     const processRemember = (cb: (err: Error | null, token: string | null) => void) => {
@@ -80,8 +97,8 @@ export default class MasterAuthController extends MasterBaseController {
                                     };
 
                                     processRemember((processRememberErr) => {
-                                        if (!this.req.session) return this.next(new Error(this.req.__('Message.UnexpectedError')));
-                                        if (processRememberErr) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                                        if (!this.req.session) return this.next(new Error(Message.Common.unexpectedError));
+                                        if (processRememberErr) return this.next(new Error(Message.Common.unexpectedError));
                                         this.req.session[MasterAdminUser.AUTH_SESSION_NAME] = staff.toObject();
                                         this.req.session[MasterAdminUser.AUTH_SESSION_NAME].signature = (<any>form).signature;
                                         this.req.session[MasterAdminUser.AUTH_SESSION_NAME].locale = (<any>form).language;
@@ -96,24 +113,37 @@ export default class MasterAuthController extends MasterBaseController {
                         }
                     );
                 } else {
-                    this.res.render('master/auth/login');
+                    // ログイン画面遷移
+                    this.renderLogin(errors);
                 }
             });
         } else {
             this.res.locals.userId = '';
             this.res.locals.password = '';
             this.res.locals.signature = '';
-            this.res.render('master/auth/login');
+            // ログイン画面遷移
+            this.renderLogin(null);
         }
     }
 
     public logout(): void {
-        if (!this.req.session) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+        if (!this.req.session) return this.next(new Error(Message.Common.unexpectedError));
         delete this.req.session[MasterAdminUser.AUTH_SESSION_NAME];
         Models.Authentication.remove({ token: this.req.cookies.remember_master_admin }, (err) => {
             if (err) return this.next(err);
             this.res.clearCookie('remember_master_admin');
-            this.res.redirect('/master/login');
+            // ログイン画面遷移
+            this.renderLogin({});
+        });
+    }
+    /**
+     * ログイン画面遷移
+     *
+     * @param {any} errors
+     */
+    private renderLogin (errors: any): void {
+        this.res.render('master/auth/login', {
+            errors: errors
         });
     }
 }

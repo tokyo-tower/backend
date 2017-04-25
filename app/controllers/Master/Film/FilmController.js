@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
+const Message = require("../../../../common/Const/Message");
 const filmAddForm_1 = require("../../../forms/master/filmAddForm");
 const FilmModel_1 = require("../../../models/Master/FilmModel");
 const MasterBaseController_1 = require("../MasterBaseController");
@@ -25,15 +26,11 @@ class FilmController extends MasterBaseController_1.default {
      */
     add() {
         if (!this.req.staffUser)
-            return this.next(new Error(this.req.__('Message.UnexpectedError')));
+            return this.next(new Error(Message.Common.unexpectedError));
         let filmModel = new FilmModel_1.default();
-        // filmModel.displayId = this.req.__('Master.Title.Film.Add.Id');
-        // filmModel.title = this.req.__('Master.Title.Film.Name') +
-        //                   this.req.__('Master.Title.Film.Add.Name');
         // エラー時の描画のためlayout使用部分はlocals使用
-        this.res.locals.displayId = this.req.__('Master.Title.Film.Add.Id');
-        this.res.locals.title = this.req.__('Master.Title.Film.Name') +
-            this.req.__('Master.Title.Film.Add.Name');
+        this.res.locals.displayId = 'Aa-2';
+        this.res.locals.title = '作品マスタ新規登録';
         if (this.req.method === 'POST') {
             // モデルに画面入力値をセット
             filmModel = this.parseModel(filmModel);
@@ -41,9 +38,9 @@ class FilmController extends MasterBaseController_1.default {
             const form = filmAddForm_1.default(this.req);
             form(this.req, this.res, (err) => {
                 if (err)
-                    return this.next(new Error(this.req.__('Message.Expired')));
+                    return this.next(new Error(Message.Common.expired));
                 if (!this.req.form)
-                    return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                    return this.next(new Error(Message.Common.unexpectedError));
                 if (this.req.form.isValid) {
                     // 作品DB登録プロセス
                     this.processAddFilm((addFilmErr, film) => {
@@ -57,7 +54,7 @@ class FilmController extends MasterBaseController_1.default {
                         }
                         else {
                             // 作品マスタ画面遷移
-                            filmModel.message = this.req.__('Master.Message.Add');
+                            filmModel.message = Message.Common.add;
                             this.renderDisplayAdd(filmModel);
                         }
                     });
@@ -78,7 +75,7 @@ class FilmController extends MasterBaseController_1.default {
      */
     getList() {
         if (!this.req.staffUser)
-            return this.next(new Error(this.req.__('Message.UnexpectedError')));
+            return this.next(new Error(Message.Common.unexpectedError));
         // 表示件数・表示ページ
         const limit = (this.req.query.limit) ? parseInt(this.req.query.limit, DEFAULT_RADIX) : DEFAULT_LINES;
         const page = (this.req.query.page) ? parseInt(this.req.query.page, DEFAULT_RADIX) : 1;
@@ -93,6 +90,7 @@ class FilmController extends MasterBaseController_1.default {
         const filmNameEn = (this.req.query.filmNameEn) ? this.req.query.filmNameEn : null;
         // 検索条件を作成
         const conditions = {};
+        // 作品コード
         if (filmCode) {
             const key = '_id';
             conditions[key] = filmCode;
@@ -100,33 +98,27 @@ class FilmController extends MasterBaseController_1.default {
         if (createDateFrom || createDateTo) {
             const conditionsDate = {};
             const key = 'created_at';
+            // 登録日From
             if (createDateFrom) {
                 const keyFrom = '$gte';
                 conditionsDate[keyFrom] = MasterBaseController_1.default.toISOStringJapan(createDateFrom);
             }
+            // 登録日To
             if (createDateTo) {
                 const keyFrom = '$lt';
                 conditionsDate[keyFrom] = MasterBaseController_1.default.toISOStringJapan(createDateTo, 1);
             }
             conditions[key] = conditionsDate;
-            //const dateStr: string = createDateFrom.replace(/\//g, '');
-            // tslint:disable-next-line:max-line-length
-            //const date1 = moment(`${dateStr.substr(0, 4)}-${dateStr.substr(4, 2)}-${dateStr.substr(6, 2)}T00:00:00+9:00`);
-            // const date2 = MasterBaseController.toISOStringJapan(createDateFrom);
-            // conditions[key] = {
-            //     $gte: date2
-            // };
-            // conditions[key] = {
-            //     $gte: '2017-04-24T00:00:00+09:00'
-            // };
         }
-        //const createDateTo: string = (this.req.query.dateTo) ? this.req.query.dateTo : null;
+        // 作品名
         if (filmNameJa) {
             conditions['name.ja'] = MasterBaseController_1.default.getRegxForwardMatching(filmNameJa);
         }
+        // 作品名カナ
         if (filmNameKana) {
             conditions['name.kana'] = filmNameKana;
         }
+        // 作品名英
         if (filmNameEn) {
             conditions['name.en'] = MasterBaseController_1.default.getRegxForwardMatching(filmNameEn);
         }
@@ -199,12 +191,11 @@ class FilmController extends MasterBaseController_1.default {
      */
     list() {
         if (!this.req.staffUser)
-            return this.next(new Error(this.req.__('Message.UnexpectedError')));
+            return this.next(new Error(Message.Common.unexpectedError));
         const filmModel = new FilmModel_1.default();
         // エラー時の描画のためlayout使用部分はlocals使用
-        this.res.locals.displayId = this.req.__('Master.Title.Film.List.Id');
-        this.res.locals.title = this.req.__('Master.Title.Film.Name') +
-            this.req.__('Master.Title.Film.List.Name');
+        this.res.locals.displayId = 'Aa-3';
+        this.res.locals.title = '作品マスタ一覧';
         if (this.req.method === 'POST') {
             // // モデルに画面入力値をセット
             // filmModel = this.parseModel<FilmModel>(filmModel);
@@ -245,7 +236,7 @@ class FilmController extends MasterBaseController_1.default {
         const digits = 6;
         MasterBaseController_1.default.getId('filmId', digits, (err, id) => {
             if (err || !id)
-                return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                return this.next(new Error(Message.Common.unexpectedError));
             // 作品DB登録
             chevre_domain_1.Models.Film.create({
                 _id: id,

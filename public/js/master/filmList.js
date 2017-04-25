@@ -26,7 +26,7 @@ $(function(){
     function search(pageNumber) {
         conditions['page'] = pageNumber;
         var url = '/master/film/getlist';
-        alert(JSON.stringify(conditions));
+        //alert(JSON.stringify(conditions));
         $.ajax({
             dataType: 'json',
             url: url,

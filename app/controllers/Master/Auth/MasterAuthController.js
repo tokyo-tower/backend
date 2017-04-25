@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
+const Message = require("../../../../common/Const/Message");
 const Util = require("../../../../common/Util/Util");
 const masterLoginForm_1 = require("../../../forms/master/masterLoginForm");
 const MasterAdminUser_1 = require("../../../models/User/MasterAdminUser");
@@ -21,15 +22,29 @@ class MasterAuthController extends MasterBaseController_1.default {
     /**
      * マスタ管理ログイン
      */
+    // tslint:disable-next-line:max-func-body-length
     login() {
         // 画面ID・タイトルセット
-        this.res.locals.displayId = this.req.__('Master.Title.Login.Id');
-        this.res.locals.title = this.req.__('Master.Title.Login.Name');
+        this.res.locals.displayId = 'Aa-1';
+        this.res.locals.title = 'マスタ管理ログイン';
         this.res.locals.isValid = false;
         if (this.req.staffUser && this.req.staffUser.isAuthenticated()) {
             return this.res.redirect(this.masterHome);
         }
+        const errors = null;
         if (this.req.method === 'POST') {
+            // this.req.assert('userId', Message.Common.required.replace('$fieldName$', 'ID')).notEmpty();
+            // this.req.assert('password', Message.Common.required.replace('$fieldName$', 'パスワード')).notEmpty();
+            // errors = this.req.validationErrors(true);
+            // if (errors) {
+            //     if ((<any>errors).userId) {
+            //         this.logger.debug((<any>errors).userId.msg);
+            //     }
+            //     if ((<any>errors).password) {
+            //         this.logger.debug((<any>errors).password.msg);
+            //     }
+            // }
+            // this.renderLogin(errors);
             masterLoginForm_1.default(this.req)(this.req, this.res, () => {
                 const form = this.req.form;
                 if (form && form.isValid) {
@@ -41,16 +56,18 @@ class MasterAuthController extends MasterBaseController_1.default {
                         is_admin: true
                     }, (findStaffErr, staff) => {
                         if (findStaffErr)
-                            return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                            return this.next(new Error(Message.Common.unexpectedError));
                         if (!staff) {
                             form.errors.push(this.req.__('Message.invalid{{fieldName}}', { fieldName: this.req.__('Form.FieldName.password') }));
-                            this.res.render('master/auth/login');
+                            // ログイン画面遷移
+                            this.renderLogin(errors);
                         }
                         else {
                             // パスワードチェック
                             if (staff.get('password_hash') !== Util.createHash(form.password, staff.get('password_salt'))) {
-                                form.errors.push(this.req.__('Master.Message.invalidUserOrPassward'));
-                                this.res.render('master/auth/login');
+                                form.errors.push(Message.Common.invalidUserOrPassward);
+                                // ログイン画面遷移
+                                this.renderLogin(errors);
                             }
                             else {
                                 // ログイン記憶
@@ -73,9 +90,9 @@ class MasterAuthController extends MasterBaseController_1.default {
                                 };
                                 processRemember((processRememberErr) => {
                                     if (!this.req.session)
-                                        return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                                        return this.next(new Error(Message.Common.unexpectedError));
                                     if (processRememberErr)
-                                        return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                                        return this.next(new Error(Message.Common.unexpectedError));
                                     this.req.session[MasterAdminUser_1.default.AUTH_SESSION_NAME] = staff.toObject();
                                     this.req.session[MasterAdminUser_1.default.AUTH_SESSION_NAME].signature = form.signature;
                                     this.req.session[MasterAdminUser_1.default.AUTH_SESSION_NAME].locale = form.language;
@@ -89,7 +106,8 @@ class MasterAuthController extends MasterBaseController_1.default {
                     });
                 }
                 else {
-                    this.res.render('master/auth/login');
+                    // ログイン画面遷移
+                    this.renderLogin(errors);
                 }
             });
         }
@@ -97,18 +115,30 @@ class MasterAuthController extends MasterBaseController_1.default {
             this.res.locals.userId = '';
             this.res.locals.password = '';
             this.res.locals.signature = '';
-            this.res.render('master/auth/login');
+            // ログイン画面遷移
+            this.renderLogin(null);
         }
     }
     logout() {
         if (!this.req.session)
-            return this.next(new Error(this.req.__('Message.UnexpectedError')));
+            return this.next(new Error(Message.Common.unexpectedError));
         delete this.req.session[MasterAdminUser_1.default.AUTH_SESSION_NAME];
         chevre_domain_1.Models.Authentication.remove({ token: this.req.cookies.remember_master_admin }, (err) => {
             if (err)
                 return this.next(err);
             this.res.clearCookie('remember_master_admin');
-            this.res.redirect('/master/login');
+            // ログイン画面遷移
+            this.renderLogin({});
+        });
+    }
+    /**
+     * ログイン画面遷移
+     *
+     * @param {any} errors
+     */
+    renderLogin(errors) {
+        this.res.render('master/auth/login', {
+            errors: errors
         });
     }
 }

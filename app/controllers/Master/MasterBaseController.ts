@@ -19,31 +19,18 @@ export default class MasterBaseController extends BaseController {
     protected static getRegxForwardMatching(value: string): RegExp {
         return new RegExp('^' + value);
     }
-    protected static toISOStringJapan(dateStr: string, addDay: number = 0): string {
-        const m = moment(dateStr, 'YYYY/MM/DD');
-        const m2 = m.add(addDay, 'days');
-        const dateWk: string = m2.format('YYYYMMDD');
-        //const dateWk: string = dateStr.replace(/'\/'/g, '');
-        const year: string =  dateWk.substr(0, 4);
-        const month: string =  dateWk.substr(4, 2);
-        const day: string =  dateWk.substr(6, 2);
-        // tslint:disable-next-line:no-magic-numbers
-        return year + '-' + month + '-' + day + 'T00:00:00+09:00';
-    }
     /**
-     * 画面入力値のモデルセット処理
+     * DB検索用ISO日付取得
      *
-     * @param {T} model
-     * @param {mongoose.Document} fromDoc
-     * @returns {T}
+     * @param {string} dateStr
+     * @param {number} addDay
+     * @returns {string}
      */
-    // protected static copyModel<T>(model: T, fromDoc: mongoose.Document): T {
-    //     // 画面入力値をモデルにセット
-    //     Object.getOwnPropertyNames(fromDoc).forEach((propertyName) => {
-    //         (<any>model)[propertyName] = (<any>fromDoc)[propertyName];
-    //     });
-    //     return model;
-    // }
+    protected static toISOStringJapan(dateStr: string, addDay: number = 0): string {
+        const dateWk: string = moment(dateStr, 'YYYY/MM/DD').add(addDay, 'days').format('YYYYMMDD');
+        // tslint:disable-next-line:no-magic-numbers
+        return dateWk.substr(0, 4) + '-' + dateWk.substr(4, 2) + '-' + dateWk.substr(6, 2) + 'T00:00:00+09:00';
+    }
     /**
      * Id自動採番
      *

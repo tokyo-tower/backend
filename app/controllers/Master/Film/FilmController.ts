@@ -1,5 +1,6 @@
 import { Models } from '@motionpicture/chevre-domain';
 import * as mongoose from 'mongoose';
+import * as Message from '../../../../common/Const/Message';
 import filmAddForm from '../../../forms/master/filmAddForm';
 import FilmModel from '../../../models/Master/FilmModel';
 import MasterBaseController from '../MasterBaseController';
@@ -21,23 +22,19 @@ export default class FilmController extends MasterBaseController {
      * 新規登録
      */
     public add(): void {
-        if (!this.req.staffUser) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+        if (!this.req.staffUser) return this.next(new Error(Message.Common.unexpectedError));
         let filmModel: FilmModel = new FilmModel();
-        // filmModel.displayId = this.req.__('Master.Title.Film.Add.Id');
-        // filmModel.title = this.req.__('Master.Title.Film.Name') +
-        //                   this.req.__('Master.Title.Film.Add.Name');
         // エラー時の描画のためlayout使用部分はlocals使用
-        this.res.locals.displayId = this.req.__('Master.Title.Film.Add.Id');
-        this.res.locals.title = this.req.__('Master.Title.Film.Name') +
-                                this.req.__('Master.Title.Film.Add.Name');
+        this.res.locals.displayId = 'Aa-2';
+        this.res.locals.title = '作品マスタ新規登録';
         if (this.req.method === 'POST') {
             // モデルに画面入力値をセット
             filmModel = this.parseModel<FilmModel>(filmModel);
             // 検証
             const form = filmAddForm(this.req);
             form(this.req, this.res, (err) => {
-                if (err) return this.next(new Error(this.req.__('Message.Expired')));
-                if (!this.req.form) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+                if (err) return this.next(new Error(Message.Common.expired));
+                if (!this.req.form) return this.next(new Error(Message.Common.unexpectedError));
                 if (this.req.form.isValid) {
                     // 作品DB登録プロセス
                     this.processAddFilm((addFilmErr: Error | null, film: mongoose.Document | null) => {
@@ -50,7 +47,7 @@ export default class FilmController extends MasterBaseController {
                             this.next(addFilmErr);
                         } else {
                             // 作品マスタ画面遷移
-                            filmModel.message = this.req.__('Master.Message.Add');
+                            filmModel.message = Message.Common.add;
                             this.renderDisplayAdd(filmModel);
                         }
                     });
@@ -68,7 +65,7 @@ export default class FilmController extends MasterBaseController {
      * 一覧データ取得API
      */
     public getList(): void {
-        if (!this.req.staffUser) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+        if (!this.req.staffUser) return this.next(new Error(Message.Common.unexpectedError));
         // 表示件数・表示ページ
         const limit: number = (this.req.query.limit) ? parseInt(this.req.query.limit, DEFAULT_RADIX) : DEFAULT_LINES;
         const page: number = (this.req.query.page) ? parseInt(this.req.query.page, DEFAULT_RADIX) : 1;
@@ -84,6 +81,7 @@ export default class FilmController extends MasterBaseController {
 
         // 検索条件を作成
         const conditions: any = {};
+        // 作品コード
         if (filmCode) {
             const key: string = '_id';
             conditions[key] = filmCode;
@@ -91,33 +89,27 @@ export default class FilmController extends MasterBaseController {
         if (createDateFrom || createDateTo) {
             const conditionsDate: any = {};
             const key: string = 'created_at';
+            // 登録日From
             if (createDateFrom) {
                 const keyFrom = '$gte';
                 conditionsDate[keyFrom] = MasterBaseController.toISOStringJapan(createDateFrom);
             }
+            // 登録日To
             if (createDateTo) {
                 const keyFrom = '$lt';
                 conditionsDate[keyFrom] = MasterBaseController.toISOStringJapan(createDateTo, 1);
             }
             conditions[key] = conditionsDate;
-            //const dateStr: string = createDateFrom.replace(/\//g, '');
-            // tslint:disable-next-line:max-line-length
-            //const date1 = moment(`${dateStr.substr(0, 4)}-${dateStr.substr(4, 2)}-${dateStr.substr(6, 2)}T00:00:00+9:00`);
-            // const date2 = MasterBaseController.toISOStringJapan(createDateFrom);
-            // conditions[key] = {
-            //     $gte: date2
-            // };
-            // conditions[key] = {
-            //     $gte: '2017-04-24T00:00:00+09:00'
-            // };
         }
-        //const createDateTo: string = (this.req.query.dateTo) ? this.req.query.dateTo : null;
+        // 作品名
         if (filmNameJa) {
             conditions['name.ja'] = MasterBaseController.getRegxForwardMatching(filmNameJa);
         }
+        // 作品名カナ
         if (filmNameKana) {
             conditions['name.kana'] = filmNameKana;
         }
+        // 作品名英
         if (filmNameEn) {
             conditions['name.en'] = MasterBaseController.getRegxForwardMatching(filmNameEn);
         }
@@ -190,12 +182,11 @@ export default class FilmController extends MasterBaseController {
      * 一覧
      */
     public list(): void {
-        if (!this.req.staffUser) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+        if (!this.req.staffUser) return this.next(new Error(Message.Common.unexpectedError));
         const filmModel: FilmModel = new FilmModel();
         // エラー時の描画のためlayout使用部分はlocals使用
-        this.res.locals.displayId = this.req.__('Master.Title.Film.List.Id');
-        this.res.locals.title = this.req.__('Master.Title.Film.Name') +
-                                this.req.__('Master.Title.Film.List.Name');
+        this.res.locals.displayId = 'Aa-3';
+        this.res.locals.title = '作品マスタ一覧';
         if (this.req.method === 'POST') {
             // // モデルに画面入力値をセット
             // filmModel = this.parseModel<FilmModel>(filmModel);
@@ -235,7 +226,7 @@ export default class FilmController extends MasterBaseController {
     private processAddFilm(cb: (err: Error | null, film: mongoose.Document) => void): void {
         const digits: number = 6;
         MasterBaseController.getId('filmId', digits, (err, id) => {
-            if (err || !id) return this.next(new Error(this.req.__('Message.UnexpectedError')));
+            if (err || !id) return this.next(new Error(Message.Common.unexpectedError));
             // 作品DB登録
             Models.Film.create(
                 {
