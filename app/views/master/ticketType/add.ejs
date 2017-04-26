@@ -1,0 +1,167 @@
+<div class="col-sm-12 form-container">
+<% /* フォーム */ %>
+<form method="post" class="form-horizontal" >
+  <div class="menu-group">
+    <div style="padding:0px 0px 4px 10px;" >
+      <a href="/master/film/list"><%- __('Master.Label.toFilmAdd') %></a>
+    </div>
+    <% /* メッセージ */ %>
+    <% if (filmModel.message != '') { %>
+        <p class="error message">
+          <%= filmModel.message %>
+        </p>
+    <% } %>
+  </div>
+  <% /* サイト表示用券種名 */ %>
+  <div class="form-group ">
+    <label for="code" class="col-sm-2 control-label label-title">
+      サイト表示用券種名<font color="red">＊</font>
+    </label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" name="ticketNameJa" id="ticketNameJa" placeholder="" maxlength=64 value=<%= ticketType.ticketNameJa %>>
+      <p class="message">
+          全角64文字以内でご入力ください。
+      </p>
+      <p class="error message">
+        <% if (errors && errors.ticketNameJa) { %>
+          <%- errors.ticketNameJa.msg %>
+        <% } %>
+      </p>
+    </div>
+  </div>
+  <% /* サイト表示用券種名英 */ %>
+  <div class="form-group ">
+    <label for="code" class="col-sm-2 control-label label-title">
+      サイト表示用券種名英<font color="red">＊</font>
+    </label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" name="ticketNameKana" id="ticketNameKana" placeholder="" maxlength=64 value=<%= ticketType.ticketNameKana %>>
+      <p class="message">
+          全角64文字以内でご入力ください。
+      </p>
+      <p class="error message">
+        <% if (errors && errors.ticketNameKana) { %>
+          <%- errors.ticketNameKana.msg %>
+        <% } %>
+      </p>
+    </div>
+  </div>
+  <% /* 管理用券種名 */ %>
+  <div class="form-group ">
+    <label for="code" class="col-sm-2 control-label label-title">
+      管理用券種名<font color="red">＊</font>
+    </label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" name="ticketNameEn" id="ticketNameEn" placeholder="" maxlength=64 value=<%= ticketType.ticketNameEn %>>
+      <p class="message">
+          全角64文字以内でご入力ください。
+      </p>
+      <p class="error message">
+        <% if (errors && errors.ticketNameEn) { %>
+          <%- errors.ticketNameEn.msg %>
+        <% } %>
+      </p>
+    </div>
+  </div>
+  <% /* 金額 */ %>
+  <div class="form-group ">
+    <label for="code" class="col-sm-2 control-label label-title">
+      金額<font color="red">＊</font>
+    </label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" name="ticketPrice" id="ticketPrice" placeholder="" maxlength=10 value=<%= ticketType.ticketPrice %>>
+      <p class="message">
+          全角10文字以内でご入力ください。
+      </p>
+      <p class="error message">
+        <% if (errors && errors.ticketPrice) { %>
+          <%- errors.ticketPrice.msg %>
+        <% } %>
+      </p>
+    </div>
+  </div>
+  <% /* 補足説明 */ %>
+  <div class="form-group ">
+    <label for="code" class="col-sm-2 control-label label-title">
+      補足説明<font color="red">＊</font>
+    </label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" name="descriptionJa" id="descriptionJa" placeholder="" maxlength=64 value=<%= ticketType.descriptionJa %>>
+      <p class="message">
+          全角64文字以内でご入力ください。
+      </p>
+      <p class="error message">
+        <% if (errors && errors.descriptionJa) { %>
+          <%- errors.descriptionJa.msg %>
+        <% } %>
+      </p>
+    </div>
+  </div>
+  <% /* 補足説明英 */ %>
+  <div class="form-group ">
+    <label for="code" class="col-sm-2 control-label label-title">
+      補足説明英<font color="red">＊</font>
+    </label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" name="descriptionEn" id="descriptionEn" placeholder="" maxlength=64 value=<%= ticketType.descriptionEn %>>
+      <p class="message">
+          全角64文字以内でご入力ください。
+      </p>
+      <p class="error message">
+        <% if (errors && errors.descriptionEn) { %>
+          <%- errors.descriptionEn.msg %>
+        <% } %>
+      </p>
+    </div>
+  </div>
+  <% /* 入場時表示カラー */ %>
+  <div class="form-group ">
+    <label for="code" class="col-sm-2 control-label label-title">
+      入場時表示カラー<font color="red">＊</font>
+    </label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" name="indicatorColor" id="indicatorColor" placeholder="" maxlength=7 value=<%= ticketType.indicatorColor %>>
+      <p class="message">
+          全角7文字以内でご入力ください。
+      </p>
+      <p class="error message">
+        <% if (errors && errors.indicatorColor) { %>
+          <%- errors.indicatorColor.msg %>
+        <% } %>
+      </p>
+    </div>
+  </div>
+  <% /* 登録日 */ %>
+  <div class="form-group ">
+    <label for="code" class="col-sm-2 control-label label-title">
+      登録日<font color="red">＊</font>
+    </label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" name="createdAt" id="createdAt" placeholder="" maxlength=10 value=<%= ticketType.createdAt %>>
+      <p class="message">
+          全角10文字以内でご入力ください。
+      </p>
+      <p class="error message">
+        <% if (errors && errors.createdAt) { %>
+          <%- errors.createdAt.msg %>
+        <% } %>
+      </p>
+    </div>
+  </div>
+  <% /* 登録ボタン */ %>
+  <div class="form-group">
+    <div class="btn-area">
+      <a class="btn btn-ok"><span><%- __('Master.Button.Add') %></span></a>
+    </div>
+  </div>
+</form>
+</div>
+<script>
+$(function(){
+    $('.btn-ok').on('click', function(){
+        $('form').submit();
+    });
+
+});
+</script>
+

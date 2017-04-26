@@ -7,9 +7,10 @@
 import { Application, NextFunction, Request, Response } from 'express';
 import * as IndexController from '../controllers/index';
 import MasterAdminUser from '../models/User/MasterAdminUser';
-import masterRouter from './master';
 import filmRouter from './film';
+import masterRouter from './master';
 import performanceRouter from './performance';
+import ticketTypeRouter from './ticketType';
 
 export default (app: Application) => {
     app.get('/', IndexController.index);
@@ -94,6 +95,6 @@ export default (app: Application) => {
     app.use('/master/film', baseMiddleware, filmRouter);
     //パフォーマンス
     app.use('/master/performance', baseMiddleware, performanceRouter);
-
-}
-
+    //券種品
+    app.use('/master/ticketType', baseMiddleware, ticketTypeRouter);
+};
