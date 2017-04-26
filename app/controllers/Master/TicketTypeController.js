@@ -132,6 +132,7 @@ class TicketTypeController extends MasterBaseController_1.default {
             results: [],
             count: 0
         };
+        // @@@@@@@@@@@@@@ ticketTypeに変更 @@@@@@@@@@@@@
         chevre_domain_1.Models.Film.find(conditions)
             .skip(limit * (page - 1))
             .limit(limit)
@@ -147,11 +148,8 @@ class TicketTypeController extends MasterBaseController_1.default {
                         _id: ticket._id,
                         ticketCode: ticket._id,
                         ticketNameJa: ticket.name.ja,
-                        ticketNameKana: ticket.name.ja,
-                        ticketNameEn: ticket.name.en,
-                        ticketMinutes: ticket.minutes,
-                        subtitleDub: '字幕',
-                        screeningForm: '通常'
+                        managementTypeName: '管理用券種名',
+                        ticketCharge: ticket.minutes
                     };
                 });
                 this.res.json({

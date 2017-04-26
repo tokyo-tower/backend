@@ -1,3 +1,7 @@
+<link href="/css/bootstrap.colorpickersliders.css" rel="stylesheet">
+<script src="/js/tinycolor-min.js"></script>
+<script src="/js/bootstrap.colorpickersliders.js"></script>
+<script src="/js/master/ticketTypeAdd.js"></script>
 <div class="col-sm-12 form-container">
 <% /* フォーム */ %>
 <form method="post" class="form-horizontal" >
@@ -98,7 +102,7 @@
     </div>
   </div>
   <% /* 補足説明 */ %>
-  <div class="form-group ">
+  <div class="form-group">
     <label for="descriptionJa" class="col-sm-2 control-label label-title">
       補足説明
     </label>
@@ -131,21 +135,14 @@
       </p>
     </div>
   </div>
-  <% /* 入場時表示カラー */ %>
+
   <div class="form-group ">
     <label for="indicatorColor" class="col-sm-2 control-label label-title">
       入場時表示カラー
     </label>
     <div class="col-sm-10">
-      <input type="text" class="form-control" name="indicatorColor" id="indicatorColor" placeholder="" maxlength=7 value=<%= ticketTypeModel.indicatorColor %>>
-      <p class="message">
-          全角7文字以内でご入力ください。
-      </p>
-      <p class="error message">
-        <% if (errors && errors.indicatorColor) { %>
-          <%- errors.indicatorColor.msg %>
-        <% } %>
-      </p>
+      <input type="text" class="form-control cp-preventtouchkeyboardonshow" name="indicatorColor" id="indicatorColor" style="background: rgb(0, 0, 255); color: rgb(255, 255, 255);" title="" >
+      <input type="hidden" name="hiddenColor" id="hiddenColor">
     </div>
   </div>
   <% /* 登録ボタン */ %>
@@ -161,7 +158,6 @@ $(function(){
     $('.btn-ok').on('click', function(){
         $('form').submit();
     });
-
 });
 </script>
 

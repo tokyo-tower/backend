@@ -127,6 +127,7 @@ export default class TicketTypeController extends MasterBaseController {
             results: [],
             count: 0
         };
+        // @@@@@@@@@@@@@@ ticketTypeに変更 @@@@@@@@@@@@@
         Models.Film.find( conditions )
             .skip(limit * (page - 1))
             .limit(limit)
@@ -141,11 +142,8 @@ export default class TicketTypeController extends MasterBaseController {
                             _id: ticket._id,
                             ticketCode: ticket._id,
                             ticketNameJa: ticket.name.ja,
-                            ticketNameKana: ticket.name.ja,
-                            ticketNameEn: ticket.name.en,
-                            ticketMinutes: ticket.minutes,
-                            subtitleDub: '字幕',
-                            screeningForm: '通常'
+                            managementTypeName: '管理用券種名',
+                            ticketCharge: ticket.minutes
                         };
                     });
                     this.res.json({
