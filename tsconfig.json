@@ -20,7 +20,7 @@
         "newLine": "CRLF",
         "noImplicitAny": true,
         "noImplicitReturns": true,
-        //"noImplicit": true,
+        "noImplicitThis": true,
         "noImplicitUseStrict": false,
         "noLib": false,
         "noResolve": false,
