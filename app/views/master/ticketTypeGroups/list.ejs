@@ -1,0 +1,85 @@
+<link href="/css/simplePagination.css" rel="stylesheet">
+<script src="/js/jquery.simplePagination.js"></script>
+<script src="/js/master/commonMaster.js"></script>
+<script src="/js/master/commonMasterList.js"></script>
+<script src="/js/master/ticketTypeGroupsList.js"></script>
+<% /* フォーム */ %>
+<div class="col-sm-12 form-container search">
+  <form method="post" class="form-horizontal" >
+    <% /* 共通Hiddenコントロール */ %>
+    <%- include('../../common/master/_hidden') %>
+    <div class="menu-group">
+      <% /* メッセージ */ %>
+      <% if (ticketTypeGroupsModel.message != '') { %>
+          <p class="error message">
+            <%= ticketTypeGroupsModel.message %>
+          </p>
+      <% } %>
+    </div>
+    <% /* 券種グループコード */ %>
+    <div class="form-group ">
+      <label for="ticketGroupCode" class="col-sm-2 control-label label-title">
+      券種グループコード
+      </label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" name="ticketGroupCode" id="ticketGroupCode" placeholder="" maxlength=64 value=<%= ticketTypeGroupsModel.ticketGroupCode %>>
+      </div>
+    </div>
+    <% /* 券種グループ名 */ %>
+    <div class="form-group ">
+      <label for="ticketGroupNameJa" class="col-sm-2 control-label label-title">
+      券種グループ名
+      </label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" name="ticketGroupNameJa" id="managementTypeName" placeholder="" maxlength=64 value=<%= ticketTypeGroupsModel.ticketGroupNameJa %>>
+      </div>
+    </div>
+    <% /* 検索ボタン */ %>
+    <div class="form-group">
+      <div class="btn-area">
+        <a class="btn btn-ok search"><span>検索する</span></a>
+      </div>
+      <div class="btn-area">
+        <a class='reset-condition'><span>検索内容リセット</span></a>
+      </div>
+    </div>
+  </form>
+</div>
+<% /* 一覧 */ %>
+<div class="col-sm-12 form-container search">
+  <div>
+    <p id="searchedCount" style="display:none;">
+      検索結果$searched_count$件 
+    </p>
+  </div>
+  <div id="list" class="table-responsive" style="display:none;">
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr style="background-color:#d9d9d9">
+          <th>券種グループコード</th>
+          <th>券種グループ名</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr id="templateRow" _id="$_id$">
+          <% /* 券種グループコード */ %>
+          <td name="ticketGroupCode">$ticketCode$</td>
+          <% /* 券種グループ名 */ %>
+          <td name="ticketGroupNameJa">$ticketNameJa$</td>
+          <% /* 編集ボタン */ %>
+          <td name="edit" class="center">
+            <div class="btn-area">
+              <a class="btn btn-list edit">
+                <span>編集</span>
+              </a>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div id="pager" class="div_pager_parent"></div>  
+</div>
+<% /* 共通Loading */ %>
+<%- include('../../common/master/_loading') %>
