@@ -1,5 +1,5 @@
 import { Models } from '@motionpicture/chevre-domain';
-import * as mongoose from 'mongoose';
+//import * as mongoose from 'mongoose';
 import * as Message from '../../../common/Const/Message';
 import TicketTypeModel from '../../models/Master/TicketTypeModel';
 import MasterBaseController from './MasterBaseController';
@@ -38,20 +38,20 @@ export default class TicketTypeController extends MasterBaseController {
             const isValid: boolean = !errors;
             // 検証
             if (isValid) {
-                // 券種DB登録プロセス
-                this.processAddTicketType(ticketTypeModel, (addErr: Error | null, ticketType: mongoose.Document | null) => {
-                    if (ticketType) {
-                        //ticketTypeModel.ticketNameJa = '';
-                    }
-                    if (addErr) {
-                        // エラー画面遷移
-                        this.next(addErr);
-                    } else {
-                        // 券種マスタ画面遷移
-                        ticketTypeModel.message = Message.Common.add;
-                        this.renderDisplayAdd(ticketTypeModel, errors);
-                    }
-                });
+                // // 券種DB登録プロセス
+                // this.processAddTicketType(ticketTypeModel, (addErr: Error | null, ticketType: mongoose.Document | null) => {
+                //     if (ticketType) {
+                //         //ticketTypeModel.ticketNameJa = '';
+                //     }
+                //     if (addErr) {
+                //         // エラー画面遷移
+                //         this.next(addErr);
+                //     } else {
+                //         // 券種マスタ画面遷移
+                //         ticketTypeModel.message = Message.Common.add;
+                //         this.renderDisplayAdd(ticketTypeModel, errors);
+                //     }
+                // });
             } else {
                 // 券種マスタ画面遷移
                 this.renderDisplayAdd(ticketTypeModel, errors);
@@ -172,30 +172,30 @@ export default class TicketTypeController extends MasterBaseController {
      *
      * @param {TicketTypeModel} ticketTypeModel
      */
-    private processAddTicketType(ticketTypeModel: TicketTypeModel, cb: (err: Error | null, ticket: mongoose.Document) => void): void {
-        const digits: number = 6;
-        MasterBaseController.getId('ticketTypeId', digits, (err, id) => {
-            if (err || !id) return this.next(new Error(Message.Common.unexpectedError));
-            // 券種DB登録
-            Models.Film.create(
-                {
-                    _id: id,
-                    name: {
-                        ja: ticketTypeModel.ticketNameJa,
-                        en: ticketTypeModel.managementTypeName
-                    },
-                    is_mx4d: true
-                },
-                (errDb: any, ticketType: any) => {
-                    if (errDb) {
-                        cb(errDb, ticketType);
-                    } else {
-                        cb(null, ticketType);
-                    }
-                }
-            );
-        });
-    }
+    //private processAddTicketType(ticketTypeModel: TicketTypeModel, cb: (err: Error | null, ticket: mongoose.Document) => void): void {
+        // const digits: number = 6;
+        // MasterBaseController.getId('ticketTypeId', digits, (err, id) => {
+        //     if (err || !id) return this.next(new Error(Message.Common.unexpectedError));
+        //     // 券種DB登録
+        //     Models.Film.create(
+        //         {
+        //             _id: id,
+        //             name: {
+        //                 ja: ticketTypeModel.ticketNameJa,
+        //                 en: ticketTypeModel.managementTypeName
+        //             },
+        //             is_mx4d: true
+        //         },
+        //         (errDb: any, ticketType: any) => {
+        //             if (errDb) {
+        //                 cb(errDb, ticketType);
+        //             } else {
+        //                 cb(null, ticketType);
+        //             }
+        //         }
+        //     );
+        // });
+    //}
     /**
      * 券種マスタ新規登録画面遷移
      *
@@ -231,16 +231,25 @@ export default class TicketTypeController extends MasterBaseController {
     private validateFormAdd(): ExpressValidator.Dictionary<ExpressValidator.MappedError> | ExpressValidator.MappedError[] {
         // 券種コード
         let colName: string = '券種コード';
-        this.req.assert('ticketTypeCode', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
-        this.req.assert('ticketTypeCode', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_CODE)).len({max: NAME_MAX_LENGTH_CODE});
-        // 券種名
-        colName = '券種名';
+        this.req.assert('ticketCode', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
+        this.req.assert('ticketCode', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_CODE)).len({max: NAME_MAX_LENGTH_CODE});
+        // サイト表示用券種名
+        colName = 'サイト表示用券種名';
         this.req.assert('ticketNameJa', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
         this.req.assert('ticketNameJa', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_CODE)).len({max: NAME_MAX_LENGTH_NAME_JA});
-        // 券種名英
-        colName = '券種名英';
+        // サイト表示用券種名英
+        colName = 'サイト表示用券種名英';
         this.req.assert('ticketNameEn', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
         this.req.assert('ticketNameEn', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_NAME_EN)).len({max: NAME_MAX_LENGTH_NAME_EN});
+        // 管理用券種名
+        colName = '管理用券種名';
+        this.req.assert('managementTypeName', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
+        this.req.assert('managementTypeName',
+                        Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_NAME_EN)).len({max: NAME_MAX_LENGTH_NAME_JA});
+        // 金額
+        colName = '金額';
+        this.req.assert('ticketCharge', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
+        this.req.assert('ticketCharge', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_NAME_EN)).len({max: 10});
         // 検証実行
         return this.req.validationErrors(true);
     }

@@ -52,34 +52,34 @@
   </div>
   <% /* サイト表示用券種名英 */ %>
   <div class="form-group ">
-    <label for="managementTypeName" class="col-sm-2 control-label label-title">
+    <label for="ticketNameEn" class="col-sm-2 control-label label-title">
       サイト表示用券種名英<font color="red">＊</font>
     </label>
     <div class="col-sm-10">
-      <input type="text" class="form-control" name="managementTypeName" id="managementTypeName" placeholder="" maxlength=64 value=<%= ticketTypeModel.ticketNameKana %>>
+      <input type="text" class="form-control" name="ticketNameEn" id="ticketNameEn" placeholder="" maxlength=64 value=<%= ticketTypeModel.ticketNameKana %>>
       <p class="message">
           半角64文字以内でご入力ください。
       </p>
       <p class="error message">
-        <% if (errors && errors.managementTypeName) { %>
-          <%- errors.managementTypeName.msg %>
+        <% if (errors && errors.ticketNameEn) { %>
+          <%- errors.ticketNameEn.msg %>
         <% } %>
       </p>
     </div>
   </div>
   <% /* 管理用券種名 */ %>
   <div class="form-group ">
-    <label for="ticketNameEn" class="col-sm-2 control-label label-title">
+    <label for="managementTypeName" class="col-sm-2 control-label label-title">
       管理用券種名<font color="red">＊</font>
     </label>
     <div class="col-sm-10">
-      <input type="text" class="form-control" name="ticketNameEn" id="ticketNameEn" placeholder="" maxlength=64 value=<%= ticketTypeModel.ticketNameEn %>>
+      <input type="text" class="form-control" name="managementTypeName" id="managementTypeName" placeholder="" maxlength=64 value=<%= ticketTypeModel.ticketNameEn %>>
       <p class="message">
           全角64文字以内でご入力ください。
       </p>
       <p class="error message">
-        <% if (errors && errors.ticketNameEn) { %>
-          <%- errors.ticketNameEn.msg %>
+        <% if (errors && errors.managementTypeName) { %>
+          <%- errors.managementTypeName.msg %>
         <% } %>
       </p>
     </div>
