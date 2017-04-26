@@ -9,21 +9,25 @@
 import MasterBaseModel from './MasterBaseModel';
 export default class TicketTypeModel extends MasterBaseModel {
     /**
+     * ticketCode: 券種コード(string(64))
+     */
+    public ticketCode: string = '';
+    /**
      * ticketNameJa: サイト表示用券種名(string(64))
      */
     public ticketNameJa: string = '';
     /**
-     * ticketNameKana: サイト表示用券種名英(string(64))
-     */
-    public ticketNameKana: string = '';
-    /**
-     * ticketNameEn: 管理用券種名(string(64))
+     * ticketNameEn: サイト表示用券種名英(string(64))
      */
     public ticketNameEn: string = '';
     /**
-     * ticketPrice: 金額(number(10))
+     * managementTypeName: 管理用券種名(string(64))
      */
-    public ticketPrice: number;
+    public managementTypeName: string = '';
+    /**
+     * ticketCharge: 金額(number(10))
+     */
+    public ticketCharge: number;
     /**
      * descriptionJa: 補足説明(string(64))
      */

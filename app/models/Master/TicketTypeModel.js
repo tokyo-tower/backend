@@ -13,17 +13,21 @@ class TicketTypeModel extends MasterBaseModel_1.default {
     constructor() {
         super(...arguments);
         /**
+         * ticketCode: 券種コード(string(64))
+         */
+        this.ticketCode = '';
+        /**
          * ticketNameJa: サイト表示用券種名(string(64))
          */
         this.ticketNameJa = '';
         /**
-         * ticketNameKana: サイト表示用券種名英(string(64))
-         */
-        this.ticketNameKana = '';
-        /**
-         * ticketNameEn: 管理用券種名(string(64))
+         * ticketNameEn: サイト表示用券種名英(string(64))
          */
         this.ticketNameEn = '';
+        /**
+         * managementTypeName: 管理用券種名(string(64))
+         */
+        this.managementTypeName = '';
         /**
          * descriptionJa: 補足説明(string(64))
          */

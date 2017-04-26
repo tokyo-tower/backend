@@ -15,7 +15,7 @@ router.all('/add',
 // 券種一覧
 router.all('/list',
            (req: Request, res: Response, next: NextFunction) => { (new TicketTypeController(req, res, next)).list(); });
-// router.all('/getlist',
-//     (req: Request, res: Response, next: NextFunction) => { (new TicketTypeController(req, res, next)).getList(); });
+router.all('/getlist',
+           (req: Request, res: Response, next: NextFunction) => { (new TicketTypeController(req, res, next)).getList(); });
 
 export default router;

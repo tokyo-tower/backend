@@ -30,7 +30,7 @@ $(function(){
     //--------------------------------
     function search(pageNumber) {
         conditions['page'] = pageNumber;
-        var url = '/master/film/getlist';
+        var url = '/master/tickettype/getlist';
         //alert(JSON.stringify(conditions));
         $.ajax({
             dataType: 'json',
@@ -43,7 +43,6 @@ $(function(){
             }
         }).done(function(data) {
             if (data.success) {
-                //alert("success:" + data.count);
                 var dataCount = (data.count) ? (data.count) : 0;
                 // 一覧表示
                 if ($.CommonMasterList.bind(data.results, dataCount, pageNumber)) {
@@ -61,4 +60,3 @@ $(function(){
         });
     }
 });
-

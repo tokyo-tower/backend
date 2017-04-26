@@ -3,7 +3,7 @@
 <form method="post" class="form-horizontal" >
   <div class="menu-group">
     <div style="padding:0px 0px 4px 10px;" >
-      <a href="/master/film/list"><%- __('Master.Label.toFilmAdd') %></a>
+      <a href="/master/tickettype/list">券種マスタ一覧へ</a>
     </div>
     <% /* メッセージ */ %>
     <% if (ticketTypeModel.message != '') { %>
@@ -12,13 +12,30 @@
         </p>
     <% } %>
   </div>
+  <% /* 券種コード */ %>
+  <div class="form-group ">
+    <label for="ticketCode" class="col-sm-2 control-label label-title">
+      券種コード<font color="red">＊</font>
+    </label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" name="ticketCode" id="ticketCode" placeholder="" maxlength=64 value=<%= ticketTypeModel.ticketCode %>>
+      <p class="message">
+          半角64文字以内でご入力ください。
+      </p>
+      <p class="error message">
+        <% if (errors && errors.ticketCode) { %>
+          <%- errors.ticketCode.msg %>
+        <% } %>
+      </p>
+    </div>
+  </div>
   <% /* サイト表示用券種名 */ %>
   <div class="form-group ">
-    <label for="code" class="col-sm-2 control-label label-title">
+    <label for="ticketNameJa" class="col-sm-2 control-label label-title">
       サイト表示用券種名<font color="red">＊</font>
     </label>
     <div class="col-sm-10">
-      <input type="text" class="form-control" name="ticketNameJa" id="ticketNameJa" placeholder="" maxlength=64 value=<%= ticketType.ticketNameJa %>>
+      <input type="text" class="form-control" name="ticketNameJa" id="ticketNameJa" placeholder="" maxlength=64 value=<%= ticketTypeModel.ticketNameJa %>>
       <p class="message">
           全角64文字以内でご入力ください。
       </p>
@@ -31,28 +48,28 @@
   </div>
   <% /* サイト表示用券種名英 */ %>
   <div class="form-group ">
-    <label for="code" class="col-sm-2 control-label label-title">
+    <label for="managementTypeName" class="col-sm-2 control-label label-title">
       サイト表示用券種名英<font color="red">＊</font>
     </label>
     <div class="col-sm-10">
-      <input type="text" class="form-control" name="ticketNameKana" id="ticketNameKana" placeholder="" maxlength=64 value=<%= ticketType.ticketNameKana %>>
+      <input type="text" class="form-control" name="managementTypeName" id="managementTypeName" placeholder="" maxlength=64 value=<%= ticketTypeModel.ticketNameKana %>>
       <p class="message">
-          全角64文字以内でご入力ください。
+          半角64文字以内でご入力ください。
       </p>
       <p class="error message">
-        <% if (errors && errors.ticketNameKana) { %>
-          <%- errors.ticketNameKana.msg %>
+        <% if (errors && errors.managementTypeName) { %>
+          <%- errors.managementTypeName.msg %>
         <% } %>
       </p>
     </div>
   </div>
   <% /* 管理用券種名 */ %>
   <div class="form-group ">
-    <label for="code" class="col-sm-2 control-label label-title">
+    <label for="ticketNameEn" class="col-sm-2 control-label label-title">
       管理用券種名<font color="red">＊</font>
     </label>
     <div class="col-sm-10">
-      <input type="text" class="form-control" name="ticketNameEn" id="ticketNameEn" placeholder="" maxlength=64 value=<%= ticketType.ticketNameEn %>>
+      <input type="text" class="form-control" name="ticketNameEn" id="ticketNameEn" placeholder="" maxlength=64 value=<%= ticketTypeModel.ticketNameEn %>>
       <p class="message">
           全角64文字以内でご入力ください。
       </p>
@@ -65,28 +82,28 @@
   </div>
   <% /* 金額 */ %>
   <div class="form-group ">
-    <label for="code" class="col-sm-2 control-label label-title">
+    <label for="ticketCharge" class="col-sm-2 control-label label-title">
       金額<font color="red">＊</font>
     </label>
     <div class="col-sm-10">
-      <input type="text" class="form-control" name="ticketPrice" id="ticketPrice" placeholder="" maxlength=10 value=<%= ticketType.ticketPrice %>>
+      <input type="text" class="form-control" name="ticketCharge" id="ticketCharge" placeholder="" maxlength=10 value=<%= ticketTypeModel.ticketCharge %>>
       <p class="message">
-          全角10文字以内でご入力ください。
+          半角10文字以内でご入力ください。
       </p>
       <p class="error message">
-        <% if (errors && errors.ticketPrice) { %>
-          <%- errors.ticketPrice.msg %>
+        <% if (errors && errors.ticketCharge) { %>
+          <%- errors.ticketCharge.msg %>
         <% } %>
       </p>
     </div>
   </div>
   <% /* 補足説明 */ %>
   <div class="form-group ">
-    <label for="code" class="col-sm-2 control-label label-title">
-      補足説明<font color="red">＊</font>
+    <label for="descriptionJa" class="col-sm-2 control-label label-title">
+      補足説明
     </label>
     <div class="col-sm-10">
-      <input type="text" class="form-control" name="descriptionJa" id="descriptionJa" placeholder="" maxlength=64 value=<%= ticketType.descriptionJa %>>
+      <input type="text" class="form-control" name="descriptionJa" id="descriptionJa" placeholder="" maxlength=64 value=<%= ticketTypeModel.descriptionJa %>>
       <p class="message">
           全角64文字以内でご入力ください。
       </p>
@@ -99,13 +116,13 @@
   </div>
   <% /* 補足説明英 */ %>
   <div class="form-group ">
-    <label for="code" class="col-sm-2 control-label label-title">
-      補足説明英<font color="red">＊</font>
+    <label for="descriptionEn" class="col-sm-2 control-label label-title">
+      補足説明英
     </label>
     <div class="col-sm-10">
-      <input type="text" class="form-control" name="descriptionEn" id="descriptionEn" placeholder="" maxlength=64 value=<%= ticketType.descriptionEn %>>
+      <input type="text" class="form-control" name="descriptionEn" id="descriptionEn" placeholder="" maxlength=64 value=<%= ticketTypeModel.descriptionEn %>>
       <p class="message">
-          全角64文字以内でご入力ください。
+          半角64文字以内でご入力ください。
       </p>
       <p class="error message">
         <% if (errors && errors.descriptionEn) { %>
@@ -116,11 +133,11 @@
   </div>
   <% /* 入場時表示カラー */ %>
   <div class="form-group ">
-    <label for="code" class="col-sm-2 control-label label-title">
-      入場時表示カラー<font color="red">＊</font>
+    <label for="indicatorColor" class="col-sm-2 control-label label-title">
+      入場時表示カラー
     </label>
     <div class="col-sm-10">
-      <input type="text" class="form-control" name="indicatorColor" id="indicatorColor" placeholder="" maxlength=7 value=<%= ticketType.indicatorColor %>>
+      <input type="text" class="form-control" name="indicatorColor" id="indicatorColor" placeholder="" maxlength=7 value=<%= ticketTypeModel.indicatorColor %>>
       <p class="message">
           全角7文字以内でご入力ください。
       </p>
@@ -131,27 +148,10 @@
       </p>
     </div>
   </div>
-  <% /* 登録日 */ %>
-  <div class="form-group ">
-    <label for="code" class="col-sm-2 control-label label-title">
-      登録日<font color="red">＊</font>
-    </label>
-    <div class="col-sm-10">
-      <input type="text" class="form-control" name="createdAt" id="createdAt" placeholder="" maxlength=10 value=<%= ticketType.createdAt %>>
-      <p class="message">
-          全角10文字以内でご入力ください。
-      </p>
-      <p class="error message">
-        <% if (errors && errors.createdAt) { %>
-          <%- errors.createdAt.msg %>
-        <% } %>
-      </p>
-    </div>
-  </div>
   <% /* 登録ボタン */ %>
   <div class="form-group">
     <div class="btn-area">
-      <a class="btn btn-ok"><span><%- __('Master.Button.Add') %></span></a>
+      <a class="btn btn-ok"><span>登録する</span></a>
     </div>
   </div>
 </form>

@@ -13,7 +13,6 @@ const router = express_1.Router();
 router.all('/add', (req, res, next) => { (new TicketTypeController_1.default(req, res, next)).add(); });
 // 券種一覧
 router.all('/list', (req, res, next) => { (new TicketTypeController_1.default(req, res, next)).list(); });
-// router.all('/getlist',
-//     (req: Request, res: Response, next: NextFunction) => { (new TicketTypeController(req, res, next)).getList(); });
+router.all('/getlist', (req, res, next) => { (new TicketTypeController_1.default(req, res, next)).getList(); });
 exports.default = router;
 //# sourceMappingURL=ticketType.js.map
