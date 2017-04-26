@@ -9,9 +9,10 @@ import TicketTypeController from '../controllers/Master/TicketTypeController';
 
 const router = Router();
 
-// 作品登録・一覧 'master.film.add' 'master.film.list' 'master.film.getlist'
+// 券種登録
 router.all('/add',
            (req: Request, res: Response, next: NextFunction) => { (new TicketTypeController(req, res, next)).add(); });
+// 券種一覧
 router.all('/list',
            (req: Request, res: Response, next: NextFunction) => { (new TicketTypeController(req, res, next)).list(); });
 // router.all('/getlist',

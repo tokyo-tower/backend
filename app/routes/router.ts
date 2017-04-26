@@ -96,5 +96,5 @@ export default (app: Application) => {
     //パフォーマンス
     app.use('/master/performance', baseMiddleware, performanceRouter);
     //券種品
-    app.use('/master/ticketType', baseMiddleware, ticketTypeRouter);
+    app.use('/master/tickettype', baseMiddleware, ticketTypeRouter);
 };

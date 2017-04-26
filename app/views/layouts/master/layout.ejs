@@ -30,7 +30,7 @@
             </p>
           </div>
           <div class="col-sm-10"  style="padding-top:10px;">
-            <div><%= __('Master.SystemName') %></div>
+            <div>マスタ管理</div>
             <div><%= title %></div>
           </div>
           <div class="col-sm-1 hidden-xs">
@@ -51,32 +51,32 @@
           </div>
           <% /*作品マスタ*/ %>
           <div class="menu-group">
-            <div><%= __('Master.Title.Film.Name') %></div>
-            <div id="Aa-2"><a href="/master/film/add"><%= __('Master.Title.Film.Add.Name') %></a></div>
-            <div id="Aa-3"><a href="/master/film/list"><%= __('Master.Title.Film.List.Name') %></a></div>
+            <div>作品マスタ</div>
+            <div id="Aa-2"><a href="/master/film/add">新規登録</a></div>
+            <div id="Aa-3"><a href="/master/film/list">一覧</a></div>
           </div>
           <% /*パフォーマンスマスタ*/ %>
           <div class="menu-group">
-            <div><%= __('Master.Title.Performance.Name') %></div>
-            <div id="Aa-4"><a href='/master/performance'><%= __('Master.Title.Performance.Add.Name') %></a></div>
+            <div>パフォーマンスマスタ</div>
+            <div id="Aa-4"><a href='/master/performance'>新規登録/一覧</a></div>
           </div>
           <% /*券種マスタ*/ %>
           <div class="menu-group">
-            <div><%= __('Master.Title.TicketType.Name') %></div>
-            <div id="Aa-5"><a href=''><%= __('Master.Title.TicketType.Add.Name') %></a></div>
-            <div id="Aa-6"><a href=''><%= __('Master.Title.TicketType.List.Name') %></a></div>
+            <div>券種マスタ</div>
+            <div id="Aa-5"><a href='/master/tickettype/add'>新規登録</a></div>
+            <div id="Aa-6"><a href=''>一覧</a></div>
           </div>
           <% /*券種グループマスタ*/ %>
           <div class="menu-group">
-            <div><%= __('Master.Title.TicketTypeGroup.Name') %></div>
-            <div id="Aa-7"><a href=''><%= __('Master.Title.TicketTypeGroup.Add.Name') %></a></div>
-            <div id="Aa-8"><a href=''><%= __('Master.Title.TicketTypeGroup.List.Name') %></a></div>
+            <div>券種グループマスタ</div>
+            <div id="Aa-7"><a href=''>新規登録</a></div>
+            <div id="Aa-8"><a href=''>一覧</a></div>
           </div>
           <% /*レポート*/ %>
           <div class="menu-group">
-            <div><%= __('Master.Title.Report.Name') %></div>
-            <div id="Aa-9"><a href=''><%= __('Master.Title.Report.Sales.Name') %></a></div>
-            <div id="Aa-10"><a href=''><%= __('Master.Title.Report.ByAccount.Name') %></a></div>
+            <div>レポート</div>
+            <div id="Aa-9"><a href=''>売り上げレポート出力</a></div>
+            <div id="Aa-10"><a href=''>アカウント別レポート出力</a></div>
           </div>
         </div>
         <!--右・作品マスタ新規登録-->
@@ -94,7 +94,7 @@
                     <div class="col-sm-2">
                       <a class="btn btn-logout" href="/master/logout">
                         <% /*ログアウト*/ %>
-                        <span><%= __('Button.Logout') %></span>
+                        <span>ログアウト</span>
                       </a>
                     </div>
                   </div>

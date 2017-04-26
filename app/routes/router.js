@@ -7,9 +7,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const IndexController = require("../controllers/index");
 const MasterAdminUser_1 = require("../models/User/MasterAdminUser");
-const master_1 = require("./master");
 const film_1 = require("./film");
+const master_1 = require("./master");
 const performance_1 = require("./performance");
+const ticketType_1 = require("./ticketType");
 exports.default = (app) => {
     app.get('/', IndexController.index);
     /*
@@ -92,5 +93,7 @@ exports.default = (app) => {
     app.use('/master/film', baseMiddleware, film_1.default);
     //パフォーマンス
     app.use('/master/performance', baseMiddleware, performance_1.default);
+    //券種品
+    app.use('/master/tickettype', baseMiddleware, ticketType_1.default);
 };
 //# sourceMappingURL=router.js.map
