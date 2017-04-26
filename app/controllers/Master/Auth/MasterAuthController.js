@@ -142,3 +142,4 @@ class MasterAuthController extends MasterBaseController_1.default {
     }
 }
 exports.default = MasterAuthController;
+//# sourceMappingURL=MasterAuthController.js.map

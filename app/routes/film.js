@@ -14,3 +14,4 @@ router.all('/add', (req, res, next) => { (new FilmController_1.default(req, res,
 router.all('/list', (req, res, next) => { (new FilmController_1.default(req, res, next)).list(); });
 router.all('/getlist', (req, res, next) => { (new FilmController_1.default(req, res, next)).getList(); });
 exports.default = router;
+//# sourceMappingURL=film.js.map

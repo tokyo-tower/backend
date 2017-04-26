@@ -1,9 +1,9 @@
+"use strict";
 /**
  * 共通ユーティリティ
  *
  * @namespace Util
  */
-"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const crypto = require("crypto");
 const log4js = require("log4js");
@@ -155,3 +155,4 @@ function getPrefectrues() {
     ];
 }
 exports.getPrefectrues = getPrefectrues;
+//# sourceMappingURL=Util.js.map
