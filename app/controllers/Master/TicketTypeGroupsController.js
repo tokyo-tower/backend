@@ -144,10 +144,8 @@ class TicketTypeGroupsController extends MasterBaseController_1.default {
                 const results = tickets.map((ticket) => {
                     return {
                         _id: ticket._id,
-                        ticketCode: ticket._id,
-                        ticketNameJa: ticket.name.ja,
-                        managementTypeName: '管理用券種グループ名',
-                        ticketCharge: ticket.minutes
+                        ticketGroupCode: ticket._id,
+                        ticketGroupNameJa: ticket.name.ja
                     };
                 });
                 this.res.json({
