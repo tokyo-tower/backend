@@ -1,0 +1,94 @@
+<div class="col-sm-12 form-container">
+<% /* フォーム */ %>
+<form method="post" class="form-horizontal" >
+  <div class="menu-group">
+    <div style="padding:0px 0px 4px 10px;" >
+      <a href="/master/tickettype/list">券種グループマスタ一覧へ</a>
+    </div>
+    <% /* メッセージ */ %>
+    <% if (ticketTypeGroupsModel.message != '') { %>
+        <p class="error message">
+          <%= ticketTypeGroupsModel.message %>
+        </p>
+    <% } %>
+  </div>
+  <% /* 券種グループコード */ %>
+  <div class="form-group ">
+    <label for="ticketGroupCode" class="col-sm-2 control-label label-title">
+      券種グループコード<font color="red">＊</font>
+    </label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" name="ticketGroupCode" id="ticketGroupCode" placeholder="" maxlength=64 value=<%= ticketTypeGroupsModel.ticketGroupCode %>>
+      <p class="message">
+          半角64文字以内でご入力ください。
+      </p>
+      <p class="error message">
+        <% if (errors && errors.ticketGroupCode) { %>
+          <%- errors.ticketGroupCode.msg %>
+        <% } %>
+      </p>
+    </div>
+  </div>
+  <% /* 券種グループ名 */ %>
+  <div class="form-group ">
+    <label for="ticketGroupNameJa" class="col-sm-2 control-label label-title">
+      券種グループ名<font color="red">＊</font>
+    </label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" name="ticketGroupNameJa" id="ticketGroupNameJa" placeholder="" maxlength=64 value=<%= ticketTypeGroupsModel.ticketGroupNameJa %>>
+      <p class="message">
+          全角64文字以内でご入力ください。
+      </p>
+      <p class="error message">
+        <% if (errors && errors.ticketGroupNameJa) { %>
+          <%- errors.ticketGroupNameJa.msg %>
+        <% } %>
+      </p>
+    </div>
+  </div>
+  <% /* 対象券種名 */ %>
+  <div class="form-group ">
+    <label for="targetTicketName" class="col-sm-2 control-label label-title">
+      対象券種名<font color="red">＊</font>
+    </label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" name="targetTicketName" id="targetTicketName" placeholder="" maxlength=64 value=<%= ticketTypeGroupsModel.ticketGroupNameEn %>>
+      <p class="error message">
+        <% if (errors && errors.targetTicketName) { %>
+          <%- errors.targetTicketName.msg %>
+        <% } %>
+      </p>
+    </div>
+  </div>
+  <% /* 補足説明 */ %>
+  <div class="form-group ">
+    <label for="description" class="col-sm-2 control-label label-title">
+      補足説明
+    </label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" name="description" id="description" placeholder="" maxlength=64 value=<%= ticketTypeGroupsModel.description %>>
+      <p class="message">
+          全角64文字以内でご入力ください。
+      </p>
+      <p class="error message">
+        <% if (errors && errors.description) { %>
+          <%- errors.description.msg %>
+        <% } %>
+      </p>
+    </div>
+  </div>
+  <% /* 登録ボタン */ %>
+  <div class="form-group">
+    <div class="btn-area">
+      <a class="btn btn-ok"><span>登録する</span></a>
+    </div>
+  </div>
+</form>
+</div>
+<script>
+$(function(){
+    $('.btn-ok').on('click', function(){
+        $('form').submit();
+    });
+});
+</script>

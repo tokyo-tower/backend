@@ -11,6 +11,7 @@ import filmRouter from './film';
 import masterRouter from './master';
 import performanceRouter from './performance';
 import ticketTypeRouter from './ticketType';
+import ticketTypeGroupsRouter from './ticketTypeGroups';
 
 export default (app: Application) => {
     app.get('/', IndexController.index);
@@ -95,6 +96,8 @@ export default (app: Application) => {
     app.use('/master/film', baseMiddleware, filmRouter);
     //パフォーマンス
     app.use('/master/performance', baseMiddleware, performanceRouter);
-    //券種品
+    //券種
     app.use('/master/tickettype', baseMiddleware, ticketTypeRouter);
+    //券種グループ
+    app.use('/master/tickettypegroups', baseMiddleware, ticketTypeGroupsRouter);
 };

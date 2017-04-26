@@ -11,6 +11,7 @@ const film_1 = require("./film");
 const master_1 = require("./master");
 const performance_1 = require("./performance");
 const ticketType_1 = require("./ticketType");
+const ticketTypeGroups_1 = require("./ticketTypeGroups");
 exports.default = (app) => {
     app.get('/', IndexController.index);
     /*
@@ -93,7 +94,9 @@ exports.default = (app) => {
     app.use('/master/film', baseMiddleware, film_1.default);
     //パフォーマンス
     app.use('/master/performance', baseMiddleware, performance_1.default);
-    //券種品
+    //券種
     app.use('/master/tickettype', baseMiddleware, ticketType_1.default);
+    //券種グループ
+    app.use('/master/tickettypegroups', baseMiddleware, ticketTypeGroups_1.default);
 };
 //# sourceMappingURL=router.js.map
