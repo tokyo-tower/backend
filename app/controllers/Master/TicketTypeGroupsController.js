@@ -75,33 +75,26 @@ class TicketTypeGroupsController extends MasterBaseController_1.default {
         const limit = (this.req.query.limit) ? parseInt(this.req.query.limit, DEFAULT_RADIX) : DEFAULT_LINES;
         const page = (this.req.query.page) ? parseInt(this.req.query.page, DEFAULT_RADIX) : 1;
         // 券種グループコード
-        const ticketCode = (this.req.query.ticketCode) ? this.req.query.ticketCode : null;
+        const ticketGroupCode = (this.req.query.ticketGroupCode) ? this.req.query.ticketGroupCode : null;
         // 管理用券種グループ名
-        const managementTypeName = (this.req.query.managementTypeName) ? this.req.query.managementTypeName : null;
-        // 金額
-        const ticketCharge = (this.req.query.ticketCharge) ? this.req.query.ticketCharge : null;
+        const ticketGroupNameJa = (this.req.query.ticketGroupNameJa) ? this.req.query.ticketGroupNameJa : null;
         // 検索条件を作成
         const conditions = {};
         // 券種グループコード
-        if (ticketCode) {
+        if (ticketGroupCode) {
             const key = '_id';
-            conditions[key] = ticketCode;
+            conditions[key] = ticketGroupCode;
         }
         // 管理用券種グループ名
-        if (managementTypeName) {
-            conditions['name.ja'] = MasterBaseController_1.default.getRegxForwardMatching(managementTypeName);
-        }
-        // 金額
-        if (ticketCharge) {
-            const key = 'charge';
-            conditions[key] = ticketCharge;
+        if (ticketGroupNameJa) {
+            conditions['name.ja'] = MasterBaseController_1.default.getRegxForwardMatching(ticketGroupNameJa);
         }
         const result = {
             success: false,
             results: [],
             count: 0
         };
-        chevre_domain_1.Models.Film.count(conditions, (err, count) => {
+        chevre_domain_1.Models.TicketTypeGroup.count(conditions, (err, count) => {
             if (err) {
                 this.res.json(result);
             }
@@ -130,8 +123,7 @@ class TicketTypeGroupsController extends MasterBaseController_1.default {
             results: [],
             count: 0
         };
-        // @@@@@@@@@@@@@@ ticketTypeに変更 @@@@@@@@@@@@@
-        chevre_domain_1.Models.Film.find(conditions)
+        chevre_domain_1.Models.TicketTypeGroup.find(conditions)
             .skip(limit * (page - 1))
             .limit(limit)
             .lean(true)

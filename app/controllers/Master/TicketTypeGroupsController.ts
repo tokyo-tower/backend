@@ -68,34 +68,27 @@ export default class TicketTypeGroupsController extends MasterBaseController {
         const limit: number = (this.req.query.limit) ? parseInt(this.req.query.limit, DEFAULT_RADIX) : DEFAULT_LINES;
         const page: number = (this.req.query.page) ? parseInt(this.req.query.page, DEFAULT_RADIX) : 1;
         // 券種グループコード
-        const ticketCode: string = (this.req.query.ticketCode) ? this.req.query.ticketCode : null;
+        const ticketGroupCode: string = (this.req.query.ticketGroupCode) ? this.req.query.ticketGroupCode : null;
         // 管理用券種グループ名
-        const managementTypeName: string = (this.req.query.managementTypeName) ? this.req.query.managementTypeName : null;
-        // 金額
-        const ticketCharge: string = (this.req.query.ticketCharge) ? this.req.query.ticketCharge : null;
+        const ticketGroupNameJa: string = (this.req.query.ticketGroupNameJa) ? this.req.query.ticketGroupNameJa : null;
 
         // 検索条件を作成
         const conditions: any = {};
         // 券種グループコード
-        if ( ticketCode) {
+        if ( ticketGroupCode) {
             const key: string = '_id';
-            conditions[key] = ticketCode;
+            conditions[key] = ticketGroupCode;
         }
         // 管理用券種グループ名
-        if (managementTypeName) {
-            conditions['name.ja'] = MasterBaseController.getRegxForwardMatching(managementTypeName);
-        }
-        // 金額
-        if (ticketCharge) {
-            const key: string = 'charge';
-            conditions[key] = ticketCharge;
+        if (ticketGroupNameJa) {
+            conditions['name.ja'] = MasterBaseController.getRegxForwardMatching(ticketGroupNameJa);
         }
         const result = {
             success: false,
             results: [],
             count: 0
         };
-        Models.Film.count(
+        Models.TicketTypeGroup.count(
             conditions,
             (err, count) => {
                 if (err) {
@@ -125,8 +118,7 @@ export default class TicketTypeGroupsController extends MasterBaseController {
             results: [],
             count: 0
         };
-        // @@@@@@@@@@@@@@ ticketTypeに変更 @@@@@@@@@@@@@
-        Models.Film.find( conditions )
+        Models.TicketTypeGroup.find( conditions )
             .skip(limit * (page - 1))
             .limit(limit)
             .lean(true)
