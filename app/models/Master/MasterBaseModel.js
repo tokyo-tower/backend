@@ -11,3 +11,4 @@ Object.defineProperty(exports, "__esModule", { value: true });
 class MasterBaseModel {
 }
 exports.default = MasterBaseModel;
+//# sourceMappingURL=MasterBaseModel.js.map

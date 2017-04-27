@@ -9,6 +9,9 @@ import * as performanceController from '../controllers/Master/performance';
 
 const router = Router();
 
-router.get('',　performanceController.index);
-
+router.get('', performanceController.index);
+router.post('/search', performanceController.search);
+router.post('/film/search', performanceController.filmSearch);
+router.post('/regist', performanceController.regist);
+router.post('/update', performanceController.update);
 export default router;

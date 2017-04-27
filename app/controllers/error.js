@@ -24,3 +24,4 @@ function internalServerError(res) {
     });
 }
 exports.internalServerError = internalServerError;
+//# sourceMappingURL=error.js.map

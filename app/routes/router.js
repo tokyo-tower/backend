@@ -99,3 +99,4 @@ exports.default = (app) => {
     //券種グループ
     app.use('/master/tickettypegroups', baseMiddleware, ticketTypeGroups_1.default);
 };
+//# sourceMappingURL=router.js.map

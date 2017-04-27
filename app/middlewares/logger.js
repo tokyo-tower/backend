@@ -37,3 +37,4 @@ log4js.configure({
     replaceConsole: (env === 'production') ? false : true
 });
 exports.default = log4js.connectLogger(log4js.getLogger('access'), {});
+//# sourceMappingURL=logger.js.map
