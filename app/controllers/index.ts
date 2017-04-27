@@ -6,6 +6,7 @@
 
 import * as createDebug from 'debug';
 import { NextFunction, Request, Response } from 'express';
+import { MOVED_PERMANENTLY } from 'http-status';
 
 const debug = createDebug('chevre-backend:controllers:index');
 
@@ -16,5 +17,5 @@ export function index(req: Request, res: Response, next: NextFunction) {
         return;
     }
 
-    res.render('index', {layout: false});
+    res.redirect(MOVED_PERMANENTLY, 'master/films');
 }

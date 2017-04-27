@@ -25,7 +25,7 @@ import mongooseConnectionOptions from '../mongooseConnectionOptions';
 import basicAuth from './middlewares/basicAuth';
 import benchmarks from './middlewares/benchmarks';
 import errorHandler from './middlewares/errorHandler';
-import logger from './middlewares/logger';
+import locals from './middlewares/locals';
 import notFoundHandler from './middlewares/notFoundHandler';
 import session from './middlewares/session';
 import userAuthentication from './middlewares/userAuthentication';
@@ -35,22 +35,20 @@ import authRouter from './routes/auth';
 import devRouter from './routes/dev';
 import filmRouter from './routes/film';
 import performanceRouter from './routes/performance';
-import ticketTypeRouter from './routes/ticketType';
+import router from './routes/router';
+// import ticketTypeRouter from './routes/ticketType';
 import ticketTypeGroupRouter from './routes/ticketTypeGroup';
 
 const debug = createDebug('chevre-backend:app');
 
 const app = express();
 
-if (process.env.NODE_ENV === 'development') {
-    app.use(logger); // ロガー
-}
-
 app.use(basicAuth); // ベーシック認証
 app.use(cors()); // enable All CORS Requests
 app.use(helmet());
 app.use(benchmarks); // ベンチマーク的な
 app.use(session); // セッション
+app.use(locals); // テンプレート変数
 
 if (process.env.NODE_ENV !== 'production') {
     // サーバーエラーテスト
@@ -90,10 +88,12 @@ app.use(expressValidator()); // バリデーション
 (<any>mongoose).Promise = global.Promise;
 mongoose.connect(process.env.MONGOLAB_URI, mongooseConnectionOptions);
 
-app.use(userAuthentication); // ユーザー認証
-
 // ルーティング登録の順序に注意！
 app.use(authRouter); // ログイン・ログアウト
+
+app.use(userAuthentication); // ユーザー認証
+
+app.use(router);
 app.use('/master/films', filmRouter); //作品
 app.use('/master/performances', performanceRouter); //パフォーマンス
 // app.use('/master/ticketTypes', ticketTypeRouter); //券種

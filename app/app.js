@@ -23,7 +23,7 @@ const mongooseConnectionOptions_1 = require("../mongooseConnectionOptions");
 const basicAuth_1 = require("./middlewares/basicAuth");
 const benchmarks_1 = require("./middlewares/benchmarks");
 const errorHandler_1 = require("./middlewares/errorHandler");
-const logger_1 = require("./middlewares/logger");
+const locals_1 = require("./middlewares/locals");
 const notFoundHandler_1 = require("./middlewares/notFoundHandler");
 const session_1 = require("./middlewares/session");
 const userAuthentication_1 = require("./middlewares/userAuthentication");
@@ -32,17 +32,17 @@ const auth_1 = require("./routes/auth");
 const dev_1 = require("./routes/dev");
 const film_1 = require("./routes/film");
 const performance_1 = require("./routes/performance");
+const router_1 = require("./routes/router");
+// import ticketTypeRouter from './routes/ticketType';
 const ticketTypeGroup_1 = require("./routes/ticketTypeGroup");
 const debug = createDebug('chevre-backend:app');
 const app = express();
-if (process.env.NODE_ENV === 'development') {
-    app.use(logger_1.default); // ロガー
-}
 app.use(basicAuth_1.default); // ベーシック認証
 app.use(cors()); // enable All CORS Requests
 app.use(helmet());
 app.use(benchmarks_1.default); // ベンチマーク的な
 app.use(session_1.default); // セッション
+app.use(locals_1.default); // テンプレート変数
 if (process.env.NODE_ENV !== 'production') {
     // サーバーエラーテスト
     app.get('/dev/uncaughtexception', (req) => {
@@ -73,9 +73,10 @@ app.use(expressValidator()); // バリデーション
 // Use native promises
 mongoose.Promise = global.Promise;
 mongoose.connect(process.env.MONGOLAB_URI, mongooseConnectionOptions_1.default);
-app.use(userAuthentication_1.default); // ユーザー認証
 // ルーティング登録の順序に注意！
 app.use(auth_1.default); // ログイン・ログアウト
+app.use(userAuthentication_1.default); // ユーザー認証
+app.use(router_1.default);
 app.use('/master/films', film_1.default); //作品
 app.use('/master/performances', performance_1.default); //パフォーマンス
 // app.use('/master/ticketTypes', ticketTypeRouter); //券種

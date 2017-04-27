@@ -3,7 +3,7 @@
   <div class="form-group .form-inline">
     <label for="userId" class="col-sm-3 control-label label-title">ID</label>
     <div class="col-sm-9">
-      <input type="text" name="userId" id="userId" class="form-control" value="<%- form.userId %>">
+      <input type="text" name="userId" id="userId" class="form-control" value="<%= req.body.userId %>">
       <p class="error message" style="text-align:left;">
         <% if (errors && errors.userId) { %>
           <%- errors.userId.msg %>
@@ -15,19 +15,13 @@
   <div class="form-group .form-inline">
     <label for="password" class="col-sm-3 control-label label-title">パスワード</label>
     <div class="col-sm-9">
-      <input type="password" name="password" id="password" class="form-control" value="<%- form.password %>">
+      <input type="password" name="password" id="password" class="form-control" value="<%= req.body.password %>">
       <% /* 単体チェックエラー */ %>
       <p class="error message" style="text-align:left;">
         <% if (errors && errors.password) { %>
           <%- errors.password.msg %>
         <% } %>
       </p>
-      <% /* 関連チェックエラー */ %>
-      <% if (customErrors.length > 0) { %>
-        <% customErrors.forEach(function (msg) { %>
-        <p class="error message" style="text-align:left;"><%- msg %></p>
-        <% }) %>
-      <% } %>
     </div>
   </div>
   <% /* ログインボタン */ %>

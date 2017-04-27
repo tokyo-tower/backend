@@ -10,6 +10,6 @@ const express_1 = require("express");
 const filmController = require("../controllers/master/film");
 const router = express_1.Router();
 router.all('/add', filmController.add);
-router.all('', filmController.list);
+router.all('', filmController.index);
 router.all('/getlist', filmController.getList);
 exports.default = router;

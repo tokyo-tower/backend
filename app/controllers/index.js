@@ -6,6 +6,7 @@
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 const createDebug = require("debug");
+const http_status_1 = require("http-status");
 const debug = createDebug('chevre-backend:controllers:index');
 function index(req, res, next) {
     debug('query:', req.query);
@@ -13,6 +14,6 @@ function index(req, res, next) {
         next(new Error(req.param('next')));
         return;
     }
-    res.render('index', { layout: false });
+    res.redirect(http_status_1.MOVED_PERMANENTLY, 'master/films');
 }
 exports.index = index;

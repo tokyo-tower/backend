@@ -1,5 +1,4 @@
 import * as express from 'express';
-import * as log4js from 'log4js';
 import * as moment from 'moment';
 import * as numeral from 'numeral';
 
@@ -27,10 +26,6 @@ export default class BaseController {
     public next: express.NextFunction;
 
     /**
-     * ロガー
-     */
-    public logger: log4js.Logger;
-    /**
      * ルーティング
      */
     //public router: Express.NamedRoutes;
@@ -44,8 +39,6 @@ export default class BaseController {
         this.req = req;
         this.res = res;
         this.next = next;
-
-        this.logger = log4js.getLogger('system');
 
         this.res.locals.req = this.req;
         this.res.locals.moment = moment;
