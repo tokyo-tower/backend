@@ -14,4 +14,3 @@ router.all('/login', (req, res, next) => { (new MasterAuthController_1.default(r
 //'master.logout
 router.all('/logout', (req, res, next) => { (new MasterAuthController_1.default(req, res, next)).logout(); });
 exports.default = router;
-//# sourceMappingURL=master.js.map

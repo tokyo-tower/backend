@@ -1,8 +1,0 @@
-{
-  "resolution": "main",
-  "tree": {
-    "src": "C:\\NodeApp\\CHEVRE\\backend\\definitions\\express-form.d.ts",
-    "raw": "file:./definitions/express-form.d.ts",
-    "typings": "C:\\NodeApp\\CHEVRE\\backend\\definitions\\express-form.d.ts"
-  }
-}

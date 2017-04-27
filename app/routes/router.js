@@ -1,9 +1,9 @@
+"use strict";
 /**
  * デフォルトルーター
  *
  * @ignore
  */
-"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const IndexController = require("../controllers/index");
 const MasterAdminUser_1 = require("../models/User/MasterAdminUser");
@@ -99,4 +99,3 @@ exports.default = (app) => {
     //券種グループ
     app.use('/master/tickettypegroups', baseMiddleware, ticketTypeGroups_1.default);
 };
-//# sourceMappingURL=router.js.map

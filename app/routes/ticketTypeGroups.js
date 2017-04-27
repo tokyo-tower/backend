@@ -15,4 +15,3 @@ router.all('/add', (req, res, next) => { (new TicketTypeGroupsController_1.defau
 router.all('/list', (req, res, next) => { (new TicketTypeGroupsController_1.default(req, res, next)).list(); });
 router.all('/getlist', (req, res, next) => { (new TicketTypeGroupsController_1.default(req, res, next)).getList(); });
 exports.default = router;
-//# sourceMappingURL=ticketTypeGroups.js.map

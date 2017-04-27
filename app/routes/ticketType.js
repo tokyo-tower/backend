@@ -15,4 +15,3 @@ router.all('/add', (req, res, next) => { (new TicketTypeController_1.default(req
 router.all('/list', (req, res, next) => { (new TicketTypeController_1.default(req, res, next)).list(); });
 router.all('/getlist', (req, res, next) => { (new TicketTypeController_1.default(req, res, next)).getList(); });
 exports.default = router;
-//# sourceMappingURL=ticketType.js.map

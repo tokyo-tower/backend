@@ -31,4 +31,3 @@ class TicketTypeGroupsModel extends MasterBaseModel_1.default {
     }
 }
 exports.default = TicketTypeGroupsModel;
-//# sourceMappingURL=TicketTypeGroupsModel.js.map

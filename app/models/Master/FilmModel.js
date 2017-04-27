@@ -44,4 +44,3 @@ class FilmModel extends MasterBaseModel_1.default {
     }
 }
 exports.default = FilmModel;
-//# sourceMappingURL=FilmModel.js.map
