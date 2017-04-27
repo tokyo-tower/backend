@@ -7,7 +7,7 @@
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const filmController = require("../controllers/master/film");
+const filmController = require("../../controllers/master/film");
 const router = express_1.Router();
 router.all('/add', filmController.add);
 router.all('', filmController.index);

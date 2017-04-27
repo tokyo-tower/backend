@@ -7,7 +7,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @ignore
  */
 const express_1 = require("express");
-const ticketTypeGroupsController = require("../controllers/master/ticketTypeGroup");
+const ticketTypeGroupsController = require("../../controllers/master/ticketTypeGroup");
 const router = express_1.Router();
 // 券種登録
 router.all('/add', ticketTypeGroupsController.add);

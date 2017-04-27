@@ -28,13 +28,13 @@ const notFoundHandler_1 = require("./middlewares/notFoundHandler");
 const session_1 = require("./middlewares/session");
 const userAuthentication_1 = require("./middlewares/userAuthentication");
 // ルーター
-const auth_1 = require("./routes/auth");
 const dev_1 = require("./routes/dev");
-const film_1 = require("./routes/film");
-const performance_1 = require("./routes/performance");
+const auth_1 = require("./routes/master/auth");
+const film_1 = require("./routes/master/film");
+const performance_1 = require("./routes/master/performance");
+// import ticketTypeRouter from './routes/master/ticketType';
+const ticketTypeGroup_1 = require("./routes/master/ticketTypeGroup");
 const router_1 = require("./routes/router");
-// import ticketTypeRouter from './routes/ticketType';
-const ticketTypeGroup_1 = require("./routes/ticketTypeGroup");
 const debug = createDebug('chevre-backend:app');
 const app = express();
 app.use(basicAuth_1.default); // ベーシック認証

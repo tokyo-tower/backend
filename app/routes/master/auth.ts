@@ -6,7 +6,7 @@
  */
 
 import { Router } from 'express';
-import * as masterAuthController from '../controllers/master/auth';
+import * as masterAuthController from '../../controllers/master/auth';
 
 const router = Router();
 

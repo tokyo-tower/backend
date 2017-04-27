@@ -6,7 +6,7 @@
  */
 
 import { Router } from 'express';
-import * as filmController from '../controllers/master/film';
+import * as filmController from '../../controllers/master/film';
 
 const router = Router();
 

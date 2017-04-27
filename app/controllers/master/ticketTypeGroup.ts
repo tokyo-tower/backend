@@ -7,7 +7,6 @@ import { NextFunction, Request, Response } from 'express';
 import * as mongoose from 'mongoose';
 import * as Message from '../../../common/Const/Message';
 import TicketTypeGroupsModel from '../../models/Master/TicketTypeGroupsModel';
-import * as masterBaseController from './base';
 
 // 基数
 const DEFAULT_RADIX: number = 10;
@@ -188,12 +187,10 @@ export async function findData(conditions: any, limit: number, page: number, cou
  * @returns {Promise<mongoose.Document>}
  */
 async function processAddTicketTypeGroups(ticketTypeGroupsModel: TicketTypeGroupsModel): Promise<mongoose.Document> {
-    const digits: number = 6;
-    const id = await masterBaseController.getId('ticketTypeId', digits);
     // 券種グループDB登録
     return await Models.Film.create(
         {
-            _id: id,
+            // _id:,
             name: {
                 ja: ticketTypeGroupsModel.ticketGroupNameJa,
                 en: ''

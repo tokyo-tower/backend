@@ -5,7 +5,7 @@
  * @ignore
  */
 import { Router } from 'express';
-import * as ticketTypeGroupsController from '../controllers/master/ticketTypeGroup';
+import * as ticketTypeGroupsController from '../../controllers/master/ticketTypeGroup';
 
 const router = Router();
 

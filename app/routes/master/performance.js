@@ -7,7 +7,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @ignore
  */
 const express_1 = require("express");
-const performanceController = require("../controllers/master/performance");
+const performanceController = require("../../controllers/master/performance");
 const router = express_1.Router();
 router.get('', performanceController.index);
 router.post('/search', performanceController.search);

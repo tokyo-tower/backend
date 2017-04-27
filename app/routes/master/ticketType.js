@@ -5,7 +5,7 @@
 //  * @ignore
 //  */
 // import { NextFunction, Request, Response, Router } from 'express';
-// import TicketTypeController from '../controllers/master/ticketType';
+// import TicketTypeController from '../../controllers/master/ticketType';
 // const router = Router();
 // // 券種登録
 // router.all('/add',

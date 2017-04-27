@@ -15,7 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const Message = require("../../../common/Const/Message");
 const TicketTypeGroupsModel_1 = require("../../models/Master/TicketTypeGroupsModel");
-const masterBaseController = require("./base");
 // 基数
 const DEFAULT_RADIX = 10;
 // 1ページに表示するデータ数
@@ -204,11 +203,9 @@ exports.findData = findData;
  */
 function processAddTicketTypeGroups(ticketTypeGroupsModel) {
     return __awaiter(this, void 0, void 0, function* () {
-        const digits = 6;
-        const id = yield masterBaseController.getId('ticketTypeId', digits);
         // 券種グループDB登録
         return yield chevre_domain_1.Models.Film.create({
-            _id: id,
+            // _id:,
             name: {
                 ja: ticketTypeGroupsModel.ticketGroupNameJa,
                 en: ''

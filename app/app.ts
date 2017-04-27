@@ -31,13 +31,13 @@ import session from './middlewares/session';
 import userAuthentication from './middlewares/userAuthentication';
 
 // ルーター
-import authRouter from './routes/auth';
 import devRouter from './routes/dev';
-import filmRouter from './routes/film';
-import performanceRouter from './routes/performance';
+import authRouter from './routes/master/auth';
+import filmRouter from './routes/master/film';
+import performanceRouter from './routes/master/performance';
+// import ticketTypeRouter from './routes/master/ticketType';
+import ticketTypeGroupRouter from './routes/master/ticketTypeGroup';
 import router from './routes/router';
-// import ticketTypeRouter from './routes/ticketType';
-import ticketTypeGroupRouter from './routes/ticketTypeGroup';
 
 const debug = createDebug('chevre-backend:app');
 
