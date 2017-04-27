@@ -6,9 +6,9 @@
       <a href="/master/films">作品マスタ一覧へ</a>
     </div>
     <% /* メッセージ */ %>
-    <% if (filmModel.message != '') { %>
+    <% if (message != '') { %>
         <p class="error message">
-          <%= filmModel.message %>
+          <%= message %>
         </p>
     <% } %>
   </div>
@@ -19,96 +19,96 @@
       <font color="red">＊</font>
     </label>
     <div class="col-sm-10">
-      <input type="text" class="form-control" name="filmCode" id="filmCode" placeholder="" maxlength=64 value=<%= filmModel.filmCode %>>
+      <input type="text" class="form-control" name="_id" id="_id" placeholder="" maxlength=64 value=<%= req.body._id %>>
       <p class="message">
           <% /*半角64文字以内でご入力ください。*/ %>
           半角64文字以内でご入力ください。
       </p>
       <p class="error message">
-        <% if (errors && errors.filmCode) { %>
-          <%- errors.filmCode.msg %>
+        <% if (errors && errors._id) { %>
+          <%- errors._id.msg %>
         <% } %>
       </p>
     </div>
   </div>
   <% /* 作品名 */ %>
   <div class="form-group">
-    <label for="filmNameJa" class="col-sm-2 control-label label-title">
+    <label for="nameJa" class="col-sm-2 control-label label-title">
       作品名
       <font color="red">＊</font>
     </label>
     <div class="col-sm-10">
-      <input class="form-control" name="filmNameJa" id="filmNameJa" placeholder="" maxlength=64 value=<%= filmModel.filmNameJa %>>
+      <input class="form-control" name="nameJa" id="nameJa" placeholder="" maxlength=64 value=<%= req.body.nameJa %>>
       <p class="message">
           <% /*全角64文字以内でご入力ください。*/ %>
           全角64文字以内でご入力ください。
       </p>
       <p class="error message">
-        <% if (errors && errors.filmNameJa) { %>
-          <%- errors.filmNameJa.msg %>
+        <% if (errors && errors.nameJa) { %>
+          <%- errors.nameJa.msg %>
         <% } %>
       </p>
     </div>
   </div>
   <% /* 作品名カナ */ %>
   <div class="form-group">
-    <label for="filmNameKana" class="col-sm-2 control-label label-title">
+    <label for="nameKana" class="col-sm-2 control-label label-title">
       作品名カナ
       <font color="red">＊</font>
     </label>
     <div class="col-sm-10">
-      <input class="form-control" name="filmNameKana" id="filmNameKana" placeholder="" maxlength=64 value=<%= filmModel.filmNameKana %>>
+      <input class="form-control" name="nameKana" id="nameKana" placeholder="" maxlength=64 value=<%= req.body.nameKana %>>
       <p class="message">
           <% /*全角64文字以内でご入力ください。*/ %>
           全角64文字以内でご入力ください。
       </p>
       <p class="error message">
-        <% if (errors && errors.filmNameKana) { %>
-          <%- errors.filmNameKana.msg %>
+        <% if (errors && errors.nameKana) { %>
+          <%- errors.nameKana.msg %>
         <% } %>
       </p>
     </div>
   </div>
   <% /* 作品名英 */ %>
   <div class="form-group">
-    <label for="filmNameEn" class="col-sm-2 control-label label-title">
+    <label for="nameEn" class="col-sm-2 control-label label-title">
       作品名英
     </label>
     <div class="col-sm-10">
-      <input class="form-control" name="filmNameEn" id="filmNameEn" placeholder="" maxlength=128 value=<%= filmModel.filmNameEn %>>
+      <input class="form-control" name="nameEn" id="nameEn" placeholder="" maxlength=128 value=<%= req.body.nameEn %>>
       <p class="message">
           <% /*半角128文字以内でご入力ください。*/ %>
           半角128文字以内でご入力ください。
       </p>
       <p class="error message">
-        <% if (errors && errors.filmNameEn) { %>
-          <%- errors.filmNameEn.msg %>
+        <% if (errors && errors.nameEn) { %>
+          <%- errors.nameEn.msg %>
         <% } %>
       </p>
     </div>
   </div>
   <% /* 上映時間 */ %>
   <div class="form-group">
-    <label for="filmMinutes" class="col-sm-2 control-label label-title">
+    <label for="minutes" class="col-sm-2 control-label label-title">
       上映時間
     </label>
     <div class="col-sm-10">
-      <input class="form-control" style="width:30%;display:inline-block;" name="filmMinutes" id="filmMinutes" placeholder="" maxlength=10 value=<%= filmModel.filmMinutes %>>
+      <input class="form-control" style="width:30%;display:inline-block;" name="minutes" id="minutes" placeholder="" maxlength=10 value=<%= req.body.minutes %>>
       分
       <p class="message">
           <% /*半角10文字以内でご入力ください。*/ %>
           半角10文字以内でご入力ください。
       </p>
       <p class="error message">
-        <% if (errors && errors.filmMinutes) { %>
-          <%- errors.filmMinutes.msg %>
+        <% if (errors && errors.minutes) { %>
+          <%- errors.minutes.msg %>
         <% } %>
       </p>
     </div>
   </div>
   <% /* レイティング */ %>
   <div class="form-group">
-    <label for="filmRatings" class="col-sm-2 control-label label-title">
+    <label for="ratings" class="col-sm-2 control-label label-title">
       レイティング
       <font color="red">＊</font>
     </label>
@@ -121,15 +121,15 @@
           {code: 'R18+', name: {ja: 'R-18指定', en:'R-18'}}
       ];
       %>
-      <select name="filmRatings" id="filmRatings" class="form-control">
+      <select name="ratings" id="ratings" class="form-control">
           <option value="">---</option>
           <% for (let rating of ratings) { %>
-          <option value="<%= rating.code %>"<% if (filmModel.filmRatings === rating.code) { %> selected="selected"<% } %>><%- rating.name.ja %></option>
+          <option value="<%= rating.code %>"<% if (req.body.ratings === rating.code) { %> selected="selected"<% } %>><%- rating.name.ja %></option>
           <% } %>
       </select>
       <p class="error message">
-        <% if (errors && errors.filmRatings) { %>
-          <%- errors.filmRatings.msg %>
+        <% if (errors && errors.ratings) { %>
+          <%- errors.ratings.msg %>
         <% } %>
       </p>
     </div>
@@ -150,7 +150,7 @@
       <select name="subtitleDub" id="subtitleDub" class="form-control">
           <option value="">---</option>
           <% for (let subtitle of subtitles) { %>
-          <option value="<%= subtitle.code %>"<% if (filmModel.subtitleDub === subtitle.code) { %> selected="selected"<% } %>><%- subtitle.name.ja %></option>
+          <option value="<%= subtitle.code %>"<% if (req.body.subtitleDub === subtitle.code) { %> selected="selected"<% } %>><%- subtitle.name.ja %></option>
           <% } %>
       </select>
       <p class="error message">
@@ -179,7 +179,7 @@
       <select name="screeningForm" id="screeningForm" class="form-control">
           <option value="">---</option>
           <% for (let form of forms) { %>
-          <option value="<%= form.code %>"<% if (filmModel.screeningForm === form.code) { %> selected="selected"<% } %>><%- form.name.ja %></option>
+          <option value="<%= form.code %>"<% if (req.body.screeningForm === form.code) { %> selected="selected"<% } %>><%- form.name.ja %></option>
           <% } %>
       </select>
       <p class="error message">

@@ -2,7 +2,6 @@ import { Models } from '@motionpicture/chevre-domain';
 import { NextFunction, Request, Response } from 'express';
 import * as moment from 'moment';
 import * as Message from '../../../common/Const/Message';
-import FilmModel from '../../models/Master/FilmModel';
 
 // 基数
 const DEFAULT_RADIX: number = 10;
@@ -32,40 +31,45 @@ export async function add(req: Request, res: Response, next: NextFunction): Prom
         return;
     }
 
-    const filmModel = req.body;
-
     if (req.method !== 'POST') {
         // 作品マスタ画面遷移
-        renderDisplayAdd(res, filmModel, null);
+        renderDisplayAdd(res, null);
         return;
     }
 
     // 検証
-    validateFormAdd(req);
+    validate(req);
     const validatorResult = await req.getValidationResult();
     const errors = req.validationErrors(true);
     if (!validatorResult.isEmpty()) {
-        renderDisplayAdd(res, filmModel, errors);
+        renderDisplayAdd(res, errors);
         return;
     }
 
     // 作品DB登録プロセス
-    await Models.Film.create(
-        {
-            _id: filmModel.filmCode,
-            name: {
-                ja: filmModel.filmNameJa,
-                en: filmModel.filmNameEn
-            },
-            ticket_type_group: '29',
-            minutes: filmModel.filmMinutes,
-            is_mx4d: true
-        }
-    );
+    try {
+        await Models.Film.create(
+            {
+                _id: req.body._id,
+                name: {
+                    ja: req.body.nameJa,
+                    en: req.body.nameEn
+                },
+                ticket_type_group: '29',
+                minutes: req.body.minutes,
+                is_mx4d: true
+            }
+        );
+    } catch (error) {
+        console.error(error);
+        res.locals.message = error.message;
+        renderDisplayAdd(res, errors);
+        return;
+    }
 
     // 作品マスタ画面遷移
-    filmModel.message = Message.Common.add;
-    renderDisplayAdd(res, filmModel, errors);
+    res.locals.message = Message.Common.add;
+    renderDisplayAdd(res, errors);
 }
 
 /**
@@ -193,11 +197,10 @@ export async function list(__: Request, res: Response): Promise<void> {
  *
  * @param {FilmModel} filmModel
  */
-function renderDisplayAdd(res: Response, filmModel: FilmModel, errors: any): void {
+function renderDisplayAdd(res: Response, errors: any): void {
     res.locals.displayId = 'Aa-2';
     res.locals.title = '作品マスタ新規登録';
     res.render('master/film/add', {
-        filmModel: filmModel,
         errors: errors,
         layout: 'layouts/master/layout'
     });
@@ -208,36 +211,36 @@ function renderDisplayAdd(res: Response, filmModel: FilmModel, errors: any): voi
  *
  * @param {FilmModel} filmModel
  */
-function validateFormAdd(req: Request): void {
+function validate(req: Request): void {
     // 作品コード
     let colName: string = '作品コード';
-    req.assert('filmCode', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
-    req.assert('filmCode', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_CODE)).len({ max: NAME_MAX_LENGTH_CODE });
+    req.checkBody('_id', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
+    req.checkBody('_id', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_CODE)).len({ max: NAME_MAX_LENGTH_CODE });
     //.regex(/^[ -\~]+$/, req.__('Message.invalid{{fieldName}}', { fieldName: '%s' })),
     // 作品名
     colName = '作品名';
-    req.assert('filmNameJa', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
-    req.assert('filmNameJa', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_CODE)).len({ max: NAME_MAX_LENGTH_NAME_JA });
+    req.checkBody('nameJa', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
+    req.checkBody('nameJa', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_CODE)).len({ max: NAME_MAX_LENGTH_NAME_JA });
     // 作品名カナ
     colName = '作品名カナ';
-    req.assert('filmNameKana', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
-    req.assert('filmNameKana', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_NAME_JA)).len({ max: NAME_MAX_LENGTH_NAME_JA });
+    req.checkBody('nameKana', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
+    req.checkBody('nameKana', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_NAME_JA)).len({ max: NAME_MAX_LENGTH_NAME_JA });
     // .regex(/^[ァ-ロワヲンーa-zA-Z]*$/, req.__('Message.invalid{{fieldName}}', { fieldName: '%s' })),
     // 作品名英
     colName = '作品名英';
-    req.assert('filmNameEn', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
-    req.assert('filmNameEn', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_NAME_EN)).len({ max: NAME_MAX_LENGTH_NAME_EN });
+    req.checkBody('nameEn', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
+    req.checkBody('nameEn', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_NAME_EN)).len({ max: NAME_MAX_LENGTH_NAME_EN });
     // 上映時間
     colName = '上映時間';
-    req.assert('filmMinutes', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_NAME_MINUTES))
+    req.checkBody('minutes', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_NAME_MINUTES))
         .len({ max: NAME_MAX_LENGTH_NAME_EN });
     // レイティング
     colName = 'レイティング';
-    req.assert('filmRatings', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
+    req.checkBody('ratings', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
     // 字幕/吹き替え
     colName = '字幕/吹き替え';
-    req.assert('subtitleDub', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
+    req.checkBody('subtitleDub', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
     // 上映形態
     colName = '上映形態';
-    req.assert('screeningForm', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
+    req.checkBody('screeningForm', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
 }
