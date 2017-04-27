@@ -28,4 +28,3 @@ class BaseController {
     }
 }
 exports.default = BaseController;
-//# sourceMappingURL=BaseController.js.map

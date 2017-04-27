@@ -17,7 +17,7 @@
     }
   ],
   "dependencies": {
-    "@motionpicture/chevre-domain": "^3.0.0",
+    "@motionpicture/chevre-domain": "^6.0.0",
     "@types/validator": "^6.2.0",
     "basic-auth": "^1.0.4",
     "body-parser": "^1.17.1",
@@ -106,5 +106,5 @@
     "version": "git add -A",
     "postversion": "git push origin --tags"
   },
-  "version": "1.0.0"
+  "version": "1.0.1"
 }

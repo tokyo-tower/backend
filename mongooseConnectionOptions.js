@@ -24,4 +24,3 @@ const options = {
     }
 };
 exports.default = options;
-//# sourceMappingURL=mongooseConnectionOptions.js.map

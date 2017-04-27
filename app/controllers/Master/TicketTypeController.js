@@ -259,4 +259,3 @@ class TicketTypeController extends MasterBaseController_1.default {
     }
 }
 exports.default = TicketTypeController;
-//# sourceMappingURL=TicketTypeController.js.map

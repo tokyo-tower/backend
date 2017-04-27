@@ -1,10 +1,12 @@
+"use strict";
+// tslint:disable-next-line:no-reference
+/// <reference path="definitions/chevre.d.ts" />
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * サーバー起動ファイル
  *
  * @ignore
  */
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 const startTime = process.hrtime();
 const createDebug = require("debug");
 const http = require("http");
@@ -77,4 +79,3 @@ function onListening() {
     const diff = process.hrtime(startTime);
     debug(`server listening took ${diff[0]} seconds and ${diff[1]} nanoseconds.`);
 }
-//# sourceMappingURL=server.js.map
