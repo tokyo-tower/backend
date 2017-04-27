@@ -1,5 +1,5 @@
 import { Models } from '@motionpicture/chevre-domain';
-//import * as mongoose from 'mongoose';
+import * as mongoose from 'mongoose';
 import * as Message from '../../../common/Const/Message';
 import TicketTypeGroupsModel from '../../models/Master/TicketTypeGroupsModel';
 import MasterBaseController from './MasterBaseController';
@@ -36,20 +36,20 @@ export default class TicketTypeGroupsController extends MasterBaseController {
             const isValid: boolean = !errors;
             // 検証
             if (isValid) {
-                // // 券種グループDB登録プロセス
-                // this.processAddTicketType(ticketTypeModel, (addErr: Error | null, ticketType: mongoose.Document | null) => {
-                //     if (ticketType) {
-                //         //ticketTypeModel.ticketNameJa = '';
-                //     }
-                //     if (addErr) {
-                //         // エラー画面遷移
-                //         this.next(addErr);
-                //     } else {
-                //         // 券種グループマスタ画面遷移
-                //         ticketTypeModel.message = Message.Common.add;
-                //         this.renderDisplayAdd(ticketTypeModel, errors);
-                //     }
-                // });
+                // 券種グループDB登録プロセス
+                this.processAddTicketTypeGroups(ticketTypeGroupsModel, (addErr: Error | null, ticketType: mongoose.Document | null) => {
+                    if (ticketType) {
+                        //ticketTypeModel.ticketNameJa = '';
+                    }
+                    if (addErr) {
+                        // エラー画面遷移
+                        this.next(addErr);
+                    } else {
+                        // 券種グループマスタ画面遷移
+                        ticketTypeGroupsModel.message = Message.Common.add;
+                        this.renderDisplayAdd(ticketTypeGroupsModel, errors);
+                    }
+                });
             } else {
                 // 券種グループマスタ画面遷移
                 this.renderDisplayAdd(ticketTypeGroupsModel, errors);
@@ -160,30 +160,30 @@ export default class TicketTypeGroupsController extends MasterBaseController {
      *
      * @param {TicketTypeModel} ticketTypeModel
      */
-    //private processAddTicketType(ticketTypeModel: TicketTypeModel, cb: (err: Error | null, ticket: mongoose.Document) => void): void {
-        // const digits: number = 6;
-        // MasterBaseController.getId('ticketTypeId', digits, (err, id) => {
-        //     if (err || !id) return this.next(new Error(Message.Common.unexpectedError));
-        //     // 券種グループDB登録
-        //     Models.Film.create(
-        //         {
-        //             _id: id,
-        //             name: {
-        //                 ja: ticketTypeModel.ticketNameJa,
-        //                 en: ticketTypeModel.managementTypeName
-        //             },
-        //             is_mx4d: true
-        //         },
-        //         (errDb: any, ticketType: any) => {
-        //             if (errDb) {
-        //                 cb(errDb, ticketType);
-        //             } else {
-        //                 cb(null, ticketType);
-        //             }
-        //         }
-        //     );
-        // });
-    //}
+    private processAddTicketTypeGroups(
+        ticketTypeGroupsModel: TicketTypeGroupsModel, cb: (err: Error | null, ticket: mongoose.Document) => void): void {
+        const digits: number = 6;
+        MasterBaseController.getId('ticketTypeId', digits, (err, id) => {
+            if (err || !id) return this.next(new Error(Message.Common.unexpectedError));
+            // 券種グループDB登録
+            Models.Film.create(
+                {
+                    _id: id,
+                    name: {
+                        ja: ticketTypeGroupsModel.ticketGroupNameJa,
+                        en: ''
+                    }
+                },
+                (errDb: any, ticketTypeGroup: any) => {
+                    if (errDb) {
+                        cb(errDb, ticketTypeGroup);
+                    } else {
+                        cb(null, ticketTypeGroup);
+                    }
+                }
+            );
+        });
+    }
     /**
      * 券種グループマスタ新規登録画面遷移
      *
@@ -192,6 +192,18 @@ export default class TicketTypeGroupsController extends MasterBaseController {
     private renderDisplayAdd (ticketTypeGroupsModel: TicketTypeGroupsModel, errors: any): void {
         this.res.locals.displayId = 'Aa-7';
         this.res.locals.title = '券種グループマスタ新規登録';
+
+        //券種マスタから取得???
+        ticketTypeGroupsModel.listTargetTicketName = [
+            {value: '01', text: '一般1800円'},
+            {value: '02', text: '大・専1500円'},
+            {value: '03', text: '高校生1000円'},
+            {value: '04', text: '中・小1000円'},
+            {value: '05', text: '幼児1000円'},
+            {value: '06', text: 'シニア1100円'},
+            {value: '07', text: '夫婦50割1100円'}
+        ];
+
         this.res.render('master/ticketTypegroups/add', {
             ticketTypeGroupsModel: ticketTypeGroupsModel,
             errors: errors,

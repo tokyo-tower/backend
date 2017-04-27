@@ -24,4 +24,9 @@ export default class TicketTypeGroupsModel extends MasterBaseModel {
      * 登録日(Date(10))
      */
     public createdAt: Date = new Date();
+    /**
+     * 対象券種名リスト(チェックボックス表示用)
+     * ex:[{value:'01', text:'券種A'}, ... ]
+     */
+    public listTargetTicketName: any;
 }

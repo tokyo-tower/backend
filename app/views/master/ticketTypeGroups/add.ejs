@@ -18,7 +18,7 @@
       券種グループコード<font color="red">＊</font>
     </label>
     <div class="col-sm-10">
-      <input type="text" class="form-control" name="ticketGroupCode" id="ticketGroupCode" placeholder="" maxlength=64 value=<%= ticketTypeGroupsModel.ticketGroupCode %>>
+      <input type="text" class="form-control" name="ticketGroupCode" id="ticketGroupCode" placeholder="" maxlength=64 value="<%= ticketTypeGroupsModel.ticketGroupCode %>">
       <p class="message">
           半角64文字以内でご入力ください。
       </p>
@@ -35,7 +35,7 @@
       券種グループ名<font color="red">＊</font>
     </label>
     <div class="col-sm-10">
-      <input type="text" class="form-control" name="ticketGroupNameJa" id="ticketGroupNameJa" placeholder="" maxlength=64 value=<%= ticketTypeGroupsModel.ticketGroupNameJa %>>
+      <input type="text" class="form-control" name="ticketGroupNameJa" id="ticketGroupNameJa" placeholder="" maxlength=64 value="<%= ticketTypeGroupsModel.ticketGroupNameJa %>">
       <p class="message">
           全角64文字以内でご入力ください。
       </p>
@@ -52,7 +52,18 @@
       対象券種名<font color="red">＊</font>
     </label>
     <div class="col-sm-10">
-      <input type="text" class="form-control" name="targetTicketName" id="targetTicketName" placeholder="" maxlength=64 value=<%= ticketTypeGroupsModel.ticketGroupNameEn %>>
+      <% if (ticketTypeGroupsModel) { %>
+      <div class="form-control" style="height:auto;line-height:40px;">
+      <% } %>
+      <% ticketTypeGroupsModel.listTargetTicketName.forEach((targetTicketName) => { %>
+        <span class="form-control" style="display:inline;background-color:#F2F2F2;margin:0px 5px 0px 5px">
+          <span><%=targetTicketName.text%></span>
+          <input type="checkbox" name="targetTicket" value="<%=targetTicketName.value%>">
+        </span>
+      <% }) %>
+      <% if (ticketTypeGroupsModel) { %>
+      </div>
+      <% } %>
       <p class="error message">
         <% if (errors && errors.targetTicketName) { %>
           <%- errors.targetTicketName.msg %>
@@ -66,7 +77,7 @@
       補足説明
     </label>
     <div class="col-sm-10">
-      <input type="text" class="form-control" name="description" id="description" placeholder="" maxlength=64 value=<%= ticketTypeGroupsModel.description %>>
+      <input type="text" class="form-control" name="description" id="description" placeholder="" maxlength=64 value="<%= ticketTypeGroupsModel.description %>">
       <p class="message">
           全角64文字以内でご入力ください。
       </p>
