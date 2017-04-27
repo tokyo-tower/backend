@@ -1,9 +1,16 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
+const moment = require("moment");
 const Message = require("../../../common/Const/Message");
-const FilmModel_1 = require("../../models/Master/FilmModel");
-const base_1 = require("./base");
 // 基数
 const DEFAULT_RADIX = 10;
 // 1ページに表示するデータ数
@@ -19,75 +26,65 @@ const NAME_MAX_LENGTH_NAME_MINUTES = 10;
 /**
  * 作品マスタコントローラー
  *
- * @export
- * @class FilmController
- * @extends {MasterBaseController}
+ * @namespace controller/film
  */
-class FilmController extends base_1.default {
-    constructor() {
-        super(...arguments);
-        this.layout = 'layouts/master/layout';
-    }
-    /**
-     * 新規登録
-     */
-    add() {
-        if (!this.req.staffUser)
-            return this.next(new Error(Message.Common.unexpectedError));
-        let filmModel = new FilmModel_1.default();
-        if (this.req.method === 'POST') {
-            // モデルに画面入力値をセット
-            filmModel = this.parseModel(filmModel);
-            // 検証
-            const errors = this.validateFormAdd();
-            const isValid = !errors;
-            // 検証
-            if (isValid) {
-                // 作品DB登録プロセス
-                this.processAddFilm(filmModel, (addFilmErr, film) => {
-                    if (film) {
-                        //filmModel.filmNameJa = '';
-                        //filmModel = MasterBaseController.copyModel<FilmModel>(filmModel, film);
-                    }
-                    if (addFilmErr) {
-                        // エラー画面遷移
-                        this.next(addFilmErr);
-                    }
-                    else {
-                        // 作品マスタ画面遷移
-                        filmModel.message = Message.Common.add;
-                        this.renderDisplayAdd(filmModel, errors);
-                    }
-                });
-            }
-            else {
-                // 作品マスタ画面遷移
-                this.renderDisplayAdd(filmModel, errors);
-            }
+/**
+ * 新規登録
+ */
+function add(req, res, next) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (req.staffUser === undefined) {
+            next(new Error(Message.Common.unexpectedError));
+            return;
         }
-        else {
+        const filmModel = req.body;
+        if (req.method !== 'POST') {
             // 作品マスタ画面遷移
-            this.renderDisplayAdd(filmModel, null);
+            renderDisplayAdd(res, filmModel, null);
+            return;
         }
-    }
-    /**
-     * 一覧データ取得API
-     */
-    getList() {
-        if (!this.req.staffUser)
-            return this.next(new Error(Message.Common.unexpectedError));
+        // 検証
+        validateFormAdd(req);
+        const validatorResult = yield req.getValidationResult();
+        const errors = req.validationErrors(true);
+        if (!validatorResult.isEmpty()) {
+            renderDisplayAdd(res, filmModel, errors);
+            return;
+        }
+        // 作品DB登録プロセス
+        yield chevre_domain_1.Models.Film.create({
+            _id: filmModel.filmCode,
+            name: {
+                ja: filmModel.filmNameJa,
+                en: filmModel.filmNameEn
+            },
+            ticket_type_group: '29',
+            minutes: filmModel.filmMinutes,
+            is_mx4d: true
+        });
+        // 作品マスタ画面遷移
+        filmModel.message = Message.Common.add;
+        renderDisplayAdd(res, filmModel, errors);
+    });
+}
+exports.add = add;
+/**
+ * 一覧データ取得API
+ */
+function getList(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
         // 表示件数・表示ページ
-        const limit = (this.req.query.limit) ? parseInt(this.req.query.limit, DEFAULT_RADIX) : DEFAULT_LINES;
-        const page = (this.req.query.page) ? parseInt(this.req.query.page, DEFAULT_RADIX) : 1;
+        const limit = (req.query.limit) ? parseInt(req.query.limit, DEFAULT_RADIX) : DEFAULT_LINES;
+        const page = (req.query.page) ? parseInt(req.query.page, DEFAULT_RADIX) : 1;
         // 作品コード
-        const filmCode = (this.req.query.filmCode) ? this.req.query.filmCode : null;
+        const filmCode = (req.query.filmCode) ? req.query.filmCode : null;
         // 登録日
-        const createDateFrom = (this.req.query.dateFrom) ? this.req.query.dateFrom : null;
-        const createDateTo = (this.req.query.dateTo) ? this.req.query.dateTo : null;
+        const createDateFrom = (req.query.dateFrom) ? req.query.dateFrom : null;
+        const createDateTo = (req.query.dateTo) ? req.query.dateTo : null;
         // 作品名・カナ・英
-        const filmNameJa = (this.req.query.filmNameJa) ? this.req.query.filmNameJa : null;
-        const filmNameKana = (this.req.query.filmNameKana) ? this.req.query.filmNameKana : null;
-        const filmNameEn = (this.req.query.filmNameEn) ? this.req.query.filmNameEn : null;
+        const filmNameJa = (req.query.filmNameJa) ? req.query.filmNameJa : null;
+        const filmNameKana = (req.query.filmNameKana) ? req.query.filmNameKana : null;
+        const filmNameEn = (req.query.filmNameEn) ? req.query.filmNameEn : null;
         // 検索条件を作成
         const conditions = {};
         // 作品コード
@@ -101,199 +98,144 @@ class FilmController extends base_1.default {
             // 登録日From
             if (createDateFrom) {
                 const keyFrom = '$gte';
-                conditionsDate[keyFrom] = base_1.default.toISOStringJapan(createDateFrom);
+                conditionsDate[keyFrom] = toISOStringJapan(createDateFrom);
             }
             // 登録日To
             if (createDateTo) {
                 const keyFrom = '$lt';
-                conditionsDate[keyFrom] = base_1.default.toISOStringJapan(createDateTo, 1);
+                conditionsDate[keyFrom] = toISOStringJapan(createDateTo, 1);
             }
             conditions[key] = conditionsDate;
         }
         // 作品名
         if (filmNameJa) {
-            conditions['name.ja'] = base_1.default.getRegxForwardMatching(filmNameJa);
+            conditions['name.ja'] = { $regex: filmNameJa };
         }
         // 作品名カナ
         if (filmNameKana) {
-            conditions['name.kana'] = filmNameKana;
+            conditions['name.kana'] = { $regex: filmNameKana };
         }
         // 作品名英
         if (filmNameEn) {
-            conditions['name.en'] = base_1.default.getRegxForwardMatching(filmNameEn);
+            conditions['name.en'] = { $regex: filmNameEn };
         }
-        const result = {
-            success: false,
-            results: [],
-            count: 0
-        };
-        chevre_domain_1.Models.Film.count(conditions, (err, count) => {
-            if (err) {
-                this.res.json(result);
-            }
-            else {
-                if (count === 0) {
-                    result.success = true;
-                    this.res.json(result);
-                }
-                else {
-                    this.findData(conditions, limit, page, count);
-                }
-            }
-        });
-    }
-    /**
-     * 一覧データ取得
-     *
-     * @param {any} conditions
-     * @param {number} limit
-     * @param {number} page
-     * @param {number} count
-     */
-    findData(conditions, limit, page, count) {
-        const result = {
-            success: false,
-            results: [],
-            count: 0
-        };
-        chevre_domain_1.Models.Film.find(conditions)
-            .skip(limit * (page - 1))
-            .limit(limit)
-            .lean(true)
-            .exec((findFilmErr, films) => {
-            if (findFilmErr) {
-                this.res.json(result);
-            }
-            else {
-                //検索結果編集
-                const results = films.map((film) => {
-                    return {
-                        _id: film._id,
-                        filmCode: film._id,
-                        filmNameJa: film.name.ja,
-                        filmNameKana: film.name.ja,
-                        filmNameEn: film.name.en,
-                        filmMinutes: film.minutes,
-                        subtitleDub: '字幕',
-                        screeningForm: '通常'
-                    };
-                });
-                this.res.json({
+        try {
+            const filmsCount = yield chevre_domain_1.Models.Film.count(conditions);
+            if (filmsCount === 0) {
+                res.json({
                     success: true,
-                    count: count,
-                    results: results
+                    results: [],
+                    count: 0
                 });
+                return;
             }
-        });
-    }
-    /**
-     * 一覧
-     */
-    list() {
-        if (!this.req.staffUser)
-            return this.next(new Error(Message.Common.unexpectedError));
-        const filmModel = new FilmModel_1.default();
-        if (this.req.method !== 'POST') {
-            // 作品マスタ画面遷移
-            this.renderDisplayList(filmModel);
-        }
-    }
-    /**
-     * 作品DB登録プロセス
-     *
-     * @param {FilmModel} filmModel
-     */
-    processAddFilm(filmModel, cb) {
-        const digits = 6;
-        base_1.default.getId('filmId', digits, (err, id) => {
-            if (err || !id)
-                return this.next(new Error(Message.Common.unexpectedError));
-            // 作品DB登録
-            chevre_domain_1.Models.Film.create({
-                _id: id,
-                name: {
-                    ja: filmModel.filmNameJa,
-                    en: filmModel.filmNameEn
-                },
-                ticket_type_group: '29',
-                minutes: filmModel.filmMinutes,
-                is_mx4d: true
-            }, (errDb, film) => {
-                if (errDb) {
-                    cb(errDb, film);
-                }
-                else {
-                    cb(null, film);
-                }
+            const films = yield chevre_domain_1.Models.Film.find(conditions)
+                .skip(limit * (page - 1))
+                .limit(limit).exec();
+            //検索結果編集
+            const results = films.map((film) => {
+                return {
+                    _id: film._id,
+                    filmCode: film._id,
+                    filmNameJa: film.get('name').ja,
+                    filmNameKana: film.get('name').ja,
+                    filmNameEn: film.get('name').en,
+                    filmMinutes: film.get('minutes'),
+                    subtitleDub: '字幕',
+                    screeningForm: '通常'
+                };
             });
-        });
-    }
-    /**
-     * 作品マスタ新規登録画面遷移
-     *
-     * @param {FilmModel} filmModel
-     */
-    renderDisplayAdd(filmModel, errors) {
-        this.res.locals.displayId = 'Aa-2';
-        this.res.locals.title = '作品マスタ新規登録';
-        this.res.render('master/film/add', {
-            filmModel: filmModel,
-            errors: errors,
-            layout: 'layouts/master/layout'
-        });
-    }
-    /**
-     * 作品マスタ一覧画面遷移
-     *
-     * @param {FilmModel} filmModel
-     */
-    renderDisplayList(filmModel) {
-        this.res.locals.displayId = 'Aa-3';
-        this.res.locals.title = '作品マスタ一覧';
-        this.res.render('master/film/index', {
-            filmModel: filmModel,
-            layout: 'layouts/master/layout'
-        });
-    }
-    /**
-     * 作品マスタ新規登録画面検証
-     *
-     * @param {FilmModel} filmModel
-     */
-    validateFormAdd() {
-        // 作品コード
-        let colName = '作品コード';
-        this.req.assert('filmCode', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
-        this.req.assert('filmCode', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_CODE)).len({ max: NAME_MAX_LENGTH_CODE });
-        //.regex(/^[ -\~]+$/, req.__('Message.invalid{{fieldName}}', { fieldName: '%s' })),
-        // 作品名
-        colName = '作品名';
-        this.req.assert('filmNameJa', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
-        this.req.assert('filmNameJa', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_CODE)).len({ max: NAME_MAX_LENGTH_NAME_JA });
-        // 作品名カナ
-        colName = '作品名カナ';
-        this.req.assert('filmNameKana', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
-        this.req.assert('filmNameKana', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_NAME_JA)).len({ max: NAME_MAX_LENGTH_NAME_JA });
-        // .regex(/^[ァ-ロワヲンーa-zA-Z]*$/, req.__('Message.invalid{{fieldName}}', { fieldName: '%s' })),
-        // 作品名英
-        colName = '作品名英';
-        this.req.assert('filmNameEn', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
-        this.req.assert('filmNameEn', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_NAME_EN)).len({ max: NAME_MAX_LENGTH_NAME_EN });
-        // 上映時間
-        colName = '上映時間';
-        this.req.assert('filmMinutes', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_NAME_MINUTES))
-            .len({ max: NAME_MAX_LENGTH_NAME_EN });
-        // レイティング
-        colName = 'レイティング';
-        this.req.assert('filmRatings', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
-        // 字幕/吹き替え
-        colName = '字幕/吹き替え';
-        this.req.assert('subtitleDub', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
-        // 上映形態
-        colName = '上映形態';
-        this.req.assert('screeningForm', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
-        // 検証実行
-        return this.req.validationErrors(true);
-    }
+            res.json({
+                success: true,
+                count: filmsCount,
+                results: results
+            });
+        }
+        catch (error) {
+            res.json({
+                success: false,
+                results: [],
+                count: 0
+            });
+        }
+    });
 }
-exports.default = FilmController;
+exports.getList = getList;
+/**
+ * DB検索用ISO日付取得
+ *
+ * @param {string} dateStr
+ * @param {number} addDay
+ * @returns {string}
+ */
+function toISOStringJapan(dateStr, addDay = 0) {
+    const dateWk = moment(dateStr, 'YYYY/MM/DD').add(addDay, 'days').format('YYYYMMDD');
+    // tslint:disable-next-line:no-magic-numbers
+    return dateWk.substr(0, 4) + '-' + dateWk.substr(4, 2) + '-' + dateWk.substr(6, 2) + 'T00:00:00+09:00';
+}
+/**
+ * 一覧
+ */
+function list(__, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        res.render('master/film/index', {
+            displayId: 'Aa-3',
+            title: '作品マスタ一覧',
+            filmModel: {},
+            layout: 'layouts/master/layout'
+        });
+    });
+}
+exports.list = list;
+/**
+ * 作品マスタ新規登録画面遷移
+ *
+ * @param {FilmModel} filmModel
+ */
+function renderDisplayAdd(res, filmModel, errors) {
+    res.locals.displayId = 'Aa-2';
+    res.locals.title = '作品マスタ新規登録';
+    res.render('master/film/add', {
+        filmModel: filmModel,
+        errors: errors,
+        layout: 'layouts/master/layout'
+    });
+}
+/**
+ * 作品マスタ新規登録画面検証
+ *
+ * @param {FilmModel} filmModel
+ */
+function validateFormAdd(req) {
+    // 作品コード
+    let colName = '作品コード';
+    req.assert('filmCode', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
+    req.assert('filmCode', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_CODE)).len({ max: NAME_MAX_LENGTH_CODE });
+    //.regex(/^[ -\~]+$/, req.__('Message.invalid{{fieldName}}', { fieldName: '%s' })),
+    // 作品名
+    colName = '作品名';
+    req.assert('filmNameJa', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
+    req.assert('filmNameJa', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_CODE)).len({ max: NAME_MAX_LENGTH_NAME_JA });
+    // 作品名カナ
+    colName = '作品名カナ';
+    req.assert('filmNameKana', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
+    req.assert('filmNameKana', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_NAME_JA)).len({ max: NAME_MAX_LENGTH_NAME_JA });
+    // .regex(/^[ァ-ロワヲンーa-zA-Z]*$/, req.__('Message.invalid{{fieldName}}', { fieldName: '%s' })),
+    // 作品名英
+    colName = '作品名英';
+    req.assert('filmNameEn', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
+    req.assert('filmNameEn', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_NAME_EN)).len({ max: NAME_MAX_LENGTH_NAME_EN });
+    // 上映時間
+    colName = '上映時間';
+    req.assert('filmMinutes', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_NAME_MINUTES))
+        .len({ max: NAME_MAX_LENGTH_NAME_EN });
+    // レイティング
+    colName = 'レイティング';
+    req.assert('filmRatings', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
+    // 字幕/吹き替え
+    colName = '字幕/吹き替え';
+    req.assert('subtitleDub', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
+    // 上映形態
+    colName = '上映形態';
+    req.assert('screeningForm', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
+}
