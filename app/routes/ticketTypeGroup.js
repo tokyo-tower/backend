@@ -7,11 +7,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @ignore
  */
 const express_1 = require("express");
-const ticketTypeGroup_1 = require("../controllers/master/ticketTypeGroup");
+const ticketTypeGroupsController = require("../controllers/master/ticketTypeGroup");
 const router = express_1.Router();
 // 券種登録
-router.all('/add', (req, res, next) => { (new ticketTypeGroup_1.default(req, res, next)).add(); });
+router.all('/add', ticketTypeGroupsController.add);
 // 券種一覧
-router.all('', (req, res, next) => { (new ticketTypeGroup_1.default(req, res, next)).list(); });
-router.all('/getlist', (req, res, next) => { (new ticketTypeGroup_1.default(req, res, next)).getList(); });
+router.get('', ticketTypeGroupsController.list);
+router.get('/getlist', ticketTypeGroupsController.getList);
 exports.default = router;

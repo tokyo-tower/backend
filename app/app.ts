@@ -96,7 +96,7 @@ app.use(userAuthentication); // ユーザー認証
 app.use(authRouter); // ログイン・ログアウト
 app.use('/master/films', filmRouter); //作品
 app.use('/master/performances', performanceRouter); //パフォーマンス
-app.use('/master/ticketTypes', ticketTypeRouter); //券種
+// app.use('/master/ticketTypes', ticketTypeRouter); //券種
 app.use('/master/ticketTypeGroups', ticketTypeGroupRouter); //券種グループ
 
 if (process.env.NODE_ENV !== 'production') {

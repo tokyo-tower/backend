@@ -32,7 +32,6 @@ const auth_1 = require("./routes/auth");
 const dev_1 = require("./routes/dev");
 const film_1 = require("./routes/film");
 const performance_1 = require("./routes/performance");
-const ticketType_1 = require("./routes/ticketType");
 const ticketTypeGroup_1 = require("./routes/ticketTypeGroup");
 const debug = createDebug('chevre-backend:app');
 const app = express();
@@ -79,7 +78,7 @@ app.use(userAuthentication_1.default); // ユーザー認証
 app.use(auth_1.default); // ログイン・ログアウト
 app.use('/master/films', film_1.default); //作品
 app.use('/master/performances', performance_1.default); //パフォーマンス
-app.use('/master/ticketTypes', ticketType_1.default); //券種
+// app.use('/master/ticketTypes', ticketTypeRouter); //券種
 app.use('/master/ticketTypeGroups', ticketTypeGroup_1.default); //券種グループ
 if (process.env.NODE_ENV !== 'production') {
     app.use('/dev', dev_1.default);

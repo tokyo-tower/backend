@@ -4,18 +4,15 @@
  * @desc TicketTypeGroupsRouter
  * @ignore
  */
-import { NextFunction, Request, Response, Router } from 'express';
-import TicketTypeGroupsController from '../controllers/master/ticketTypeGroup';
+import { Router } from 'express';
+import * as ticketTypeGroupsController from '../controllers/master/ticketTypeGroup';
 
 const router = Router();
 
 // 券種登録
-router.all('/add',
-           (req: Request, res: Response, next: NextFunction) => { (new TicketTypeGroupsController(req, res, next)).add(); });
+router.all('/add', ticketTypeGroupsController.add);
 // 券種一覧
-router.all('',
-           (req: Request, res: Response, next: NextFunction) => { (new TicketTypeGroupsController(req, res, next)).list(); });
-router.all('/getlist',
-           (req: Request, res: Response, next: NextFunction) => { (new TicketTypeGroupsController(req, res, next)).getList(); });
+router.get('', ticketTypeGroupsController.list);
+router.get('/getlist', ticketTypeGroupsController.getList);
 
 export default router;
