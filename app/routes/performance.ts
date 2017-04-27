@@ -5,7 +5,7 @@
  * @ignore
  */
 import { Router } from 'express';
-import * as performanceController from '../controllers/Master/performance';
+import * as performanceController from '../controllers/master/performance';
 
 const router = Router();
 

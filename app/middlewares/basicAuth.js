@@ -25,4 +25,3 @@ exports.default = (req, res, next) => {
     res.setHeader('WWW-Authenticate', 'Basic realm="chevre-backend Authentication"');
     res.status(http_status_1.UNAUTHORIZED).end('Unauthorized');
 };
-//# sourceMappingURL=basicAuth.js.map

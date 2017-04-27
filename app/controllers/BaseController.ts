@@ -1,9 +1,7 @@
-//import * as conf from 'config';
 import * as express from 'express';
 import * as log4js from 'log4js';
 import * as moment from 'moment';
 import * as numeral from 'numeral';
-import * as Util from '../../common/Util/Util';
 
 /**
  * ベースコントローラー
@@ -48,12 +46,9 @@ export default class BaseController {
         this.next = next;
 
         this.logger = log4js.getLogger('system');
-        //this.router = this.req.app.namedRoutes;
 
         this.res.locals.req = this.req;
         this.res.locals.moment = moment;
         this.res.locals.numeral = numeral;
-        //this.res.locals.conf = conf;
-        this.res.locals.Util = Util;
     }
 }

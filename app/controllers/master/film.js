@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
-const Message = require("../../../../common/Const/Message");
-const FilmModel_1 = require("../../../models/Master/FilmModel");
-const MasterBaseController_1 = require("../MasterBaseController");
+const Message = require("../../../common/Const/Message");
+const FilmModel_1 = require("../../models/Master/FilmModel");
+const base_1 = require("./base");
 // 基数
 const DEFAULT_RADIX = 10;
 // 1ページに表示するデータ数
@@ -23,7 +23,7 @@ const NAME_MAX_LENGTH_NAME_MINUTES = 10;
  * @class FilmController
  * @extends {MasterBaseController}
  */
-class FilmController extends MasterBaseController_1.default {
+class FilmController extends base_1.default {
     constructor() {
         super(...arguments);
         this.layout = 'layouts/master/layout';
@@ -101,18 +101,18 @@ class FilmController extends MasterBaseController_1.default {
             // 登録日From
             if (createDateFrom) {
                 const keyFrom = '$gte';
-                conditionsDate[keyFrom] = MasterBaseController_1.default.toISOStringJapan(createDateFrom);
+                conditionsDate[keyFrom] = base_1.default.toISOStringJapan(createDateFrom);
             }
             // 登録日To
             if (createDateTo) {
                 const keyFrom = '$lt';
-                conditionsDate[keyFrom] = MasterBaseController_1.default.toISOStringJapan(createDateTo, 1);
+                conditionsDate[keyFrom] = base_1.default.toISOStringJapan(createDateTo, 1);
             }
             conditions[key] = conditionsDate;
         }
         // 作品名
         if (filmNameJa) {
-            conditions['name.ja'] = MasterBaseController_1.default.getRegxForwardMatching(filmNameJa);
+            conditions['name.ja'] = base_1.default.getRegxForwardMatching(filmNameJa);
         }
         // 作品名カナ
         if (filmNameKana) {
@@ -120,7 +120,7 @@ class FilmController extends MasterBaseController_1.default {
         }
         // 作品名英
         if (filmNameEn) {
-            conditions['name.en'] = MasterBaseController_1.default.getRegxForwardMatching(filmNameEn);
+            conditions['name.en'] = base_1.default.getRegxForwardMatching(filmNameEn);
         }
         const result = {
             success: false,
@@ -205,7 +205,7 @@ class FilmController extends MasterBaseController_1.default {
      */
     processAddFilm(filmModel, cb) {
         const digits = 6;
-        MasterBaseController_1.default.getId('filmId', digits, (err, id) => {
+        base_1.default.getId('filmId', digits, (err, id) => {
             if (err || !id)
                 return this.next(new Error(Message.Common.unexpectedError));
             // 作品DB登録
@@ -250,7 +250,7 @@ class FilmController extends MasterBaseController_1.default {
     renderDisplayList(filmModel) {
         this.res.locals.displayId = 'Aa-3';
         this.res.locals.title = '作品マスタ一覧';
-        this.res.render('master/film/list', {
+        this.res.render('master/film/index', {
             filmModel: filmModel,
             layout: 'layouts/master/layout'
         });
@@ -297,4 +297,3 @@ class FilmController extends MasterBaseController_1.default {
     }
 }
 exports.default = FilmController;
-//# sourceMappingURL=FilmController.js.map

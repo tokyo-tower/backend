@@ -14,4 +14,3 @@ exports.default = (err, req, res, next) => {
         ErrorController.internalServerError(res);
     }
 };
-//# sourceMappingURL=errorHandler.js.map

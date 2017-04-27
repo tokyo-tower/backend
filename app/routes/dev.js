@@ -44,4 +44,3 @@ router.get('/mongoose/disconnect', (__, res, next) => {
     });
 });
 exports.default = router;
-//# sourceMappingURL=dev.js.map

@@ -11,7 +11,6 @@ import * as cors from 'cors';
 import * as createDebug from 'debug';
 import * as express from 'express';
 import * as helmet from 'helmet';
-import * as i18n from 'i18n';
 import * as mongoose from 'mongoose';
 import * as multer from 'multer';
 import * as favicon from 'serve-favicon';
@@ -29,10 +28,15 @@ import errorHandler from './middlewares/errorHandler';
 import logger from './middlewares/logger';
 import notFoundHandler from './middlewares/notFoundHandler';
 import session from './middlewares/session';
+import userAuthentication from './middlewares/userAuthentication';
 
 // ルーター
+import authRouter from './routes/auth';
 import devRouter from './routes/dev';
-import router from './routes/router';
+import filmRouter from './routes/film';
+import performanceRouter from './routes/performance';
+import ticketTypeRouter from './routes/ticketType';
+import ticketTypeGroupRouter from './routes/ticketTypeGroup';
 
 const debug = createDebug('chevre-backend:app');
 
@@ -82,35 +86,18 @@ app.use(express.static(__dirname + '/../public'));
 
 app.use(expressValidator()); // バリデーション
 
-// i18n を利用する設定
-i18n.configure({
-    locales: ['en', 'ja'],
-    defaultLocale: 'ja',
-    directory: __dirname + '/../locales',
-    objectNotation: true,
-    updateFiles: false // ページのビューで自動的に言語ファイルを更新しない
-});
-// i18n の設定を有効化
-app.use(i18n.init);
-// セッションで言語管理
-app.use((req, _res, next) => {
-    if ((<any>req.session).locale) {
-        req.setLocale((<any>req.session).locale);
-    }
-    if (req.query.locale) {
-        req.setLocale(req.query.locale);
-        (<any>req.session).locale = req.query.locale;
-    }
-    next();
-});
-
 // Use native promises
 (<any>mongoose).Promise = global.Promise;
 mongoose.connect(process.env.MONGOLAB_URI, mongooseConnectionOptions);
 
-// ルーティング登録の順序に注意！
-router(app);
+app.use(userAuthentication); // ユーザー認証
 
+// ルーティング登録の順序に注意！
+app.use(authRouter); // ログイン・ログアウト
+app.use('/master/films', filmRouter); //作品
+app.use('/master/performances', performanceRouter); //パフォーマンス
+app.use('/master/ticketTypes', ticketTypeRouter); //券種
+app.use('/master/ticketTypeGroups', ticketTypeGroupRouter); //券種グループ
 
 if (process.env.NODE_ENV !== 'production') {
     app.use('/dev', devRouter);

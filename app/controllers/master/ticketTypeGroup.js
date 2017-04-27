@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
 const Message = require("../../../common/Const/Message");
 const TicketTypeGroupsModel_1 = require("../../models/Master/TicketTypeGroupsModel");
-const MasterBaseController_1 = require("./MasterBaseController");
+const base_1 = require("./base");
 // 基数
 const DEFAULT_RADIX = 10;
 // 1ページに表示するデータ数
@@ -19,7 +19,7 @@ const NAME_MAX_LENGTH_NAME_JA = 64;
  * @class ticketTypeController
  * @extends {MasterBaseController}
  */
-class TicketTypeGroupsController extends MasterBaseController_1.default {
+class TicketTypeGroupsController extends base_1.default {
     constructor() {
         super(...arguments);
         this.layout = 'layouts/master/layout';
@@ -28,8 +28,10 @@ class TicketTypeGroupsController extends MasterBaseController_1.default {
      * 新規登録
      */
     add() {
-        if (!this.req.staffUser)
-            return this.next(new Error(Message.Common.unexpectedError));
+        if (!this.req.staffUser) {
+            this.next(new Error(Message.Common.unexpectedError));
+            return;
+        }
         let ticketTypeGroupsModel = new TicketTypeGroupsModel_1.default();
         if (this.req.method === 'POST') {
             // モデルに画面入力値をセット
@@ -69,8 +71,10 @@ class TicketTypeGroupsController extends MasterBaseController_1.default {
      * 一覧データ取得API
      */
     getList() {
-        if (!this.req.staffUser)
-            return this.next(new Error(Message.Common.unexpectedError));
+        if (!this.req.staffUser) {
+            this.next(new Error(Message.Common.unexpectedError));
+            return;
+        }
         // 表示件数・表示ページ
         const limit = (this.req.query.limit) ? parseInt(this.req.query.limit, DEFAULT_RADIX) : DEFAULT_LINES;
         const page = (this.req.query.page) ? parseInt(this.req.query.page, DEFAULT_RADIX) : 1;
@@ -87,7 +91,7 @@ class TicketTypeGroupsController extends MasterBaseController_1.default {
         }
         // 管理用券種グループ名
         if (ticketGroupNameJa) {
-            conditions['name.ja'] = MasterBaseController_1.default.getRegxForwardMatching(ticketGroupNameJa);
+            conditions['name.ja'] = base_1.default.getRegxForwardMatching(ticketGroupNameJa);
         }
         const result = {
             success: false,
@@ -152,8 +156,10 @@ class TicketTypeGroupsController extends MasterBaseController_1.default {
      * 一覧
      */
     list() {
-        if (!this.req.staffUser)
-            return this.next(new Error(Message.Common.unexpectedError));
+        if (!this.req.staffUser) {
+            this.next(new Error(Message.Common.unexpectedError));
+            return;
+        }
         const ticketTypeModel = new TicketTypeGroupsModel_1.default();
         if (this.req.method !== 'POST') {
             // 券種グループマスタ画面遷移
@@ -167,9 +173,11 @@ class TicketTypeGroupsController extends MasterBaseController_1.default {
      */
     processAddTicketTypeGroups(ticketTypeGroupsModel, cb) {
         const digits = 6;
-        MasterBaseController_1.default.getId('ticketTypeId', digits, (err, id) => {
-            if (err || !id)
-                return this.next(new Error(Message.Common.unexpectedError));
+        base_1.default.getId('ticketTypeId', digits, (err, id) => {
+            if (err || !id) {
+                this.next(new Error(Message.Common.unexpectedError));
+                return;
+            }
             // 券種グループDB登録
             chevre_domain_1.Models.Film.create({
                 _id: id,
@@ -219,7 +227,7 @@ class TicketTypeGroupsController extends MasterBaseController_1.default {
     renderDisplayList(ticketTypeGroupsModel) {
         this.res.locals.displayId = 'Aa-8';
         this.res.locals.title = '券種グループマスタ一覧';
-        this.res.render('master/ticketTypegroups/list', {
+        this.res.render('master/ticketTypeGroup/index', {
             ticketTypeGroupsModel: ticketTypeGroupsModel,
             layout: 'layouts/master/layout'
         });

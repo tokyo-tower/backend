@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const MasterBaseModel_1 = require("./MasterBaseModel");
 /**
  * 作品マスタモデル
  *
@@ -8,7 +9,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @export
  * @class FilmModel
  */
-const MasterBaseModel_1 = require("./MasterBaseModel");
 class FilmModel extends MasterBaseModel_1.default {
     constructor() {
         super(...arguments);
@@ -44,4 +44,3 @@ class FilmModel extends MasterBaseModel_1.default {
     }
 }
 exports.default = FilmModel;
-//# sourceMappingURL=FilmModel.js.map

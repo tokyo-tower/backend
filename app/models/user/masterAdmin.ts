@@ -1,4 +1,4 @@
-import BaseUser from './BaseUser';
+import BaseUser from './base';
 
 /**
  * マスタ管理者ユーザー
@@ -8,7 +8,7 @@ import BaseUser from './BaseUser';
  * @extends {BaseUser}
  */
 export default class MasterAdminUser extends BaseUser {
-    public static AUTH_SESSION_NAME = 'CHEVREFrontendMasterAuth';
+    public static AUTH_SESSION_NAME: string = 'CHEVREFrontendMasterAuth';
 
     public static PARSE(session: Express.Session | undefined): MasterAdminUser {
         const user = new MasterAdminUser();

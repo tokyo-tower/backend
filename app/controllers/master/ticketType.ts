@@ -2,7 +2,7 @@ import { Models } from '@motionpicture/chevre-domain';
 //import * as mongoose from 'mongoose';
 import * as Message from '../../../common/Const/Message';
 import TicketTypeModel from '../../models/Master/TicketTypeModel';
-import MasterBaseController from './MasterBaseController';
+import MasterBaseController from './base';
 
 // 基数
 const DEFAULT_RADIX: number = 10;
@@ -218,7 +218,7 @@ export default class TicketTypeController extends MasterBaseController {
     private renderDisplayList (ticketTypeModel: TicketTypeModel): void {
         this.res.locals.displayId = 'Aa-6';
         this.res.locals.title = '券種マスタ一覧';
-        this.res.render('master/ticketType/list', {
+        this.res.render('master/ticketType/index', {
             ticketTypeModel: ticketTypeModel,
             layout: 'layouts/master/layout'
         });

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const MasterBaseModel_1 = require("./MasterBaseModel");
 /**
  * 券種グループマスタモデル
  *
@@ -8,7 +9,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @export
  * @class TicketTypeGroupsModel
  */
-const MasterBaseModel_1 = require("./MasterBaseModel");
 class TicketTypeGroupsModel extends MasterBaseModel_1.default {
     constructor() {
         super(...arguments);

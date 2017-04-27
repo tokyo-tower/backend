@@ -4,7 +4,7 @@ const chevre_domain_1 = require("@motionpicture/chevre-domain");
 //import * as mongoose from 'mongoose';
 const Message = require("../../../common/Const/Message");
 const TicketTypeModel_1 = require("../../models/Master/TicketTypeModel");
-const MasterBaseController_1 = require("./MasterBaseController");
+const base_1 = require("./base");
 // 基数
 const DEFAULT_RADIX = 10;
 // 1ページに表示するデータ数
@@ -22,7 +22,7 @@ const NAME_MAX_LENGTH_NAME_EN = 64;
  * @class ticketTypeController
  * @extends {MasterBaseController}
  */
-class TicketTypeController extends MasterBaseController_1.default {
+class TicketTypeController extends base_1.default {
     constructor() {
         super(...arguments);
         this.layout = 'layouts/master/layout';
@@ -91,7 +91,7 @@ class TicketTypeController extends MasterBaseController_1.default {
         }
         // 管理用券種名
         if (managementTypeName) {
-            conditions['name.ja'] = MasterBaseController_1.default.getRegxForwardMatching(managementTypeName);
+            conditions['name.ja'] = base_1.default.getRegxForwardMatching(managementTypeName);
         }
         // 金額
         if (ticketCharge) {
@@ -223,7 +223,7 @@ class TicketTypeController extends MasterBaseController_1.default {
     renderDisplayList(ticketTypeModel) {
         this.res.locals.displayId = 'Aa-6';
         this.res.locals.title = '券種マスタ一覧';
-        this.res.render('master/ticketType/list', {
+        this.res.render('master/ticketType/index', {
             ticketTypeModel: ticketTypeModel,
             layout: 'layouts/master/layout'
         });

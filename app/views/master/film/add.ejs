@@ -3,7 +3,7 @@
 <form method="post" class="form-horizontal" >
   <div class="menu-group">
     <div style="padding:0px 0px 4px 10px;" >
-      <a href="/master/film/list"><%- __('Master.Label.toFilmAdd') %></a>
+      <a href="/master/films">作品マスタ一覧へ</a>
     </div>
     <% /* メッセージ */ %>
     <% if (filmModel.message != '') { %>
@@ -15,14 +15,14 @@
   <% /* 作品コード */ %>
   <div class="form-group ">
     <label for="code" class="col-sm-2 control-label label-title">
-      <%- __('Master.Form.FieldName.filmCode') %>
-      <font color="red"><%- __('Master.Label.inputMust') %></font>
+      作品コード
+      <font color="red">＊</font>
     </label>
     <div class="col-sm-10">
       <input type="text" class="form-control" name="filmCode" id="filmCode" placeholder="" maxlength=64 value=<%= filmModel.filmCode %>>
       <p class="message">
           <% /*半角64文字以内でご入力ください。*/ %>
-          <%- __('Master.Label.inputHankaku{{maxlength}}', { maxlength: 64 }) %>
+          半角64文字以内でご入力ください。
       </p>
       <p class="error message">
         <% if (errors && errors.filmCode) { %>
@@ -34,14 +34,14 @@
   <% /* 作品名 */ %>
   <div class="form-group">
     <label for="filmNameJa" class="col-sm-2 control-label label-title">
-      <%- __('Master.Form.FieldName.filmNameJa') %>
-      <font color="red"><%- __('Master.Label.inputMust') %></font>
+      作品名
+      <font color="red">＊</font>
     </label>
     <div class="col-sm-10">
       <input class="form-control" name="filmNameJa" id="filmNameJa" placeholder="" maxlength=64 value=<%= filmModel.filmNameJa %>>
       <p class="message">
           <% /*全角64文字以内でご入力ください。*/ %>
-          <%- __('Master.Label.inputZenkaku{{maxlength}}', { maxlength: 64 }) %>
+          全角64文字以内でご入力ください。
       </p>
       <p class="error message">
         <% if (errors && errors.filmNameJa) { %>
@@ -53,14 +53,14 @@
   <% /* 作品名カナ */ %>
   <div class="form-group">
     <label for="filmNameKana" class="col-sm-2 control-label label-title">
-      <%- __('Master.Form.FieldName.filmNameKana') %>
-      <font color="red"><%- __('Master.Label.inputMust') %></font>
+      作品名カナ
+      <font color="red">＊</font>
     </label>
     <div class="col-sm-10">
       <input class="form-control" name="filmNameKana" id="filmNameKana" placeholder="" maxlength=64 value=<%= filmModel.filmNameKana %>>
       <p class="message">
           <% /*全角64文字以内でご入力ください。*/ %>
-          <%- __('Master.Label.inputZenkaku{{maxlength}}', { maxlength: 64 }) %>
+          全角64文字以内でご入力ください。
       </p>
       <p class="error message">
         <% if (errors && errors.filmNameKana) { %>
@@ -72,13 +72,13 @@
   <% /* 作品名英 */ %>
   <div class="form-group">
     <label for="filmNameEn" class="col-sm-2 control-label label-title">
-      <%- __('Master.Form.FieldName.filmNameEn') %>
+      作品名英
     </label>
     <div class="col-sm-10">
       <input class="form-control" name="filmNameEn" id="filmNameEn" placeholder="" maxlength=128 value=<%= filmModel.filmNameEn %>>
       <p class="message">
           <% /*半角128文字以内でご入力ください。*/ %>
-          <%- __('Master.Label.inputHankaku{{maxlength}}', { maxlength: 128 }) %>
+          半角128文字以内でご入力ください。
       </p>
       <p class="error message">
         <% if (errors && errors.filmNameEn) { %>
@@ -90,14 +90,14 @@
   <% /* 上映時間 */ %>
   <div class="form-group">
     <label for="filmMinutes" class="col-sm-2 control-label label-title">
-      <%- __('Master.Form.FieldName.filmMinutes') %>
+      上映時間
     </label>
     <div class="col-sm-10">
       <input class="form-control" style="width:30%;display:inline-block;" name="filmMinutes" id="filmMinutes" placeholder="" maxlength=10 value=<%= filmModel.filmMinutes %>>
       分
       <p class="message">
           <% /*半角10文字以内でご入力ください。*/ %>
-          <%- __('Master.Label.inputHankaku{{maxlength}}', { maxlength: 10 }) %>
+          半角10文字以内でご入力ください。
       </p>
       <p class="error message">
         <% if (errors && errors.filmMinutes) { %>
@@ -109,8 +109,8 @@
   <% /* レイティング */ %>
   <div class="form-group">
     <label for="filmRatings" class="col-sm-2 control-label label-title">
-      <%- __('Master.Form.FieldName.filmRatings') %>
-      <font color="red"><%- __('Master.Label.inputMust') %></font>
+      レイティング
+      <font color="red">＊</font>
     </label>
     <div class="col-sm-10">
       <%
@@ -124,7 +124,7 @@
       <select name="filmRatings" id="filmRatings" class="form-control">
           <option value="">---</option>
           <% for (let rating of ratings) { %>
-          <option value="<%= rating.code %>"<% if (filmModel.filmRatings === rating.code) { %> selected="selected"<% } %>><%- rating.name[locale] %></option>
+          <option value="<%= rating.code %>"<% if (filmModel.filmRatings === rating.code) { %> selected="selected"<% } %>><%- rating.name.ja %></option>
           <% } %>
       </select>
       <p class="error message">
@@ -137,8 +137,8 @@
   <% /* 字幕/吹き替え */ %>
   <div class="form-group">
     <label for="subtitleDub" class="col-sm-2 control-label label-title">
-      <%- __('Master.Form.FieldName.subtitleDub') %>
-      <font color="red"><%- __('Master.Label.inputMust') %></font>
+      字幕/吹き替え
+      <font color="red">＊</font>
     </label>
     <div class="col-sm-10">
       <%
@@ -150,7 +150,7 @@
       <select name="subtitleDub" id="subtitleDub" class="form-control">
           <option value="">---</option>
           <% for (let subtitle of subtitles) { %>
-          <option value="<%= subtitle.code %>"<% if (filmModel.subtitleDub === subtitle.code) { %> selected="selected"<% } %>><%- subtitle.name[locale] %></option>
+          <option value="<%= subtitle.code %>"<% if (filmModel.subtitleDub === subtitle.code) { %> selected="selected"<% } %>><%- subtitle.name.ja %></option>
           <% } %>
       </select>
       <p class="error message">
@@ -163,8 +163,8 @@
   <% /* 上映形態 */ %>
   <div class="form-group">
     <label for="screeningForm" class="col-sm-2 control-label label-title">
-      <%- __('Master.Form.FieldName.screeningForm') %>
-      <font color="red"><%- __('Master.Label.inputMust') %></font>
+      上映形態
+      <font color="red">＊</font>
     </label>
     <div class="col-sm-10">
       <%
@@ -179,7 +179,7 @@
       <select name="screeningForm" id="screeningForm" class="form-control">
           <option value="">---</option>
           <% for (let form of forms) { %>
-          <option value="<%= form.code %>"<% if (filmModel.screeningForm === form.code) { %> selected="selected"<% } %>><%- form.name[locale] %></option>
+          <option value="<%= form.code %>"<% if (filmModel.screeningForm === form.code) { %> selected="selected"<% } %>><%- form.name.ja %></option>
           <% } %>
       </select>
       <p class="error message">
@@ -192,7 +192,7 @@
   <% /* 登録ボタン */ %>
   <div class="form-group">
     <div class="btn-area">
-      <a class="btn btn-ok"><span><%- __('Master.Button.Add') %></span></a>
+      <a class="btn btn-ok"><span>登録する</span></a>
     </div>
   </div>
 </form>

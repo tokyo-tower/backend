@@ -7,11 +7,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @ignore
  */
 const express_1 = require("express");
-const TicketTypeController_1 = require("../controllers/Master/TicketTypeController");
+const ticketType_1 = require("../controllers/master/ticketType");
 const router = express_1.Router();
 // 券種登録
-router.all('/add', (req, res, next) => { (new TicketTypeController_1.default(req, res, next)).add(); });
+router.all('/add', (req, res, next) => { (new ticketType_1.default(req, res, next)).add(); });
 // 券種一覧
-router.all('/list', (req, res, next) => { (new TicketTypeController_1.default(req, res, next)).list(); });
-router.all('/getlist', (req, res, next) => { (new TicketTypeController_1.default(req, res, next)).getList(); });
+router.all('', (req, res, next) => { (new ticketType_1.default(req, res, next)).list(); });
+router.all('/getlist', (req, res, next) => { (new ticketType_1.default(req, res, next)).getList(); });
 exports.default = router;

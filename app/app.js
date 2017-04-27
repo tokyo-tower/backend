@@ -11,7 +11,6 @@ const cors = require("cors");
 const createDebug = require("debug");
 const express = require("express");
 const helmet = require("helmet");
-const i18n = require("i18n");
 const mongoose = require("mongoose");
 const multer = require("multer");
 const favicon = require("serve-favicon");
@@ -27,9 +26,14 @@ const errorHandler_1 = require("./middlewares/errorHandler");
 const logger_1 = require("./middlewares/logger");
 const notFoundHandler_1 = require("./middlewares/notFoundHandler");
 const session_1 = require("./middlewares/session");
+const userAuthentication_1 = require("./middlewares/userAuthentication");
 // ルーター
+const auth_1 = require("./routes/auth");
 const dev_1 = require("./routes/dev");
-const router_1 = require("./routes/router");
+const film_1 = require("./routes/film");
+const performance_1 = require("./routes/performance");
+const ticketType_1 = require("./routes/ticketType");
+const ticketTypeGroup_1 = require("./routes/ticketTypeGroup");
 const debug = createDebug('chevre-backend:app');
 const app = express();
 if (process.env.NODE_ENV === 'development') {
@@ -67,32 +71,16 @@ app.use(multer({ storage: storage }).any());
 app.use(cookieParser());
 app.use(express.static(__dirname + '/../public'));
 app.use(expressValidator()); // バリデーション
-// i18n を利用する設定
-i18n.configure({
-    locales: ['en', 'ja'],
-    defaultLocale: 'ja',
-    directory: __dirname + '/../locales',
-    objectNotation: true,
-    updateFiles: false // ページのビューで自動的に言語ファイルを更新しない
-});
-// i18n の設定を有効化
-app.use(i18n.init);
-// セッションで言語管理
-app.use((req, _res, next) => {
-    if (req.session.locale) {
-        req.setLocale(req.session.locale);
-    }
-    if (req.query.locale) {
-        req.setLocale(req.query.locale);
-        req.session.locale = req.query.locale;
-    }
-    next();
-});
 // Use native promises
 mongoose.Promise = global.Promise;
 mongoose.connect(process.env.MONGOLAB_URI, mongooseConnectionOptions_1.default);
+app.use(userAuthentication_1.default); // ユーザー認証
 // ルーティング登録の順序に注意！
-router_1.default(app);
+app.use(auth_1.default); // ログイン・ログアウト
+app.use('/master/films', film_1.default); //作品
+app.use('/master/performances', performance_1.default); //パフォーマンス
+app.use('/master/ticketTypes', ticketType_1.default); //券種
+app.use('/master/ticketTypeGroups', ticketTypeGroup_1.default); //券種グループ
 if (process.env.NODE_ENV !== 'production') {
     app.use('/dev', dev_1.default);
 }
@@ -101,4 +89,3 @@ app.use(notFoundHandler_1.default);
 // error handlers
 app.use(errorHandler_1.default);
 module.exports = app;
-//# sourceMappingURL=app.js.map

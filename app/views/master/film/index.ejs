@@ -19,7 +19,7 @@
     <% /* 作品コード */ %>
     <div class="form-group ">
       <label for="code" class="col-sm-2 control-label label-title">
-        <%- __('Master.Form.FieldName.filmCode') %>
+        作品コード
       </label>
       <div class="col-sm-10">
         <input type="text" class="form-control" name="filmCode" id="filmCode" placeholder="" maxlength=64 value="<%= filmModel.filmCode %>">
@@ -28,18 +28,18 @@
     <% /* 登録日 */ %>
     <div class="form-group form-inline">
       <label for="dateFrom" class="col-sm-2 control-label label-title">
-        <%- __('Master.Form.FieldName.filmRegistDate') %>
+        登録日
       </label>
       <div class="col-sm-10">
         <input type="text" class="form-control datepicker" name="dateFrom" id="dateFrom" />
-        <%- __('Master.Label.fromTo') %>
+        ～
         <input type="text" class="form-control datepicker" name="dateTo" id="dateTo" />
       </div>
     </div>
     <% /* 作品名 */ %>
     <div class="form-group">
       <label for="filmNameJa" class="col-sm-2 control-label label-title">
-        <%- __('Master.Form.FieldName.filmNameJa') %>
+        作品名
       </label>
       <div class="col-sm-10">
         <input class="form-control" name="filmNameJa" id="filmNameJa" placeholder="" maxlength=64 value="<%= filmModel.filmNameJa %>">
@@ -48,7 +48,7 @@
     <% /* 作品名カナ */ %>
     <div class="form-group">
       <label for="filmNameKana" class="col-sm-2 control-label label-title">
-        <%- __('Master.Form.FieldName.filmNameKana') %>
+        作品名カナ
       </label>
       <div class="col-sm-10">
         <input class="form-control" name="filmNameKana" id="filmNameKana" placeholder="" maxlength=64 value="<%= filmModel.filmNameKana %>">
@@ -57,7 +57,7 @@
     <% /* 作品名英 */ %>
     <div class="form-group">
       <label for="filmNameEn" class="col-sm-2 control-label label-title">
-        <%- __('Master.Form.FieldName.filmNameEn') %>
+        作品名英
       </label>
       <div class="col-sm-10">
         <input class="form-control" name="filmNameEn" id="filmNameEn" placeholder="" maxlength=128 value="<%= filmModel.filmNameEn %>">
@@ -66,10 +66,10 @@
     <% /* 検索ボタン */ %>
     <div class="form-group">
       <div class="btn-area">
-        <a class="btn btn-ok search"><span><%- __('Master.Button.Search') %></span></a>
+        <a class="btn btn-ok search"><span>検索する</span></a>
       </div>
       <div class="btn-area">
-        <a class="reset-condition"><span><%- __('Master.Label.resetSearchCondition') %></span></a>
+        <a class="reset-condition"><span>検索内容リセット</span></a>
       </div>
     </div>
   </form>
@@ -79,7 +79,7 @@
   <div>
     <p id="searchedCount" style="display:none;">
       <% /* 検索結果XX件 */ %>
-      <%- __('Master.Label.searchedCount') %>
+      検索結果 xx件
     </p>
   </div>
   <div id="list" class="table-responsive" style="display:none;">
@@ -88,29 +88,29 @@
         <tr style="background-color:#d9d9d9">
           <th>
             <% /* 作品コード */ %>
-            <%- __('Master.Form.FieldName.filmCode') %>
+            作品コード
           </th>
           <th style="text-align:left;">
             <% /* 作品名・カナ・英 */ %>
-            <%- __('Master.Form.FieldName.filmNameJa') %><br/>
-            <%- __('Master.Form.FieldName.filmNameKana') %><br/>
-            <%- __('Master.Form.FieldName.filmNameEn') %>
+            作品名<br/>
+            作品名カナ<br/>
+            作品名英
           </th>
           <th>
             <% /* 上映時間(分) */ %>
-            <%- __('Master.Label.filmMinutes1') %><br/>
-            <%- __('Master.Label.filmMinutes2') %>
-            <%- __('Master.Label.filmMinutesF') %>
+            上映<br/>
+            時間
+            (分)
           </th>
           <th>
             <% /* 字幕/吹き替え */ %>
-            <%- __('Master.Label.subtitle') %>
-            <%- __('Master.Label.slash') %><br/>
-            <%- __('Master.Label.dub') %>
+            字幕
+            /<br/>
+            吹き替え
           </th>
           <th>
             <% /* 上映形態 */ %>
-            <%- __('Master.Form.FieldName.screeningForm') %>
+            上映形態
           </th>
           <th>
           </th>
@@ -136,7 +136,7 @@
           <td name="edit" class="center">
             <div class="btn-area">
               <a class="btn btn-list edit">
-                <span><%- __('Master.Button.Edit') %></span>
+                <span>編集</span>
               </a>
             </div>
           </td>

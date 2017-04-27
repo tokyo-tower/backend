@@ -173,4 +173,3 @@ function update(req, res) {
     });
 }
 exports.update = update;
-//# sourceMappingURL=performance.js.map

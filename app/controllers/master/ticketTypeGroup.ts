@@ -2,7 +2,7 @@ import { Models } from '@motionpicture/chevre-domain';
 import * as mongoose from 'mongoose';
 import * as Message from '../../../common/Const/Message';
 import TicketTypeGroupsModel from '../../models/Master/TicketTypeGroupsModel';
-import MasterBaseController from './MasterBaseController';
+import MasterBaseController from './base';
 
 // 基数
 const DEFAULT_RADIX: number = 10;
@@ -26,7 +26,11 @@ export default class TicketTypeGroupsController extends MasterBaseController {
      * 新規登録
      */
     public add(): void {
-        if (!this.req.staffUser) return this.next(new Error(Message.Common.unexpectedError));
+        if (!this.req.staffUser) {
+            this.next(new Error(Message.Common.unexpectedError));
+            return;
+        }
+
         let ticketTypeGroupsModel: TicketTypeGroupsModel = new TicketTypeGroupsModel();
         if (this.req.method === 'POST') {
             // モデルに画面入力値をセット
@@ -63,7 +67,11 @@ export default class TicketTypeGroupsController extends MasterBaseController {
      * 一覧データ取得API
      */
     public getList(): void {
-        if (!this.req.staffUser) return this.next(new Error(Message.Common.unexpectedError));
+        if (!this.req.staffUser) {
+            this.next(new Error(Message.Common.unexpectedError));
+            return;
+        }
+
         // 表示件数・表示ページ
         const limit: number = (this.req.query.limit) ? parseInt(this.req.query.limit, DEFAULT_RADIX) : DEFAULT_LINES;
         const page: number = (this.req.query.page) ? parseInt(this.req.query.page, DEFAULT_RADIX) : 1;
@@ -75,7 +83,7 @@ export default class TicketTypeGroupsController extends MasterBaseController {
         // 検索条件を作成
         const conditions: any = {};
         // 券種グループコード
-        if ( ticketGroupCode) {
+        if (ticketGroupCode) {
             const key: string = '_id';
             conditions[key] = ticketGroupCode;
         }
@@ -118,7 +126,7 @@ export default class TicketTypeGroupsController extends MasterBaseController {
             results: [],
             count: 0
         };
-        Models.TicketTypeGroup.find( conditions )
+        Models.TicketTypeGroup.find(conditions)
             .skip(limit * (page - 1))
             .limit(limit)
             .lean(true)
@@ -141,13 +149,16 @@ export default class TicketTypeGroupsController extends MasterBaseController {
                     });
                 }
             }
-        );
+            );
     }
     /**
      * 一覧
      */
     public list(): void {
-        if (!this.req.staffUser) return this.next(new Error(Message.Common.unexpectedError));
+        if (!this.req.staffUser) {
+            this.next(new Error(Message.Common.unexpectedError));
+            return;
+        }
         const ticketTypeModel: TicketTypeGroupsModel = new TicketTypeGroupsModel();
         if (this.req.method !== 'POST') {
             // 券種グループマスタ画面遷移
@@ -164,7 +175,11 @@ export default class TicketTypeGroupsController extends MasterBaseController {
         ticketTypeGroupsModel: TicketTypeGroupsModel, cb: (err: Error | null, ticket: mongoose.Document) => void): void {
         const digits: number = 6;
         MasterBaseController.getId('ticketTypeId', digits, (err, id) => {
-            if (err || !id) return this.next(new Error(Message.Common.unexpectedError));
+            if (err || !id) {
+                this.next(new Error(Message.Common.unexpectedError));
+                return;
+            }
+
             // 券種グループDB登録
             Models.Film.create(
                 {
@@ -189,19 +204,19 @@ export default class TicketTypeGroupsController extends MasterBaseController {
      *
      * @param {TicketTypeGroupsModel} ticketTypeGroupsModel
      */
-    private renderDisplayAdd (ticketTypeGroupsModel: TicketTypeGroupsModel, errors: any): void {
+    private renderDisplayAdd(ticketTypeGroupsModel: TicketTypeGroupsModel, errors: any): void {
         this.res.locals.displayId = 'Aa-7';
         this.res.locals.title = '券種グループマスタ新規登録';
 
         //券種マスタから取得???
         ticketTypeGroupsModel.listTargetTicketName = [
-            {value: '01', text: '一般1800円'},
-            {value: '02', text: '大・専1500円'},
-            {value: '03', text: '高校生1000円'},
-            {value: '04', text: '中・小1000円'},
-            {value: '05', text: '幼児1000円'},
-            {value: '06', text: 'シニア1100円'},
-            {value: '07', text: '夫婦50割1100円'}
+            { value: '01', text: '一般1800円' },
+            { value: '02', text: '大・専1500円' },
+            { value: '03', text: '高校生1000円' },
+            { value: '04', text: '中・小1000円' },
+            { value: '05', text: '幼児1000円' },
+            { value: '06', text: 'シニア1100円' },
+            { value: '07', text: '夫婦50割1100円' }
         ];
 
         this.res.render('master/ticketTypegroups/add', {
@@ -210,19 +225,21 @@ export default class TicketTypeGroupsController extends MasterBaseController {
             layout: 'layouts/master/layout'
         });
     }
+
     /**
      * 券種グループマスタ一覧画面遷移
      *
      * @param {TicketTypeGroupsModel} ticketTypeGroupsModel
      */
-    private renderDisplayList (ticketTypeGroupsModel: TicketTypeGroupsModel): void {
+    private renderDisplayList(ticketTypeGroupsModel: TicketTypeGroupsModel): void {
         this.res.locals.displayId = 'Aa-8';
         this.res.locals.title = '券種グループマスタ一覧';
-        this.res.render('master/ticketTypegroups/list', {
+        this.res.render('master/ticketTypeGroup/index', {
             ticketTypeGroupsModel: ticketTypeGroupsModel,
             layout: 'layouts/master/layout'
         });
     }
+
     /**
      * 券種グループマスタ新規登録画面検証
      *
@@ -232,11 +249,11 @@ export default class TicketTypeGroupsController extends MasterBaseController {
         // 券種グループコード
         let colName: string = '券種グループコード';
         this.req.assert('ticketCode', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
-        this.req.assert('ticketCode', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_CODE)).len({max: NAME_MAX_LENGTH_CODE});
+        this.req.assert('ticketCode', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_CODE)).len({ max: NAME_MAX_LENGTH_CODE });
         // サイト表示用券種グループ名
         colName = 'サイト表示用券種グループ名';
         this.req.assert('ticketNameJa', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
-        this.req.assert('ticketNameJa', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_CODE)).len({max: NAME_MAX_LENGTH_NAME_JA});
+        this.req.assert('ticketNameJa', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_CODE)).len({ max: NAME_MAX_LENGTH_NAME_JA });
         // 検証実行
         return this.req.validationErrors(true);
     }

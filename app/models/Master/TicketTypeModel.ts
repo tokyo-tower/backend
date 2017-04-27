@@ -1,3 +1,5 @@
+import MasterBaseModel from './MasterBaseModel';
+
 /**
  * 券種マスタモデル
  *
@@ -6,7 +8,6 @@
  * @export
  * @class TicketTypeModel
  */
-import MasterBaseModel from './MasterBaseModel';
 export default class TicketTypeModel extends MasterBaseModel {
     /**
      * 券種コード(string(64))

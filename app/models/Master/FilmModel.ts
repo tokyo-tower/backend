@@ -1,3 +1,5 @@
+import MasterBaseModel from './MasterBaseModel';
+
 /**
  * 作品マスタモデル
  *
@@ -6,7 +8,6 @@
  * @export
  * @class FilmModel
  */
-import MasterBaseModel from './MasterBaseModel';
 export default class FilmModel extends MasterBaseModel {
     /**
      * 作品コード
@@ -45,7 +46,7 @@ export default class FilmModel extends MasterBaseModel {
      * 作品マスタ登録ドキュメントを作成する
      */
     public getFilmDocument() {
-        return{
+        return {
             name: {
                 ja: this.filmNameJa,
                 en: this.filmNameEn

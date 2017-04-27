@@ -1,8 +1,8 @@
 import { Models } from '@motionpicture/chevre-domain';
 import * as mongoose from 'mongoose';
-import * as Message from '../../../../common/Const/Message';
-import FilmModel from '../../../models/Master/FilmModel';
-import MasterBaseController from '../MasterBaseController';
+import * as Message from '../../../common/Const/Message';
+import FilmModel from '../../models/Master/FilmModel';
+import MasterBaseController from './base';
 
 // 基数
 const DEFAULT_RADIX: number = 10;
@@ -246,7 +246,7 @@ export default class FilmController extends MasterBaseController {
     private renderDisplayList (filmModel: FilmModel): void {
         this.res.locals.displayId = 'Aa-3';
         this.res.locals.title = '作品マスタ一覧';
-        this.res.render('master/film/list', {
+        this.res.render('master/film/index', {
             filmModel: filmModel,
             layout: 'layouts/master/layout'
         });

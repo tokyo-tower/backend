@@ -1,7 +1,7 @@
 <form method="post" class="form-horizontal form-login" >
   <% /* ユーザーID */ %>
   <div class="form-group .form-inline">
-    <label for="userId" class="col-sm-3 control-label label-title"><%- __('Master.Form.FieldName.loginId') %></label>
+    <label for="userId" class="col-sm-3 control-label label-title">ID</label>
     <div class="col-sm-9">
       <input type="text" name="userId" id="userId" class="form-control" value="<%- form.userId %>">
       <p class="error message" style="text-align:left;">
@@ -13,7 +13,7 @@
   </div>
   <% /* パスワード */ %>
   <div class="form-group .form-inline">
-    <label for="password" class="col-sm-3 control-label label-title"><%- __('Form.FieldName.password') %></label>
+    <label for="password" class="col-sm-3 control-label label-title">パスワード</label>
     <div class="col-sm-9">
       <input type="password" name="password" id="password" class="form-control" value="<%- form.password %>">
       <% /* 単体チェックエラー */ %>
@@ -33,7 +33,7 @@
   <% /* ログインボタン */ %>
   <div class="form-group">
     <div class="btn-area">
-      <button type="button" class="btn btn-ok"><%- __('Button.Login') %></button>
+      <button type="button" class="btn btn-ok">ログイン</button>
     </div>
   </div>
 </form>

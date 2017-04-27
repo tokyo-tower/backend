@@ -1,3 +1,5 @@
+import MasterBaseModel from './MasterBaseModel';
+
 /**
  * 券種グループマスタモデル
  *
@@ -6,7 +8,6 @@
  * @export
  * @class TicketTypeGroupsModel
  */
-import MasterBaseModel from './MasterBaseModel';
 export default class TicketTypeGroupsModel extends MasterBaseModel {
     /**
      * 券種グループ名(string(64))
