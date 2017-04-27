@@ -23,16 +23,8 @@ export async function index(_: Request, res: Response, next: NextFunction): Prom
         if (theaters.length === 0) {
             throw new Error('not theaters');
         }
-        const films = await Models.Film.find().exec();
-        if (theaters.length === 0) {
-            throw new Error('not theaters');
-        }
-        if (films.length === 0) {
-            throw new Error('not theaters');
-        }
         res.render('master/performance/', {
             theaters: theaters,
-            films: JSON.stringify(films),
             moment: moment,
             layout: 'layouts/master/layout'
         });
@@ -45,6 +37,7 @@ export async function index(_: Request, res: Response, next: NextFunction): Prom
 
 /**
  * パフォーマンス検索
+ * @function search
  * @param {Request} req
  * @param {Response} res
  * @returns {Promise<void>}
@@ -59,14 +52,101 @@ export async function search(req: Request, res: Response): Promise<void> {
         const performances = await Models.Performance.find({
             theater: theater,
             day: day
-        }).exec();
+        }).populate('film', 'name').exec();
         res.json({
             performances: performances,
             screens: screens
         });
         return;
-    } catch(err) {
+    } catch (err) {
+        debug('search error', err);
         res.json(null);
+        return;
+    }
+}
+
+/**
+ * 作品検索
+ * @function filmSearch
+ * @param {Request} req
+ * @param {Response} res
+ * @returns {Promise<void>}
+ */
+export async function filmSearch(req: Request, res: Response): Promise<void> {
+    try {
+        const id = req.body.id;
+        const film = await Models.Film.findById(id).exec();
+        res.json({
+            film: film
+        });
+        return;
+    } catch (err) {
+        debug('filmSearch error', err);
+        res.json(null);
+        return;
+    }
+}
+
+/**
+ * 新規登録
+ * @function regist
+ * @param {Request} req
+ * @param {Response} res
+ * @returns {Promise<void>}
+ */
+export async function regist(req: Request, res: Response): Promise<void> {
+    try {
+        const theater = await Models.Theater.findById(req.body.theater).exec();
+        const screen = await Models.Screen.findById(req.body.screen).exec();
+        await Models.Performance.create({
+            theater: req.body.theater,
+            screen: req.body.screen,
+            film: req.body.film,
+            day: req.body.day,
+            open_time: req.body.openTime,
+            start_time: req.body.startTime,
+            end_time: req.body.endTime,
+            theater_name: theater.get('name'),
+            screen_name: screen.get('name')
+        });
+        res.json({
+            error: null
+        });
+        return;
+    } catch (err) {
+        debug('regist error', err);
+        res.json({
+            error: err.message
+        });
+        return;
+    }
+}
+
+/**
+ * 更新
+ * @function update
+ * @param {Request} req
+ * @param {Response} res
+ * @returns {Promise<void>}
+ */
+export async function update(req: Request, res: Response): Promise<void> {
+    try {
+        const id = req.body.performance;
+        await Models.Performance.findByIdAndUpdate(id, {
+            screen: req.body.screen,
+            open_time: req.body.openTime,
+            start_time: req.body.startTime,
+            end_time: req.body.endTime
+        }).exec();
+        res.json({
+            error: null
+        });
+        return;
+    } catch (err) {
+        debug('update error', err);
+        res.json({
+            error: err.message
+        });
         return;
     }
 }

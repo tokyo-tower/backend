@@ -10,17 +10,11 @@
                     <form class="form-horizontal">
                         <div class="form-group">
                             <label class="col-sm-3 control-label" for="filmId">作品コード</label>
-                            <div class="col-sm-9">
+                            <div class="col-sm-9 form-inline">
                                 <input type="text" maxlength="6" class="form-control" name="filmId" placeholder="作品コード">
+                                <button type="button" class="btn btn-default film-search-button">検索</button>
                             </div>
                         </div>
-                        <!--<div class="form-group">
-                            <label class="col-sm-3 control-label" for="filmNme">作品名</label>
-                            <div class="col-sm-9">
-                                <input type="text" class="form-control" name="filmNme" placeholder="作品名">
-                            </div>
-                        </div>-->
-                        <button type="button" class="btn btn-default film-search-button">検索</button>
                         <h3 class="film-name" data-film-id="">作品未選択</h3>
                         <button type="button" class="btn btn-primary film-select-button">作品を確定</button>
                     </form>
@@ -32,16 +26,54 @@
                             <li class="list-group-item day">上映日 : <span></span></li>
                         </ul>
                         <div class="form-group">
-                            <label class="col-sm-3 control-label" for="openTime">開始時間</label>
+                            <label class="col-sm-3 control-label" for="openTime">開場時間</label>
                             <div class="col-sm-9 form-inline">
-                                <select class="form-control" name="hour">
+                                <select class="form-control" name="openTimeHour">
                                 <% for (let i = 0; i < 24; i++) { %>
                                 <% let hour = ('00' + String(i)).slice(-2); %>
                                     <option value="<%= hour %>"><%= hour %></option>
                                 <% } %>
                                 </select>
                                 時
-                                <select class="form-control" name="minutes">
+                                <select class="form-control" name="openTimeMinutes">
+                                <% for (let i = 0; i < 60; i++) { %>
+                                <% let minutes = ('00' + String(i)).slice(-2); %>
+                                    <option value="<%= minutes %>"><%= minutes %></option>
+                                <% } %>
+                                </select>
+                                分
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" for="startTime">開始時間</label>
+                            <div class="col-sm-9 form-inline">
+                                <select class="form-control" name="startTimeHour">
+                                <% for (let i = 0; i < 24; i++) { %>
+                                <% let hour = ('00' + String(i)).slice(-2); %>
+                                    <option value="<%= hour %>"><%= hour %></option>
+                                <% } %>
+                                </select>
+                                時
+                                <select class="form-control" name="startTimeMinutes">
+                                <% for (let i = 0; i < 60; i++) { %>
+                                <% let minutes = ('00' + String(i)).slice(-2); %>
+                                    <option value="<%= minutes %>"><%= minutes %></option>
+                                <% } %>
+                                </select>
+                                分
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" for="endTime">終了時間</label>
+                            <div class="col-sm-9 form-inline">
+                                <select class="form-control" name="endTimeHour">
+                                <% for (let i = 0; i < 24; i++) { %>
+                                <% let hour = ('00' + String(i)).slice(-2); %>
+                                    <option value="<%= hour %>"><%= hour %></option>
+                                <% } %>
+                                </select>
+                                時
+                                <select class="form-control" name="endTimeMinutes">
                                 <% for (let i = 0; i < 60; i++) { %>
                                 <% let minutes = ('00' + String(i)).slice(-2); %>
                                     <option value="<%= minutes %>"><%= minutes %></option>
@@ -53,9 +85,7 @@
                         <div class="form-group form-inline">
                             <label class="col-sm-3 control-label" for="screen">スクリーン</label>
                             <div class="col-sm-9">
-                                <select class="form-control" name="screen">
-                                    <option value="">選択してください</option>
-                                </select>
+                                <select class="form-control" name="screen"></select>
                             </div>
                         </div>
                     </form>
