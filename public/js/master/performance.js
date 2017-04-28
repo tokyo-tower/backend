@@ -67,13 +67,15 @@ function regist() {
     var openTime = modal.find('select[name=openTimeHour]').val() + modal.find('select[name=openTimeMinutes]').val();
     var startTime = modal.find('select[name=startTimeHour]').val() + modal.find('select[name=startTimeMinutes]').val();
     var endTime = modal.find('select[name=endTimeHour]').val() + modal.find('select[name=endTimeMinutes]').val();
+    var ticketTypeGroup = modal.find('select[name=ticketTypeGroup]').val();
     if (theater === ''
         || screen === ''
         || day === ''
         || film === ''
         || openTime === ''
         || startTime === ''
-        || endTime === '') {
+        || endTime === ''
+        || ticketTypeGroup === '') {
         alert('情報が足りません');
         return;
     }
@@ -88,7 +90,8 @@ function regist() {
             film: film,
             openTime: openTime,
             startTime: startTime,
-            endTime: endTime
+            endTime: endTime,
+            ticketTypeGroup: ticketTypeGroup
         }
     }).done(function (data) {
         if (!data.error) {
@@ -115,11 +118,13 @@ function update() {
     var openTime = modal.find('select[name=openTimeHour]').val() + modal.find('select[name=openTimeMinutes]').val();
     var startTime = modal.find('select[name=startTimeHour]').val() + modal.find('select[name=startTimeMinutes]').val();
     var endTime = modal.find('select[name=endTimeHour]').val() + modal.find('select[name=endTimeMinutes]').val();
+    var ticketTypeGroup = modal.find('select[name=ticketTypeGroup]').val();
     if (performance === ''
         || screen === ''
         || openTime === ''
         || startTime === ''
-        || endTime === '') {
+        || endTime === ''
+        || ticketTypeGroup === '') {
         alert('情報が足りません');
         return;
     }
@@ -132,7 +137,8 @@ function update() {
             screen: screen,
             openTime: openTime,
             startTime: startTime,
-            endTime: endTime
+            endTime: endTime,
+            ticketTypeGroup: ticketTypeGroup
         }
     }).done(function (data) {
         if (!data.error) {
@@ -170,7 +176,7 @@ function search() {
     }).done(function (data) {
         if (data) {
             create(data.screens, data.performances);
-            modalInit(theater, day, data.screens);
+            modalInit(theater, day, data.screens, data.ticketGroups);
         }
     }).fail(function (jqxhr, textStatus, error) {
         console.error(jqxhr, textStatus, error);
@@ -180,7 +186,7 @@ function search() {
 /**
  * モーダル初期化
  */
-function modalInit(theater, day, screens) {
+function modalInit(theater, day, screens, ticketGroups) {
     var screenDom = [];
     screenDom.push('<option value="">選択してください</option>');
     for (var i = 0; i < screens.length; i++) {
@@ -188,17 +194,26 @@ function modalInit(theater, day, screens) {
         screenDom.push('<option value="' + screen._id + '">' + screen.name.ja + '</option>')
     }
 
+    var ticketGroupDom = [];
+    ticketGroupDom.push('<option value="">選択してください</option>');
+    for (var i = 0; i < ticketGroups.length; i++) {
+        var ticketGroup = ticketGroups[i];
+        ticketGroupDom.push('<option value="' + ticketGroup._id + '">' + ticketGroup.name.ja + '</option>')
+    }
+    
     var newModal = $('#newModal');
     newModal.find('.theater span').text($('select[name=theater] option[value=' + theater + ']').text());
     newModal.find('.day span').text(moment(day).format('YYYY年MM月DD日(ddd)'));
     newModal.find('input[name=theater]').val(theater);
     newModal.find('input[name=day]').val(day);
-    newModal.find('select[name=screen]').html(screenDom);
+    newModal.find('select[name=screen]').html(screenDom.join('\n'));
+    newModal.find('select[name=ticketTypeGroup]').html(ticketGroupDom.join('\n'));
 
     var editModal = $('#editModal');
     editModal.find('.theater span').text($('select[name=theater] option[value=' + theater + ']').text());
     editModal.find('.day span').text(moment(day).format('YYYY年MM月DD日(ddd)'));
-    editModal.find('select[name=screen]').html(screenDom);
+    editModal.find('select[name=screen]').html(screenDom.join('\n'));
+    editModal.find('select[name=ticketTypeGroup]').html(ticketGroupDom.join('\n'));
 }
 
 /**
@@ -272,6 +287,7 @@ function add() {
     modal.find('select[name=endTimeHour]').val('00');
     modal.find('select[name=endTimeMinutes]').val('00');
     modal.find('select[name=screen]').val('');
+    modal.find('select[name=ticketTypeGroup]').val('');
     $('#newModal').modal();
 }
 
@@ -291,6 +307,7 @@ function edit(target) {
     var screen = target.attr('data-screen');
     var film = target.attr('data-film');
     var filmName = target.text();
+    var ticketTypeGroup = target.attr('data-ticketTypeGroup');
     var modal = $('#editModal');
     modal.find('input[name=performance]').val(performance);
     modal.find('input[name=theater]').val(theater);
@@ -304,6 +321,7 @@ function edit(target) {
     modal.find('select[name=endTimeHour]').val(endTime.slice(0, 2));
     modal.find('select[name=endTimeMinutes]').val(endTime.slice(2, 4));
     modal.find('select[name=screen]').val(screen);
+    modal.find('select[name=ticketTypeGroup]').val(ticketTypeGroup);
 
     modal.find('.film span').text(filmName);
     modal.modal();
@@ -418,6 +436,7 @@ function createScreen(performances) {
             'data-screen="' + performance.screen + '" ' +
             'data-theater="' + performance.theater + '" ' +
             'data-film="' + performance.film.id + '" ' +
+            'data-ticketTypeGroup="' + performance.ticket_type_group + '" ' +
             'role="button" class="inner">' + performance.film.name.ja + '</div>' +
             '</div>');
         performanceDom.css(style);

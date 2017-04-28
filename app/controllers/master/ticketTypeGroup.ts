@@ -30,9 +30,7 @@ const NAME_MAX_LENGTH_NAME_JA: number = 64;
 export async function index(__: Request, res: Response): Promise<void> {
     // 券種グループマスタ画面遷移
     res.render('master/ticketTypeGroup/index', {
-        displayId: 'Aa-8',
-        title: '券種グループマスタ一覧',
-        ticketTypeGroupsModel: {},
+        message: '',
         layout: 'layouts/master/layout'
     });
 }
@@ -117,7 +115,7 @@ export async function update(req: Request, res: Response): Promise<void> {
                     },
                     ticket_types: req.body.ticketTypes
                 };
-                await Models.TicketTypeGroup.findByIdAndUpdate(id, update);
+                await Models.TicketTypeGroup.findByIdAndUpdate(id, update).exec();
                 message = '編集完了';
             } catch (error) {
                 message = error.message;

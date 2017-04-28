@@ -1,8 +1,15 @@
+<%- contentFor('title') %>
+券種グループマスタ一覧
+<%- contentFor('displayId') %>
+Aa-8
+<%- contentFor('styles') %>
 <link href="/css/simplePagination.css" rel="stylesheet">
+<%- contentFor('scripts') %>
 <script src="/js/jquery.simplePagination.js"></script>
 <script src="/js/master/commonMaster.js"></script>
 <script src="/js/master/commonMasterList.js"></script>
 <script src="/js/master/ticketTypeGroupsList.js"></script>
+<%- contentFor('body') %>
 <% /* フォーム */ %>
 <div class="col-sm-12 form-container search">
   <form method="post" class="form-horizontal" >
@@ -10,9 +17,9 @@
     <%- include('../../common/master/_hidden') %>
     <div class="menu-group">
       <% /* メッセージ */ %>
-      <% if (ticketTypeGroupsModel.message != '') { %>
+      <% if (message !== '') { %>
           <p class="error message">
-            <%= ticketTypeGroupsModel.message %>
+            <%= message %>
           </p>
       <% } %>
     </div>
@@ -22,7 +29,7 @@
       券種グループコード
       </label>
       <div class="col-sm-10">
-        <input type="text" class="form-control" name="ticketGroupCode" id="ticketGroupCode" placeholder="" maxlength=64 value=<%= ticketTypeGroupsModel.ticketGroupCode %>>
+        <input type="text" class="form-control" name="ticketGroupCode" id="ticketGroupCode" placeholder="" maxlength=64 value=<%= req.body.ticketGroupCode %>>
       </div>
     </div>
     <% /* 券種グループ名 */ %>
@@ -31,7 +38,7 @@
       券種グループ名
       </label>
       <div class="col-sm-10">
-        <input type="text" class="form-control" name="ticketGroupNameJa" id="managementTypeName" placeholder="" maxlength=64 value=<%= ticketTypeGroupsModel.ticketGroupNameJa %>>
+        <input type="text" class="form-control" name="ticketGroupNameJa" id="managementTypeName" placeholder="" maxlength=64 value=<%= req.body.ticketGroupNameJa %>>
       </div>
     </div>
     <% /* 検索ボタン */ %>
