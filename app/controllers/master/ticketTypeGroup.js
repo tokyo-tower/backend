@@ -36,9 +36,7 @@ function index(__, res) {
     return __awaiter(this, void 0, void 0, function* () {
         // 券種グループマスタ画面遷移
         res.render('master/ticketTypeGroup/index', {
-            displayId: 'Aa-8',
-            title: '券種グループマスタ一覧',
-            ticketTypeGroupsModel: {},
+            message: '',
             layout: 'layouts/master/layout'
         });
     });
