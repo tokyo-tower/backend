@@ -64,7 +64,7 @@ export async function search(req: Request, res: Response): Promise<void> {
             theater: theater,
             day: day
         }).populate('film', 'name').exec();
-        const ticketGroups = await Models.TicketTypeGroup.find();
+        const ticketGroups = await Models.TicketTypeGroup.find().exec();
         res.json({
             validation: null,
             error: null,

@@ -105,7 +105,7 @@ export async function update(req: Request, res: Response): Promise<void> {
                     },
                     charge: req.body.ticketCharge
                 };
-                await Models.TicketType.findByIdAndUpdate(id, update);
+                await Models.TicketType.findByIdAndUpdate(id, update).exec();
                 message = '編集完了';
             } catch (error) {
                 message = error.message;
@@ -153,7 +153,7 @@ export async function getList(req: Request, res: Response): Promise<void> {
     // 検索条件を作成
     const conditions: any = {};
     // 券種コード
-    if (ticketCode) {
+    if (ticketCode !== null) {
         const key: string = '_id';
         conditions[key] = ticketCode;
     }
@@ -162,7 +162,7 @@ export async function getList(req: Request, res: Response): Promise<void> {
         conditions['name.ja'] = { $regex: managementTypeName };
     }
     // 金額
-    if (ticketCharge) {
+    if (ticketCharge !== null) {
         const key: string = 'charge';
         conditions[key] = ticketCharge;
     }

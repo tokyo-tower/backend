@@ -115,7 +115,7 @@ export async function update(req: Request, res: Response): Promise<void> {
                     },
                     ticket_types: req.body.ticketTypes
                 };
-                await Models.TicketTypeGroup.findByIdAndUpdate(id, update);
+                await Models.TicketTypeGroup.findByIdAndUpdate(id, update).exec();
                 message = '編集完了';
             } catch (error) {
                 message = error.message;
