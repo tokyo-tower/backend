@@ -55,8 +55,8 @@
       <div class="form-control" style="height:auto;line-height:40px;">
       <% ticketTypes.forEach((ticketType) => { %>
         <span class="form-control" style="display:inline;background-color:#F2F2F2;margin:0px 5px 0px 5px">
-          <span><%=ticketType.text%></span>
-          <input type="checkbox" name="ticketTypes" value="<%=ticketType.value%>">
+          <span><%= ticketType.get('name').ja %></span>
+          <input type="checkbox" name="ticketTypes" value="<%= ticketType.get('_id') %>">
         </span>
       <% }) %>
       </div>

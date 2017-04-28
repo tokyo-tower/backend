@@ -82,16 +82,8 @@ export async function add(req: Request, res: Response): Promise<void> {
         }
     }
 
-    // todo 券種マスタから取得
-    const ticketTypes = [
-        { value: '01', text: '一般1800円' },
-        { value: '02', text: '大・専1500円' },
-        { value: '03', text: '高校生1000円' },
-        { value: '04', text: '中・小1000円' },
-        { value: '05', text: '幼児1000円' },
-        { value: '06', text: 'シニア1100円' },
-        { value: '07', text: '夫婦50割1100円' }
-    ];
+    // 券種マスタから取得
+    const ticketTypes = await Models.TicketType.find().exec();
     res.render(view, {
         message: message,
         errors: errors,
