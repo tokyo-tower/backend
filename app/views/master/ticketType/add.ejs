@@ -10,9 +10,9 @@
       <a href="/master/tickettypes">券種マスタ一覧へ</a>
     </div>
     <% /* メッセージ */ %>
-    <% if (ticketTypeModel.message != '') { %>
+    <% if (message !== '') { %>
         <p class="error message">
-          <%= ticketTypeModel.message %>
+          <%= message %>
         </p>
     <% } %>
   </div>
@@ -22,7 +22,7 @@
       券種コード<font color="red">＊</font>
     </label>
     <div class="col-sm-10">
-      <input type="text" class="form-control" name="ticketCode" id="ticketCode" placeholder="" maxlength=64 value=<%= ticketTypeModel.ticketCode %>>
+      <input type="text" class="form-control" name="ticketCode" id="ticketCode" placeholder="" maxlength=64 value=<%= req.body.ticketCode %>>
       <p class="message">
           半角64文字以内でご入力ください。
       </p>
@@ -39,7 +39,7 @@
       サイト表示用券種名<font color="red">＊</font>
     </label>
     <div class="col-sm-10">
-      <input type="text" class="form-control" name="ticketNameJa" id="ticketNameJa" placeholder="" maxlength=64 value=<%= ticketTypeModel.ticketNameJa %>>
+      <input type="text" class="form-control" name="ticketNameJa" id="ticketNameJa" placeholder="" maxlength=64 value=<%= req.body.ticketNameJa %>>
       <p class="message">
           全角64文字以内でご入力ください。
       </p>
@@ -56,7 +56,7 @@
       サイト表示用券種名英<font color="red">＊</font>
     </label>
     <div class="col-sm-10">
-      <input type="text" class="form-control" name="ticketNameEn" id="ticketNameEn" placeholder="" maxlength=64 value=<%= ticketTypeModel.ticketNameKana %>>
+      <input type="text" class="form-control" name="ticketNameEn" id="ticketNameEn" placeholder="" maxlength=64 value=<%= req.body.ticketNameKana %>>
       <p class="message">
           半角64文字以内でご入力ください。
       </p>
@@ -73,7 +73,7 @@
       管理用券種名<font color="red">＊</font>
     </label>
     <div class="col-sm-10">
-      <input type="text" class="form-control" name="managementTypeName" id="managementTypeName" placeholder="" maxlength=64 value=<%= ticketTypeModel.ticketNameEn %>>
+      <input type="text" class="form-control" name="managementTypeName" id="managementTypeName" placeholder="" maxlength=64 value=<%= req.body.ticketNameEn %>>
       <p class="message">
           全角64文字以内でご入力ください。
       </p>
@@ -90,7 +90,7 @@
       金額<font color="red">＊</font>
     </label>
     <div class="col-sm-10">
-      <input type="text" class="form-control" name="ticketCharge" id="ticketCharge" placeholder="" maxlength=10 value=<%= ticketTypeModel.ticketCharge %>>
+      <input type="text" class="form-control" name="ticketCharge" id="ticketCharge" placeholder="" maxlength=10 value=<%= req.body.ticketCharge %>>
       <p class="message">
           半角10文字以内でご入力ください。
       </p>
@@ -107,7 +107,7 @@
       補足説明
     </label>
     <div class="col-sm-10">
-      <input type="text" class="form-control" name="descriptionJa" id="descriptionJa" placeholder="" maxlength=64 value=<%= ticketTypeModel.descriptionJa %>>
+      <input type="text" class="form-control" name="descriptionJa" id="descriptionJa" placeholder="" maxlength=64 value=<%= req.body.descriptionJa %>>
       <p class="message">
           全角64文字以内でご入力ください。
       </p>
@@ -124,7 +124,7 @@
       補足説明英
     </label>
     <div class="col-sm-10">
-      <input type="text" class="form-control" name="descriptionEn" id="descriptionEn" placeholder="" maxlength=64 value=<%= ticketTypeModel.descriptionEn %>>
+      <input type="text" class="form-control" name="descriptionEn" id="descriptionEn" placeholder="" maxlength=64 value=<%= req.body.descriptionEn %>>
       <p class="message">
           半角64文字以内でご入力ください。
       </p>

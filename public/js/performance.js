@@ -79,7 +79,7 @@ function regist() {
     }
     $.ajax({
         dataType: 'json',
-        url: '/master/performance/regist',
+        url: '/master/performances/regist',
         type: 'POST',
         data: {
             theater: theater,
@@ -125,7 +125,7 @@ function update() {
     }
     $.ajax({
         dataType: 'json',
-        url: '/master/performance/update',
+        url: '/master/performances/update',
         type: 'POST',
         data: {
             performance: performance,
@@ -161,7 +161,7 @@ function search() {
     }
     $.ajax({
         dataType: 'json',
-        url: '/master/performance/search',
+        url: '/master/performances/search',
         type: 'POST',
         data: {
             theater: theater,
@@ -212,7 +212,7 @@ function filmSearch() {
 
     $.ajax({
         dataType: 'json',
-        url: '/master/performance/film/search',
+        url: '/master/performances/film/search',
         type: 'POST',
         data: {
             id: id

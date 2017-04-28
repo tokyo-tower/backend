@@ -10,9 +10,9 @@
     <%- include('../../common/master/_hidden') %>
     <div class="menu-group">
       <% /* メッセージ */ %>
-      <% if (ticketTypeModel.message != '') { %>
+      <% if (message !== '') { %>
           <p class="error message">
-            <%= ticketTypeModel.message %>
+            <%= message %>
           </p>
       <% } %>
     </div>
@@ -22,7 +22,7 @@
       券種コード
       </label>
       <div class="col-sm-10">
-        <input type="text" class="form-control" name="ticketCode" id="ticketCode" placeholder="" maxlength=64 value=<%= ticketTypeModel.ticketCode %>>
+        <input type="text" class="form-control" name="ticketCode" id="ticketCode" placeholder="" maxlength=64 value=<%= req.body.ticketCode %>>
       </div>
     </div>
     <% /* 管理用券種名 */ %>
@@ -31,7 +31,7 @@
       管理用券種名
       </label>
       <div class="col-sm-10">
-        <input type="text" class="form-control" name="managementTypeName" id="managementTypeName" placeholder="" maxlength=64 value=<%= ticketTypeModel.ticketCode %>>
+        <input type="text" class="form-control" name="managementTypeName" id="managementTypeName" placeholder="" maxlength=64 value=<%= req.body.ticketCode %>>
       </div>
     </div>
     <% /* 金額 */ %>
@@ -40,7 +40,7 @@
       金額
       </label>
       <div class="col-sm-10">
-        <input type="text" class="form-control" name="ticketCharge" id="ticketCharge" placeholder="" maxlength=64 value=<%= ticketTypeModel.ticketCode %>>
+        <input type="text" class="form-control" name="ticketCharge" id="ticketCharge" placeholder="" maxlength=64 value=<%= req.body.ticketCode %>>
       </div>
     </div>
     <% /* 検索ボタン */ %>
@@ -66,7 +66,7 @@
       <thead>
         <tr style="background-color:#d9d9d9">
           <th>券種コード</th>
-          <th>サイト表示用券種名</th>
+          <!--<th>サイト表示用券種名</th>-->
           <th>管理用券種名</th>
           <th>金額(円)</th>
           <th></th>
@@ -77,7 +77,7 @@
           <% /* 券種コード */ %>
           <td name="ticketCode">$ticketCode$</td>
           <% /* サイト表示用券種名 */ %>
-          <td name="ticketNameJa">$ticketNameJa$</td>
+          <!--<td name="ticketNameJa">$ticketNameJa$</td>-->
           <% /* 管理用券種名 */ %>
           <td name="managementTypeName">$managementTypeName$</td>
           <% /* 金額(円) */ %>

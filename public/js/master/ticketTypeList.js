@@ -30,8 +30,8 @@ $(function(){
     //--------------------------------
     function search(pageNumber) {
         conditions['page'] = pageNumber;
-        var url = '/master/tickettype/getlist';
-        //alert(JSON.stringify(conditions));
+        var url = '/master/ticketTypes/getlist';
+        // alert(JSON.stringify(conditions));
         $.ajax({
             dataType: 'json',
             url: url,

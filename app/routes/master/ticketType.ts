@@ -5,18 +5,15 @@
  * @ignore
  */
 
-// import { NextFunction, Request, Response, Router } from 'express';
-// import TicketTypeController from '../../controllers/master/ticketType';
+import { Router } from 'express';
+import * as ticketTypeController from '../../controllers/master/ticketType';
 
-// const router = Router();
+const router = Router();
 
-// // 券種登録
-// router.all('/add',
-//            (req: Request, res: Response, next: NextFunction) => { (new TicketTypeController(req, res, next)).add(); });
-// // 券種一覧
-// router.all('',
-//            (req: Request, res: Response, next: NextFunction) => { (new TicketTypeController(req, res, next)).list(); });
-// router.all('/getlist',
-//            (req: Request, res: Response, next: NextFunction) => { (new TicketTypeController(req, res, next)).getList(); });
+// 券種登録
+router.all('/add', ticketTypeController.add);
+// 券種一覧
+router.get('', ticketTypeController.index);
+router.get('/getlist', ticketTypeController.getList);
 
-// export default router;
+export default router;
