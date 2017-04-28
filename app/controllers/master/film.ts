@@ -94,7 +94,7 @@ export async function update(req: Request, res: Response): Promise<void> {
                         ja: req.body.nameJa,
                         en: req.body.nameEn
                     },
-                    charge: req.body.minutes
+                    minutes: req.body.minutes
                 };
                 await Models.Film.findByIdAndUpdate(id, update);
                 message = '編集完了';
