@@ -6,84 +6,80 @@
       <a href="/master/tickettypes">券種グループマスタ一覧へ</a>
     </div>
     <% /* メッセージ */ %>
-    <% if (ticketTypeGroupsModel.message != '') { %>
+    <% if (message != '') { %>
         <p class="error message">
-          <%= ticketTypeGroupsModel.message %>
+          <%= message %>
         </p>
     <% } %>
   </div>
   <% /* 券種グループコード */ %>
   <div class="form-group ">
-    <label for="ticketGroupCode" class="col-sm-2 control-label label-title">
+    <label for="_id" class="col-sm-2 control-label label-title">
       券種グループコード<font color="red">＊</font>
     </label>
     <div class="col-sm-10">
-      <input type="text" class="form-control" name="ticketGroupCode" id="ticketGroupCode" placeholder="" maxlength=64 value="<%= ticketTypeGroupsModel.ticketGroupCode %>">
+      <input type="text" class="form-control" name="_id" id="_id" placeholder="" maxlength=64 value="<%= req.body._id %>">
       <p class="message">
           半角64文字以内でご入力ください。
       </p>
       <p class="error message">
-        <% if (errors && errors.ticketGroupCode) { %>
-          <%- errors.ticketGroupCode.msg %>
+        <% if (errors && errors._id) { %>
+          <%- errors._id.msg %>
         <% } %>
       </p>
     </div>
   </div>
   <% /* 券種グループ名 */ %>
   <div class="form-group ">
-    <label for="ticketGroupNameJa" class="col-sm-2 control-label label-title">
+    <label for="nameJa" class="col-sm-2 control-label label-title">
       券種グループ名<font color="red">＊</font>
     </label>
     <div class="col-sm-10">
-      <input type="text" class="form-control" name="ticketGroupNameJa" id="ticketGroupNameJa" placeholder="" maxlength=64 value="<%= ticketTypeGroupsModel.ticketGroupNameJa %>">
+      <input type="text" class="form-control" name="nameJa" id="nameJa" placeholder="" maxlength=64 value="<%= req.body.nameJa %>">
       <p class="message">
           全角64文字以内でご入力ください。
       </p>
       <p class="error message">
-        <% if (errors && errors.ticketGroupNameJa) { %>
-          <%- errors.ticketGroupNameJa.msg %>
+        <% if (errors && errors.nameJa) { %>
+          <%- errors.nameJa.msg %>
         <% } %>
       </p>
     </div>
   </div>
   <% /* 対象券種名 */ %>
   <div class="form-group ">
-    <label for="targetTicketName" class="col-sm-2 control-label label-title">
+    <label for="ticketTypes" class="col-sm-2 control-label label-title">
       対象券種名<font color="red">＊</font>
     </label>
     <div class="col-sm-10">
-      <% if (ticketTypeGroupsModel) { %>
       <div class="form-control" style="height:auto;line-height:40px;">
-      <% } %>
-      <% ticketTypeGroupsModel.listTargetTicketName.forEach((targetTicketName) => { %>
+      <% ticketTypes.forEach((ticketType) => { %>
         <span class="form-control" style="display:inline;background-color:#F2F2F2;margin:0px 5px 0px 5px">
-          <span><%=targetTicketName.text%></span>
-          <input type="checkbox" name="targetTicket" value="<%=targetTicketName.value%>">
+          <span><%=ticketType.text%></span>
+          <input type="checkbox" name="ticketTypes" value="<%=ticketType.value%>">
         </span>
       <% }) %>
-      <% if (ticketTypeGroupsModel) { %>
       </div>
-      <% } %>
       <p class="error message">
-        <% if (errors && errors.targetTicketName) { %>
-          <%- errors.targetTicketName.msg %>
+        <% if (errors && errors.ticketTypes) { %>
+          <%- errors.ticketTypes.msg %>
         <% } %>
       </p>
     </div>
   </div>
   <% /* 補足説明 */ %>
   <div class="form-group ">
-    <label for="description" class="col-sm-2 control-label label-title">
+    <label for="descriptionJa" class="col-sm-2 control-label label-title">
       補足説明
     </label>
     <div class="col-sm-10">
-      <input type="text" class="form-control" name="description" id="description" placeholder="" maxlength=64 value="<%= ticketTypeGroupsModel.description %>">
+      <input type="text" class="form-control" name="descriptionJa" id="descriptionJa" placeholder="" maxlength=64 value="<%= req.body.descriptionJa %>">
       <p class="message">
           全角64文字以内でご入力ください。
       </p>
       <p class="error message">
-        <% if (errors && errors.description) { %>
-          <%- errors.description.msg %>
+        <% if (errors && errors.descriptionJa) { %>
+          <%- errors.descriptionJa.msg %>
         <% } %>
       </p>
     </div>

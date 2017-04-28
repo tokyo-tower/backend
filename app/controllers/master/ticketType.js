@@ -1,3 +1,8 @@
+/**
+ * 券種マスタコントローラー
+ *
+ * @namespace controller/master/ticketType
+ */
 // import { Models } from '@motionpicture/chevre-domain';
 // //import * as mongoose from 'mongoose';
 // import * as Message from '../../../common/Const/Message';
@@ -13,13 +18,6 @@
 // const NAME_MAX_LENGTH_NAME_JA: number = 64;
 // // 券種名・英語 半角128
 // const NAME_MAX_LENGTH_NAME_EN: number = 64;
-// /**
-//  * 券種マスタコントローラー
-//  *
-//  * @export
-//  * @class ticketTypeController
-//  * @extends {MasterBaseController}
-//  */
 // export default class TicketTypeController extends MasterBaseController {
 //     public layout: string = 'layouts/master/layout';
 //     /**
@@ -236,7 +234,8 @@
 //         // サイト表示用券種名英
 //         colName = 'サイト表示用券種名英';
 //         this.req.assert('ticketNameEn', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
-//         this.req.assert('ticketNameEn', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_NAME_EN)).len({max: NAME_MAX_LENGTH_NAME_EN});
+//         this.req.assert('ticketNameEn', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_NAME_EN))
+//             .len({ max: NAME_MAX_LENGTH_NAME_EN });
 //         // 管理用券種名
 //         colName = '管理用券種名';
 //         this.req.assert('managementTypeName', Message.Common.required.replace('$fieldName$', colName)).notEmpty();

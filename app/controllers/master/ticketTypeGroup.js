@@ -1,4 +1,9 @@
 "use strict";
+/**
+ * 券種グループマスタコントローラー
+ *
+ * @namespace controller/master/ticketType
+ */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -8,13 +13,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * 券種グループマスタコントローラー
- * @namespace ticketType
- */
 const chevre_domain_1 = require("@motionpicture/chevre-domain");
+const _ = require("underscore");
 const Message = require("../../../common/Const/Message");
-const TicketTypeGroupsModel_1 = require("../../models/Master/TicketTypeGroupsModel");
 // 基数
 const DEFAULT_RADIX = 10;
 // 1ページに表示するデータ数
@@ -31,24 +32,18 @@ const NAME_MAX_LENGTH_NAME_JA = 64;
  * @param {NextFunction} next
  * @returns {Promise<void>}
  */
-function list(req, res, next) {
+function index(__, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (req.staffUser === undefined) {
-            next(new Error(Message.Common.unexpectedError));
-            return;
-        }
-        const ticketTypeModel = new TicketTypeGroupsModel_1.default();
         // 券種グループマスタ画面遷移
-        res.locals.displayId = 'Aa-8';
-        res.locals.title = '券種グループマスタ一覧';
         res.render('master/ticketTypeGroup/index', {
-            ticketTypeGroupsModel: ticketTypeModel,
+            displayId: 'Aa-8',
+            title: '券種グループマスタ一覧',
+            ticketTypeGroupsModel: {},
             layout: 'layouts/master/layout'
         });
-        return;
     });
 }
-exports.list = list;
+exports.index = index;
 /**
  * 新規登録
  * @function add
@@ -57,43 +52,57 @@ exports.list = list;
  * @param {NextFunction} next
  * @returns {Promise<void>}
  */
-function add(req, res, next) {
+function add(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (req.staffUser === undefined) {
-            next(new Error(Message.Common.unexpectedError));
-            return;
-        }
-        let ticketTypeGroupsModel = new TicketTypeGroupsModel_1.default();
-        if (req.method === 'GET') {
-            renderDisplayAdd(res, ticketTypeGroupsModel, null);
-            return;
-        }
-        try {
-            // モデルに画面入力値をセット
-            ticketTypeGroupsModel = req.body;
-            // 検証
-            const errors = validateFormAdd(req);
-            const isValid = !errors;
-            // 検証
-            if (isValid) {
-                // 券種グループDB登録プロセス
-                const ticketType = yield processAddTicketTypeGroups(ticketTypeGroupsModel);
-                if (ticketType) {
-                    //ticketTypeModel.ticketNameJa = '';
+        const view = 'master/ticketTypeGroup/add';
+        const layout = 'layouts/master/layout';
+        let message = '';
+        let errors = {};
+        res.locals.displayId = 'Aa-7';
+        res.locals.title = '券種グループマスタ新規登録';
+        if (req.method === 'POST') {
+            // バリデーション
+            validate(req);
+            const validatorResult = yield req.getValidationResult();
+            errors = req.validationErrors(true);
+            if (validatorResult.isEmpty()) {
+                // 券種グループDB登録
+                try {
+                    // 券種グループDB登録
+                    yield chevre_domain_1.Models.TicketTypeGroup.create({
+                        _id: req.body._id,
+                        name: {
+                            ja: req.body.nameJa,
+                            en: ''
+                        },
+                        description: {
+                            ja: req.body.descriptionJa,
+                            en: ''
+                        }
+                    });
+                    message = '登録完了';
                 }
-                // 券種グループマスタ画面遷移
-                ticketTypeGroupsModel.message = Message.Common.add;
-                renderDisplayAdd(res, ticketTypeGroupsModel, errors);
-            }
-            else {
-                // 券種グループマスタ画面遷移
-                renderDisplayAdd(res, ticketTypeGroupsModel, errors);
+                catch (error) {
+                    message = error.message;
+                }
             }
         }
-        catch (err) {
-            next(err);
-            return;
-        }
+        // todo 券種マスタから取得
+        const ticketTypes = [
+            { value: '01', text: '一般1800円' },
+            { value: '02', text: '大・専1500円' },
+            { value: '03', text: '高校生1000円' },
+            { value: '04', text: '中・小1000円' },
+            { value: '05', text: '幼児1000円' },
+            { value: '06', text: 'シニア1100円' },
+            { value: '07', text: '夫婦50割1100円' }
+        ];
+        res.render(view, {
+            message: message,
+            errors: errors,
+            ticketTypes: ticketTypes,
+            layout: layout
+        });
     });
 }
 exports.add = add;
@@ -106,150 +115,68 @@ exports.add = add;
  */
 function getList(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        const result = {
-            success: false,
-            results: [],
-            count: 0
-        };
-        if (req.staffUser === undefined) {
-            res.json(result);
-            return;
-        }
         // 表示件数・表示ページ
-        const limit = (req.query.limit) ? parseInt(req.query.limit, DEFAULT_RADIX) : DEFAULT_LINES;
-        const page = (req.query.page) ? parseInt(req.query.page, DEFAULT_RADIX) : 1;
+        const limit = (!_.isEmpty(req.query.limit)) ? parseInt(req.query.limit, DEFAULT_RADIX) : DEFAULT_LINES;
+        const page = (!_.isEmpty(req.query.page)) ? parseInt(req.query.page, DEFAULT_RADIX) : 1;
         // 券種グループコード
-        const ticketGroupCode = (req.query.ticketGroupCode) ? req.query.ticketGroupCode : null;
+        const ticketGroupCode = (!_.isEmpty(req.query.ticketGroupCode)) ? req.query.ticketGroupCode : null;
         // 管理用券種グループ名
-        const ticketGroupNameJa = (req.query.ticketGroupNameJa) ? req.query.ticketGroupNameJa : null;
+        const ticketGroupNameJa = (!_.isEmpty(req.query.ticketGroupNameJa)) ? req.query.ticketGroupNameJa : null;
         // 検索条件を作成
         const conditions = {};
         // 券種グループコード
-        if (ticketGroupCode) {
+        if (ticketGroupCode !== null) {
             const key = '_id';
             conditions[key] = ticketGroupCode;
         }
         // 管理用券種グループ名
-        if (ticketGroupNameJa) {
-            conditions['name.ja'] = new RegExp('^' + ticketGroupNameJa);
+        if (ticketGroupNameJa !== null) {
+            conditions['name.ja'] = { $regex: ticketGroupNameJa };
         }
         try {
             const count = yield chevre_domain_1.Models.TicketTypeGroup.count(conditions).exec();
-            if (count === 0) {
-                result.success = true;
-                res.json(result);
-                return;
+            let results = [];
+            if (count > 0) {
+                const ticketTypeGroups = yield chevre_domain_1.Models.TicketTypeGroup.find(conditions)
+                    .skip(limit * (page - 1))
+                    .limit(limit)
+                    .exec();
+                //検索結果編集
+                results = ticketTypeGroups.map((ticketTypeGroup) => {
+                    return {
+                        _id: ticketTypeGroup._id,
+                        ticketGroupCode: ticketTypeGroup._id,
+                        ticketGroupNameJa: ticketTypeGroup.get('name').ja
+                    };
+                });
             }
-            else {
-                const data = yield findData(conditions, limit, page, count);
-                res.json(data);
-            }
+            res.json({
+                success: true,
+                count: count,
+                results: results
+            });
         }
         catch (err) {
-            res.json(result);
-            return;
+            res.json({
+                success: false,
+                count: 0,
+                results: []
+            });
         }
     });
 }
 exports.getList = getList;
 /**
- * 一覧データ取得
- * @function findData
- * @param {any} conditions
- * @param {number} limit
- * @param {number} page
- * @param {number} count
- * @returns {Promise<{}>}
- */
-function findData(conditions, limit, page, count) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const result = {
-            success: false,
-            results: [],
-            count: 0
-        };
-        try {
-            const tickets = yield chevre_domain_1.Models.TicketTypeGroup.find(conditions)
-                .skip(limit * (page - 1))
-                .limit(limit)
-                .lean(true)
-                .exec();
-            //検索結果編集
-            const results = tickets.map((ticket) => {
-                return {
-                    _id: ticket._id,
-                    ticketGroupCode: ticket._id,
-                    ticketGroupNameJa: ticket.name.ja
-                };
-            });
-            return {
-                success: true,
-                count: count,
-                results: results
-            };
-        }
-        catch (err) {
-            return result;
-        }
-    });
-}
-exports.findData = findData;
-/**
- * 券種グループDB登録プロセス
- * @function processAddTicketTypeGroups
- * @param {Response} res
- * @param {TicketTypeModel} ticketTypeModel
- * @returns {Promise<mongoose.Document>}
- */
-function processAddTicketTypeGroups(ticketTypeGroupsModel) {
-    return __awaiter(this, void 0, void 0, function* () {
-        // 券種グループDB登録
-        return yield chevre_domain_1.Models.Film.create({
-            // _id:,
-            name: {
-                ja: ticketTypeGroupsModel.ticketGroupNameJa,
-                en: ''
-            }
-        });
-    });
-}
-/**
- * 券種グループマスタ新規登録画面遷移
- * @function renderDisplayAdd
- * @param {TicketTypeGroupsModel} ticketTypeGroupsModel
- */
-function renderDisplayAdd(res, ticketTypeGroupsModel, errors) {
-    res.locals.displayId = 'Aa-7';
-    res.locals.title = '券種グループマスタ新規登録';
-    //券種マスタから取得???
-    ticketTypeGroupsModel.listTargetTicketName = [
-        { value: '01', text: '一般1800円' },
-        { value: '02', text: '大・専1500円' },
-        { value: '03', text: '高校生1000円' },
-        { value: '04', text: '中・小1000円' },
-        { value: '05', text: '幼児1000円' },
-        { value: '06', text: 'シニア1100円' },
-        { value: '07', text: '夫婦50割1100円' }
-    ];
-    res.render('master/ticketTypeGroup/add', {
-        ticketTypeGroupsModel: ticketTypeGroupsModel,
-        errors: errors,
-        layout: 'layouts/master/layout'
-    });
-}
-/**
  * 券種グループマスタ新規登録画面検証
  * @function validateFormAdd
  */
-function validateFormAdd(req) {
+function validate(req) {
     // 券種グループコード
     let colName = '券種グループコード';
-    req.assert('ticketCode', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
-    req.assert('ticketCode', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_CODE)).len({ max: NAME_MAX_LENGTH_CODE });
+    req.checkBody('_id', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
+    req.checkBody('_id', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_CODE)).len({ max: NAME_MAX_LENGTH_CODE });
     // サイト表示用券種グループ名
     colName = 'サイト表示用券種グループ名';
-    req.assert('ticketNameJa', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
-    req.assert('ticketNameJa', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_CODE)).len({ max: NAME_MAX_LENGTH_NAME_JA });
-    // 検証実行
-    return req.validationErrors(true);
+    req.checkBody('nameJa', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
+    req.checkBody('nameJa', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_CODE)).len({ max: NAME_MAX_LENGTH_NAME_JA });
 }

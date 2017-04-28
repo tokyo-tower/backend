@@ -1,9 +1,9 @@
-// /**
-//  * 券種マスタ管理ルーター
-//  *
-//  * @desc TicketTypeRouter
-//  * @ignore
-//  */
+/**
+ * 券種マスタ管理ルーター
+ *
+ * @desc TicketTypeRouter
+ * @ignore
+ */
 // import { NextFunction, Request, Response, Router } from 'express';
 // import TicketTypeController from '../../controllers/master/ticketType';
 // const router = Router();

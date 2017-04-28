@@ -9,10 +9,8 @@ import * as ticketTypeGroupsController from '../../controllers/master/ticketType
 
 const router = Router();
 
-// 券種登録
 router.all('/add', ticketTypeGroupsController.add);
-// 券種一覧
-router.get('', ticketTypeGroupsController.list);
+router.get('', ticketTypeGroupsController.index);
 router.get('/getlist', ticketTypeGroupsController.getList);
 
 export default router;
