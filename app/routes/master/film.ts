@@ -13,5 +13,6 @@ const router = Router();
 router.all('/add', filmController.add);
 router.all('', filmController.index);
 router.all('/getlist', filmController.getList);
+router.all('/:filmId/update', filmController.update);
 
 export default router;
