@@ -71,6 +71,53 @@ export async function add(req: Request, res: Response): Promise<void> {
         layout: layout
     });
 }
+/**
+ * 編集
+ */
+export async function update(req: Request, res: Response): Promise<void> {
+    const filmId = req.params.filmId;
+    const view = 'master/film/add';
+    //const layout = 'layouts/layout';
+    let message = '';
+    let errors: any = {};
+    res.locals.displayId = 'Aa-2';
+    res.locals.title = '作品マスタ編集';
+
+    req.body.filmId = filmId;
+
+    if (req.method === 'POST') {
+        // バリデーション
+        validate(req);
+        const validatorResult = await req.getValidationResult();
+        errors = req.validationErrors(true);
+        if (validatorResult.isEmpty()) {
+            // 作品DB登録
+            try {
+                // await Models.Film.create(
+                //     {
+                //         _id: req.body._id,
+                //         name: {
+                //             ja: req.body.nameJa,
+                //             en: req.body.nameEn
+                //         },
+                //         minutes: req.body.minutes
+                //     }
+                // );
+                message = '登録完了';
+            } catch (error) {
+                message = error.message;
+            }
+        }
+    }
+
+    // 作品マスタ画面遷移
+    debug('errors:', errors);
+    res.render(view, {
+        message: message,
+        errors: errors,
+        layout: null
+    });
+}
 
 /**
  * 一覧データ取得API
@@ -80,7 +127,7 @@ export async function getList(req: Request, res: Response): Promise<void> {
     const limit: number = (!_.isEmpty(req.query.limit)) ? parseInt(req.query.limit, DEFAULT_RADIX) : DEFAULT_LINES;
     const page: number = (!_.isEmpty(req.query.page)) ? parseInt(req.query.page, DEFAULT_RADIX) : 1;
     // 作品コード
-    const filmCode: string = (!_.isEmpty(req.query.page)) ? req.query.filmCode : null;
+    const filmCode: string = (!_.isEmpty(req.query.filmCode)) ? req.query.filmCode : null;
     // 登録日
     const createDateFrom: string = (!_.isEmpty(req.query.dateFrom)) ? req.query.dateFrom : null;
     const createDateTo: string = (!_.isEmpty(req.query.dateTo)) ? req.query.dateTo : null;

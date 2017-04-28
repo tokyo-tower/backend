@@ -21,6 +21,21 @@ $(function () {
         search(1);
     });
 
+    // 編集ボタンイベント
+    $(document).on('click', 'a[data-toggle="modal"]', function (e) {
+        // filmId取得&url編集
+        var filmId = $(this).closest('tr').attr('_id');
+        var now = (new Date()).getTime();
+        var url = '/master/films/' + filmId + '/update' + '?dummy=' + now;
+        alert(url);
+        // modal表示
+        var modal = $($(e.currentTarget).data('target'));
+        modal.on('show.bs.modal', function () {
+            modal.find('.modal-body').load(url);
+        }).modal();
+        return false;
+    });
+
     // 検索条件クリア
     $(document).on('click', '.reset-condition', function () {
         $.fn.clearFormValue('form');
