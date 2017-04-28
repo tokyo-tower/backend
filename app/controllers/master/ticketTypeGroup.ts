@@ -42,17 +42,65 @@ export async function index(__: Request, res: Response): Promise<void> {
  * @function add
  * @param {Request} req
  * @param {Response} res
- * @param {NextFunction} next
  * @returns {Promise<void>}
  */
 export async function add(req: Request, res: Response): Promise<void> {
-    const view = 'master/ticketTypeGroup/add';
-    const layout = 'layouts/master/layout';
     let message = '';
     let errors: any = {};
-    res.locals.displayId = 'Aa-7';
-    res.locals.title = '券種グループマスタ新規登録';
+    if (req.method === 'POST') {
+        // バリデーション
+        validate(req);
+        const validatorResult = await req.getValidationResult();
+        errors = req.validationErrors(true);
+        if (validatorResult.isEmpty()) {
+            // 券種グループDB登録
+            try {
+                const　id = req.body._id;
+                const docs = {
+                    _id: id,
+                    name: {
+                        ja: req.body.nameJa,
+                        en: ''
+                    },
+                    ticket_types: req.body.ticketTypes
+                };
+                await Models.TicketTypeGroup.create(docs);
+                message = '登録完了';
+                res.redirect(`/master/ticketTypeGroups/${id}/update`);
+            } catch (error) {
+                message = error.message;
+            }
+        }
+    }
 
+    // 券種マスタから取得
+    const ticketTypes = await Models.TicketType.find().exec();
+    const forms = {
+        _id: (_.isEmpty(req.body._id)) ? '' : req.body._id,
+        nameJa: (_.isEmpty(req.body.nameJa)) ? '' : req.body.nameJa,
+        ticketTypes: (_.isEmpty(req.body.ticketTypes)) ? [] : req.body.ticketTypes,
+        descriptionJa: (_.isEmpty(req.body.descriptionJa)) ? '' : req.body.descriptionJa
+    };
+    res.render('master/ticketTypeGroup/add', {
+        message: message,
+        errors: errors,
+        ticketTypes: ticketTypes,
+        layout: 'layouts/master/layout',
+        forms: forms
+    });
+}
+
+/**
+ * 編集
+ * @function update
+ * @param {Request} req
+ * @param {Response} res
+ * @returns {Promise<void>}
+ */
+export async function update(req: Request, res: Response): Promise<void> {
+    let message = '';
+    let errors: any = {};
+    const id = req.params.id;
     if (req.method === 'POST') {
         // バリデーション
         validate(req);
@@ -62,20 +110,15 @@ export async function add(req: Request, res: Response): Promise<void> {
             // 券種グループDB登録
             try {
                 // 券種グループDB登録
-                await Models.TicketTypeGroup.create(
-                    {
-                        _id: req.body._id,
-                        name: {
-                            ja: req.body.nameJa,
-                            en: ''
-                        },
-                        description: {
-                            ja: req.body.descriptionJa,
-                            en: ''
-                        }
-                    }
-                );
-                message = '登録完了';
+                const update = {
+                    name: {
+                        ja: req.body.nameJa,
+                        en: ''
+                    },
+                    ticket_types: req.body.ticketTypes
+                };
+                await Models.TicketTypeGroup.findByIdAndUpdate(id, update);
+                message = '編集完了';
             } catch (error) {
                 message = error.message;
             }
@@ -84,11 +127,20 @@ export async function add(req: Request, res: Response): Promise<void> {
 
     // 券種マスタから取得
     const ticketTypes = await Models.TicketType.find().exec();
-    res.render(view, {
+    // 券種グループ取得
+    const ticketGroup = await Models.TicketTypeGroup.findById(id).exec();
+    const forms = {
+        _id: (_.isEmpty(req.body._id)) ? ticketGroup.get('_id') : req.body._id,
+        nameJa: (_.isEmpty(req.body.nameJa)) ? ticketGroup.get('name').ja : req.body.nameJa,
+        ticketTypes: (_.isEmpty(req.body.ticketTypes)) ? ticketGroup.get('ticket_types') : req.body.ticketTypes,
+        descriptionJa: (_.isEmpty(req.body.descriptionJa)) ? ticketGroup.get('descriptionJa') : req.body.descriptionJa
+    };
+    res.render('master/ticketTypeGroup/update', {
         message: message,
         errors: errors,
         ticketTypes: ticketTypes,
-        layout: layout
+        layout: 'layouts/master/layout',
+        forms: forms
     });
 }
 

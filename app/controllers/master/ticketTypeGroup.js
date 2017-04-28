@@ -49,17 +49,68 @@ exports.index = index;
  * @function add
  * @param {Request} req
  * @param {Response} res
- * @param {NextFunction} next
  * @returns {Promise<void>}
  */
 function add(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        const view = 'master/ticketTypeGroup/add';
-        const layout = 'layouts/master/layout';
         let message = '';
         let errors = {};
-        res.locals.displayId = 'Aa-7';
-        res.locals.title = '券種グループマスタ新規登録';
+        if (req.method === 'POST') {
+            // バリデーション
+            validate(req);
+            const validatorResult = yield req.getValidationResult();
+            errors = req.validationErrors(true);
+            if (validatorResult.isEmpty()) {
+                // 券種グループDB登録
+                try {
+                    const id = req.body._id;
+                    const docs = {
+                        _id: id,
+                        name: {
+                            ja: req.body.nameJa,
+                            en: ''
+                        },
+                        ticket_types: req.body.ticketTypes
+                    };
+                    yield chevre_domain_1.Models.TicketTypeGroup.create(docs);
+                    message = '登録完了';
+                    res.redirect(`/master/ticketTypeGroups/${id}/update`);
+                }
+                catch (error) {
+                    message = error.message;
+                }
+            }
+        }
+        // 券種マスタから取得
+        const ticketTypes = yield chevre_domain_1.Models.TicketType.find().exec();
+        const forms = {
+            _id: (_.isEmpty(req.body._id)) ? '' : req.body._id,
+            nameJa: (_.isEmpty(req.body.nameJa)) ? '' : req.body.nameJa,
+            ticketTypes: (_.isEmpty(req.body.ticketTypes)) ? [] : req.body.ticketTypes,
+            descriptionJa: (_.isEmpty(req.body.descriptionJa)) ? '' : req.body.descriptionJa
+        };
+        res.render('master/ticketTypeGroup/add', {
+            message: message,
+            errors: errors,
+            ticketTypes: ticketTypes,
+            layout: 'layouts/master/layout',
+            forms: forms
+        });
+    });
+}
+exports.add = add;
+/**
+ * 編集
+ * @function update
+ * @param {Request} req
+ * @param {Response} res
+ * @returns {Promise<void>}
+ */
+function update(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let message = '';
+        let errors = {};
+        const id = req.params.id;
         if (req.method === 'POST') {
             // バリデーション
             validate(req);
@@ -69,18 +120,15 @@ function add(req, res) {
                 // 券種グループDB登録
                 try {
                     // 券種グループDB登録
-                    yield chevre_domain_1.Models.TicketTypeGroup.create({
-                        _id: req.body._id,
+                    const update = {
                         name: {
                             ja: req.body.nameJa,
                             en: ''
                         },
-                        description: {
-                            ja: req.body.descriptionJa,
-                            en: ''
-                        }
-                    });
-                    message = '登録完了';
+                        ticket_types: req.body.ticketTypes
+                    };
+                    yield chevre_domain_1.Models.TicketTypeGroup.findByIdAndUpdate(id, update);
+                    message = '編集完了';
                 }
                 catch (error) {
                     message = error.message;
@@ -89,15 +137,24 @@ function add(req, res) {
         }
         // 券種マスタから取得
         const ticketTypes = yield chevre_domain_1.Models.TicketType.find().exec();
-        res.render(view, {
+        // 券種グループ取得
+        const ticketGroup = yield chevre_domain_1.Models.TicketTypeGroup.findById(id).exec();
+        const forms = {
+            _id: (_.isEmpty(req.body._id)) ? ticketGroup.get('_id') : req.body._id,
+            nameJa: (_.isEmpty(req.body.nameJa)) ? ticketGroup.get('name').ja : req.body.nameJa,
+            ticketTypes: (_.isEmpty(req.body.ticketTypes)) ? ticketGroup.get('ticket_types') : req.body.ticketTypes,
+            descriptionJa: (_.isEmpty(req.body.descriptionJa)) ? ticketGroup.get('descriptionJa') : req.body.descriptionJa
+        };
+        res.render('master/ticketTypeGroup/update', {
             message: message,
             errors: errors,
             ticketTypes: ticketTypes,
-            layout: layout
+            layout: 'layouts/master/layout',
+            forms: forms
         });
     });
 }
-exports.add = add;
+exports.update = update;
 /**
  * 一覧データ取得API
  * @function getList
