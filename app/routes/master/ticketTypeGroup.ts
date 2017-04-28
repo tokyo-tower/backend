@@ -10,6 +10,7 @@ import * as ticketTypeGroupsController from '../../controllers/master/ticketType
 const router = Router();
 
 router.all('/add', ticketTypeGroupsController.add);
+router.all('/:id/update', ticketTypeGroupsController.update);
 router.get('', ticketTypeGroupsController.index);
 router.get('/getlist', ticketTypeGroupsController.getList);
 

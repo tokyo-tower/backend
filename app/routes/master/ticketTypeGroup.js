@@ -10,6 +10,7 @@ const express_1 = require("express");
 const ticketTypeGroupsController = require("../../controllers/master/ticketTypeGroup");
 const router = express_1.Router();
 router.all('/add', ticketTypeGroupsController.add);
+router.all('/:id/update', ticketTypeGroupsController.update);
 router.get('', ticketTypeGroupsController.index);
 router.get('/getlist', ticketTypeGroupsController.getList);
 exports.default = router;
