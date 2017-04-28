@@ -1,9 +1,9 @@
+"use strict";
 /**
  * 作品マスタコントローラー
  *
  * @namespace controller/film
  */
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -81,8 +81,8 @@ exports.add = add;
 function update(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         const filmId = req.params.filmId;
-        const view = 'master/film/add';
-        //const layout = 'layouts/layout';
+        const view = 'master/film/edit';
+        const layout = 'layouts/master/layout';
         let message = '';
         let errors = {};
         res.locals.displayId = 'Aa-2';
@@ -118,7 +118,7 @@ function update(req, res) {
         res.render(view, {
             message: message,
             errors: errors,
-            layout: null
+            layout: layout
         });
     });
 }

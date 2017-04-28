@@ -76,8 +76,8 @@ export async function add(req: Request, res: Response): Promise<void> {
  */
 export async function update(req: Request, res: Response): Promise<void> {
     const filmId = req.params.filmId;
-    const view = 'master/film/add';
-    //const layout = 'layouts/layout';
+    const view = 'master/film/edit';
+    const layout = 'layouts/master/layout';
     let message = '';
     let errors: any = {};
     res.locals.displayId = 'Aa-2';
@@ -115,7 +115,7 @@ export async function update(req: Request, res: Response): Promise<void> {
     res.render(view, {
         message: message,
         errors: errors,
-        layout: null
+        layout: layout
     });
 }
 

@@ -1,10 +1,10 @@
+"use strict";
 /**
  * 作品マスタ管理ルーター
  *
  * @desc FilmRouter
  * @ignore
  */
-"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const filmController = require("../../controllers/master/film");
