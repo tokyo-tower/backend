@@ -16,16 +16,8 @@
       <font color="red">＊</font>
     </label>
     <div class="col-sm-10">
-      <input type="text" class="form-control" name="_id" id="_id" placeholder="" maxlength=64 value=<%= req.body._id %>>
       <p class="message">
-          <%= req.body._id %>
-          <% /*半角64文字以内でご入力ください。*/ %>
-          半角64文字以内でご入力ください。
-      </p>
-      <p class="error message">
-        <% if (errors && errors._id) { %>
-          <%- errors._id.msg %>
-        <% } %>
+        <%= forms.filmCode %>
       </p>
     </div>
   </div>
@@ -36,7 +28,7 @@
       <font color="red">＊</font>
     </label>
     <div class="col-sm-10">
-      <input class="form-control" name="nameJa" id="nameJa" placeholder="" maxlength=64 value=<%= req.body.nameJa %>>
+      <input class="form-control" name="nameJa" id="nameJa" placeholder="" maxlength=64 value=<%= forms.nameJa %>>
       <p class="message">
           <% /*全角64文字以内でご入力ください。*/ %>
           全角64文字以内でご入力ください。
@@ -73,7 +65,7 @@
       作品名英
     </label>
     <div class="col-sm-10">
-      <input class="form-control" name="nameEn" id="nameEn" placeholder="" maxlength=128 value=<%= req.body.nameEn %>>
+      <input class="form-control" name="nameEn" id="nameEn" placeholder="" maxlength=128 value=<%= forms.nameEn %>>
       <p class="message">
           <% /*半角128文字以内でご入力ください。*/ %>
           半角128文字以内でご入力ください。
@@ -91,7 +83,7 @@
       上映時間
     </label>
     <div class="col-sm-10">
-      <input class="form-control" style="width:30%;display:inline-block;" name="minutes" id="minutes" placeholder="" maxlength=10 value=<%= req.body.minutes %>>
+      <input class="form-control" style="width:30%;display:inline-block;" name="minutes" id="minutes" placeholder="" maxlength=10 value=<%= forms.minutes %>>
       分
       <p class="message">
           <% /*半角10文字以内でご入力ください。*/ %>
@@ -177,7 +169,7 @@
       <select name="screeningForm" id="screeningForm" class="form-control">
           <option value="">---</option>
           <% for (let form of forms) { %>
-          <option value="<%= form.code %>"<% if (req.body.screeningForm === form.code) { %> selected="selected"<% } %>><%- form.name.ja %></option>
+          <option value="<%= forms.code %>"<% if (req.body.screeningForm === forms.code) { %> selected="selected"<% } %>><%- forms.name.ja %></option>
           <% } %>
       </select>
       <p class="error message">

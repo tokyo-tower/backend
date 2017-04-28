@@ -75,15 +75,11 @@ export async function add(req: Request, res: Response): Promise<void> {
  * 編集
  */
 export async function update(req: Request, res: Response): Promise<void> {
-    const filmId = req.params.filmId;
-    const view = 'master/film/edit';
-    const layout = 'layouts/master/layout';
     let message = '';
     let errors: any = {};
+    const id = req.params.filmId;
     res.locals.displayId = 'Aa-2';
     res.locals.title = '作品マスタ編集';
-
-    req.body.filmId = filmId;
 
     if (req.method === 'POST') {
         // バリデーション
@@ -93,29 +89,34 @@ export async function update(req: Request, res: Response): Promise<void> {
         if (validatorResult.isEmpty()) {
             // 作品DB登録
             try {
-                // await Models.Film.create(
-                //     {
-                //         _id: req.body._id,
-                //         name: {
-                //             ja: req.body.nameJa,
-                //             en: req.body.nameEn
-                //         },
-                //         minutes: req.body.minutes
-                //     }
-                // );
-                message = '登録完了';
+                const update = {
+                    name: {
+                        ja: req.body.nameJa,
+                        en: req.body.nameEn
+                    },
+                    charge: req.body.minutes
+                };
+                await Models.Film.findByIdAndUpdate(id, update);
+                message = '編集完了';
             } catch (error) {
                 message = error.message;
             }
         }
     }
-
+    const film = await Models.Film.findById(id).exec();
+    const forms = {
+        filmCode: (_.isEmpty(req.body.filmCode)) ? film.get('_id') : req.body.filmCode,
+        nameJa: (_.isEmpty(req.body.nameJa)) ? film.get('name').ja : req.body.nameJa,
+        nameEn: (_.isEmpty(req.body.nameEn)) ? film.get('name').en : req.body.nameEn,
+        minutes: (_.isEmpty(req.body.minutes)) ? film.get('minutes') : req.body.minutes
+    };
     // 作品マスタ画面遷移
     debug('errors:', errors);
-    res.render(view, {
+    res.render('master/film/edit', {
         message: message,
         errors: errors,
-        layout: layout
+        layout: 'layouts/master/layout',
+        forms: forms
     });
 }
 
