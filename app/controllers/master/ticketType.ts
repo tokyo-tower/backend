@@ -30,12 +30,8 @@ const CHAGE_MAX_LENGTH = 10;
  * @returns {Promise<void>}
  */
 export async function add(req: Request, res: Response): Promise<void> {
-    const view = 'master/ticketType/add';
-    const layout = 'layouts/master/layout';
     let message = '';
     let errors: any = {};
-    res.locals.displayId = 'Aa-5';
-    res.locals.title = '券種マスタ新規登録';
     if (req.method === 'POST') {
         // 検証
         validateFormAdd(req);
@@ -45,29 +41,97 @@ export async function add(req: Request, res: Response): Promise<void> {
         if (validatorResult.isEmpty()) {
             // 券種DB登録プロセス
             try {
-                await Models.TicketType.create(
-                    {
-                        _id: req.body.ticketCode,
-                        name: {
-                            ja: req.body.ticketNameJa,
-                            en: ''
-                        },
-                        charge: req.body.ticketCharge
-                    }
-                );
+                const id = req.body.ticketCode;
+                const docs = {
+                    _id: id,
+                    name: {
+                        ja: req.body.ticketNameJa,
+                        en: ''
+                    },
+                    charge: req.body.ticketCharge
+                };
+                await Models.TicketType.create(docs);
                 message = '登録完了';
+                res.redirect(`/master/ticketTypes/${id}/update`);
+                return;
             } catch (error) {
                 message = error.message;
             }
         }
     }
-
-    res.render(view, {
+    const forms = {
+        ticketCode: (_.isEmpty(req.body.ticketCode)) ? '' : req.body.ticketCode,
+        ticketNameJa: (_.isEmpty(req.body.ticketNameJa)) ? '' : req.body.ticketNameJa,
+        ticketNameEn: (_.isEmpty(req.body.ticketNameEn)) ? '' : req.body.ticketNameEn,
+        managementTypeName: (_.isEmpty(req.body.managementTypeName)) ? '' : req.body.managementTypeName,
+        ticketCharge: (_.isEmpty(req.body.ticketCharge)) ? '' : req.body.ticketCharge,
+        descriptionJa: (_.isEmpty(req.body.descriptionJa)) ? '' : req.body.descriptionJa,
+        descriptionEn: (_.isEmpty(req.body.descriptionEn)) ? '' : req.body.descriptionEn,
+        hiddenColor: (_.isEmpty(req.body.hiddenColor)) ? '' : req.body.hiddenColor
+    };
+    res.render('master/ticketType/add', {
         message: message,
         errors: errors,
-        layout: layout
+        layout: 'layouts/master/layout',
+        forms: forms
     });
+    return;
 }
+
+/**
+ * 編集
+ * @function update
+ * @param {Request} req
+ * @param {Response} res
+ * @returns {Promise<void>}
+ */
+export async function update(req: Request, res: Response): Promise<void> {
+    let message = '';
+    let errors: any = {};
+    const id = req.params.id;
+    if (req.method === 'POST') {
+        // 検証
+        validateFormAdd(req);
+        const validatorResult = await req.getValidationResult();
+        errors = req.validationErrors(true);
+        // 検証
+        if (validatorResult.isEmpty()) {
+            // 券種DB更新プロセス
+            try {
+                const update = {
+                    name: {
+                        ja: req.body.ticketNameJa,
+                        en: ''
+                    },
+                    charge: req.body.ticketCharge
+                };
+                await Models.TicketType.findByIdAndUpdate(id, update);
+                message = '編集完了';
+            } catch (error) {
+                message = error.message;
+            }
+        }
+    }
+    const ticket = await Models.TicketType.findById(id).exec();
+    const forms = {
+        ticketCode: (_.isEmpty(req.body.ticketCode)) ? ticket.get('_id') : req.body.ticketCode,
+        ticketNameJa: (_.isEmpty(req.body.ticketNameJa)) ? ticket.get('name').ja : req.body.ticketNameJa,
+        ticketNameEn: (_.isEmpty(req.body.ticketNameEn)) ? ticket.get('name').en : req.body.ticketNameEn,
+        managementTypeName: (_.isEmpty(req.body.managementTypeName)) ? '' : req.body.managementTypeName,
+        ticketCharge: (_.isEmpty(req.body.ticketCharge)) ? ticket.get('charge') : req.body.ticketCharge,
+        descriptionJa: (_.isEmpty(req.body.descriptionJa)) ? '' : req.body.descriptionJa,
+        descriptionEn: (_.isEmpty(req.body.descriptionEn)) ? '' : req.body.descriptionEn,
+        hiddenColor: (_.isEmpty(req.body.hiddenColor)) ? '' : req.body.hiddenColor
+    };
+    res.render('master/ticketType/update', {
+        message: message,
+        errors: errors,
+        layout: 'layouts/master/layout',
+        forms: forms
+    });
+    return;
+}
+
 /**
  * 一覧データ取得API
  * @function getList
@@ -152,9 +216,6 @@ export async function index(__: Request, res: Response): Promise<void> {
     // 券種グループマスタ画面遷移
     res.render('master/ticketType/index', {
         message: '',
-        displayId: 'Aa-6',
-        title: '券種マスタ一覧',
-        ticketTypeGroupsModel: {},
         layout: 'layouts/master/layout'
     });
 }
@@ -180,12 +241,12 @@ function validateFormAdd(req: Request): void {
     req.checkBody('ticketNameEn', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_NAME_EN))
         .len({ max: NAME_MAX_LENGTH_NAME_EN });
     // 管理用券種名
-    colName = '管理用券種名';
-    req.checkBody('managementTypeName', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
-    req.checkBody(
-        'managementTypeName',
-        Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_NAME_EN)).len({ max: NAME_MAX_LENGTH_NAME_JA }
-    );
+    // colName = '管理用券種名';
+    // req.checkBody('managementTypeName', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
+    // req.checkBody(
+    //     'managementTypeName',
+    //     Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_NAME_EN)).len({ max: NAME_MAX_LENGTH_NAME_JA }
+    //     );
     // 金額
     colName = '金額';
     req.checkBody('ticketCharge', Message.Common.required.replace('$fieldName$', colName)).notEmpty();

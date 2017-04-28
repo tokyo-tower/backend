@@ -1,8 +1,15 @@
+<%- contentFor('title') %>
+券種マスタ一覧
+<%- contentFor('displayId') %>
+Aa-6
+<%- contentFor('styles') %>
 <link href="/css/simplePagination.css" rel="stylesheet">
+<%- contentFor('scripts') %>
 <script src="/js/jquery.simplePagination.js"></script>
 <script src="/js/master/commonMaster.js"></script>
 <script src="/js/master/commonMasterList.js"></script>
 <script src="/js/master/ticketTypeList.js"></script>
+<%- contentFor('body') %>
 <% /* フォーム */ %>
 <div class="col-sm-12 form-container search">
   <form method="post" class="form-horizontal" >
@@ -85,7 +92,7 @@
           <% /* 編集ボタン */ %>
           <td name="edit" class="center">
             <div class="btn-area">
-              <a class="btn btn-list edit">
+              <a class="btn btn-list edit" href="/master/ticketTypes/$id$/update">
                 <span>編集</span>
               </a>
             </div>

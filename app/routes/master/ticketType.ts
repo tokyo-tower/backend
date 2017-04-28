@@ -12,6 +12,8 @@ const router = Router();
 
 // 券種登録
 router.all('/add', ticketTypeController.add);
+// 券種編集
+router.all('/:id/update', ticketTypeController.update);
 // 券種一覧
 router.get('', ticketTypeController.index);
 router.get('/getlist', ticketTypeController.getList);

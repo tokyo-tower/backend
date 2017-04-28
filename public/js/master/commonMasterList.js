@@ -93,6 +93,10 @@ $(function(){
                     $.each(fieldIds, function(index, fieldId) {
                         var value = $.fn.getStringValue(data, fieldId, "?" + fieldId + "?");
                         temp = temp.replace("\$" + fieldId + "\$", value);
+                        if (fieldId === 'edit') {
+                            var id = $.fn.getStringValue(data, "_id", "");
+                            temp = temp.replace("\$id\$", id);
+                        }
                     });
                     tempRow[cntCol++] = temp;
                 });
