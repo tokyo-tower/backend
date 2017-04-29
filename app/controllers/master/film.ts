@@ -44,9 +44,10 @@ export async function add(req: Request, res: Response): Promise<void> {
         if (validatorResult.isEmpty()) {
             // 作品DB登録
             try {
+                const id = req.body._id;
                 await Models.Film.create(
                     {
-                        _id: req.body._id,
+                        _id: id,
                         name: {
                             ja: req.body.nameJa,
                             en: req.body.nameEn

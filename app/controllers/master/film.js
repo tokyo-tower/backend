@@ -48,8 +48,9 @@ function add(req, res) {
             if (validatorResult.isEmpty()) {
                 // 作品DB登録
                 try {
+                    const id = req.body._id;
                     yield chevre_domain_1.Models.Film.create({
-                        _id: req.body._id,
+                        _id: id,
                         name: {
                             ja: req.body.nameJa,
                             en: req.body.nameEn
