@@ -42,7 +42,7 @@ function add(req, res) {
         res.locals.title = '作品マスタ新規登録';
         if (req.method === 'POST') {
             // バリデーション
-            validate(req);
+            validate(req, 'add');
             const validatorResult = yield req.getValidationResult();
             errors = req.validationErrors(true);
             if (validatorResult.isEmpty()) {
@@ -92,7 +92,7 @@ function update(req, res) {
         res.locals.title = '作品マスタ編集';
         if (req.method === 'POST') {
             // バリデーション
-            validate(req);
+            validate(req, 'update');
             const validatorResult = yield req.getValidationResult();
             errors = req.validationErrors(true);
             if (validatorResult.isEmpty()) {
@@ -246,13 +246,17 @@ exports.index = index;
 /**
  * 作品マスタ新規登録画面検証
  *
- * @param {FilmModel} filmModel
+ * @param {any} req
+ * @param {string} type
  */
-function validate(req) {
+function validate(req, checkType) {
+    let colName = '';
     // 作品コード
-    let colName = '作品コード';
-    req.checkBody('_id', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
-    req.checkBody('_id', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_CODE)).len({ max: NAME_MAX_LENGTH_CODE });
+    if (checkType === 'add') {
+        colName = '作品コード';
+        req.checkBody('_id', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
+        req.checkBody('_id', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_CODE)).len({ max: NAME_MAX_LENGTH_CODE });
+    }
     //.regex(/^[ -\~]+$/, req.__('Message.invalid{{fieldName}}', { fieldName: '%s' })),
     // 作品名
     colName = '作品名';

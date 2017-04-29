@@ -38,7 +38,7 @@ export async function add(req: Request, res: Response): Promise<void> {
 
     if (req.method === 'POST') {
         // バリデーション
-        validate(req);
+        validate(req, 'add');
         const validatorResult = await req.getValidationResult();
         errors = req.validationErrors(true);
         if (validatorResult.isEmpty()) {
@@ -88,7 +88,7 @@ export async function update(req: Request, res: Response): Promise<void> {
 
     if (req.method === 'POST') {
         // バリデーション
-        validate(req);
+        validate(req, 'update');
         const validatorResult = await req.getValidationResult();
         errors = req.validationErrors(true);
         if (validatorResult.isEmpty()) {
@@ -241,13 +241,17 @@ export async function index(__: Request, res: Response): Promise<void> {
 /**
  * 作品マスタ新規登録画面検証
  *
- * @param {FilmModel} filmModel
+ * @param {any} req
+ * @param {string} type
  */
-function validate(req: Request): void {
+function validate(req: Request, checkType: string): void {
+    let colName: string = '';
     // 作品コード
-    let colName: string = '作品コード';
-    req.checkBody('_id', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
-    req.checkBody('_id', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_CODE)).len({ max: NAME_MAX_LENGTH_CODE });
+    if ( checkType === 'add') {
+        colName = '作品コード';
+        req.checkBody('_id', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
+        req.checkBody('_id', Message.Common.getMaxLength(colName, NAME_MAX_LENGTH_CODE)).len({ max: NAME_MAX_LENGTH_CODE });
+    }
     //.regex(/^[ -\~]+$/, req.__('Message.invalid{{fieldName}}', { fieldName: '%s' })),
     // 作品名
     colName = '作品名';
