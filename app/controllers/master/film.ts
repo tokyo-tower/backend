@@ -31,8 +31,6 @@ const NAME_MAX_LENGTH_NAME_MINUTES: number = 10;
  * 新規登録
  */
 export async function add(req: Request, res: Response): Promise<void> {
-    const view = 'master/film/add';
-    const layout = 'layouts/master/layout';
     let message = '';
     let errors: any = {};
     res.locals.displayId = 'Aa-2';
@@ -62,13 +60,20 @@ export async function add(req: Request, res: Response): Promise<void> {
             }
         }
     }
+    const forms = {
+        code: (_.isEmpty(req.body.code)) ? '' : req.body.code,
+        nameJa: (_.isEmpty(req.body.nameJa)) ? '' : req.body.nameJa,
+        nameEn: (_.isEmpty(req.body.nameEn)) ? '' : req.body.nameEn,
+        minutes: (_.isEmpty(req.body.minutes)) ? '' : req.body.minutes
+    };
 
     // 作品マスタ画面遷移
     debug('errors:', errors);
-    res.render(view, {
+    res.render('master/film/add', {
         message: message,
         errors: errors,
-        layout: layout
+        layout: 'layouts/master/layout',
+        forms: forms
     });
 }
 /**
@@ -105,7 +110,7 @@ export async function update(req: Request, res: Response): Promise<void> {
     }
     const film = await Models.Film.findById(id).exec();
     const forms = {
-        filmCode: (_.isEmpty(req.body.filmCode)) ? film.get('_id') : req.body.filmCode,
+        code: (_.isEmpty(req.body.code)) ? film.get('_id') : req.body.code,
         nameJa: (_.isEmpty(req.body.nameJa)) ? film.get('name').ja : req.body.nameJa,
         nameEn: (_.isEmpty(req.body.nameEn)) ? film.get('name').en : req.body.nameEn,
         minutes: (_.isEmpty(req.body.minutes)) ? film.get('minutes') : req.body.minutes
@@ -128,7 +133,7 @@ export async function getList(req: Request, res: Response): Promise<void> {
     const limit: number = (!_.isEmpty(req.query.limit)) ? parseInt(req.query.limit, DEFAULT_RADIX) : DEFAULT_LINES;
     const page: number = (!_.isEmpty(req.query.page)) ? parseInt(req.query.page, DEFAULT_RADIX) : 1;
     // 作品コード
-    const filmCode: string = (!_.isEmpty(req.query.filmCode)) ? req.query.filmCode : null;
+    const code: string = (!_.isEmpty(req.query.code)) ? req.query.code : null;
     // 登録日
     const createDateFrom: string = (!_.isEmpty(req.query.dateFrom)) ? req.query.dateFrom : null;
     const createDateTo: string = (!_.isEmpty(req.query.dateTo)) ? req.query.dateTo : null;
@@ -140,9 +145,9 @@ export async function getList(req: Request, res: Response): Promise<void> {
     // 検索条件を作成
     const conditions: any = {};
     // 作品コード
-    if (filmCode !== null) {
+    if (code !== null) {
         const key: string = '_id';
-        conditions[key] = filmCode;
+        conditions[key] = code;
     }
     if (createDateFrom !== null || createDateTo !== null) {
         const conditionsDate: any = {};

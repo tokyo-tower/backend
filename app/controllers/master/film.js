@@ -36,8 +36,6 @@ const NAME_MAX_LENGTH_NAME_MINUTES = 10;
  */
 function add(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        const view = 'master/film/add';
-        const layout = 'layouts/master/layout';
         let message = '';
         let errors = {};
         res.locals.displayId = 'Aa-2';
@@ -65,12 +63,19 @@ function add(req, res) {
                 }
             }
         }
+        const forms = {
+            code: (_.isEmpty(req.body.code)) ? '' : req.body.code,
+            nameJa: (_.isEmpty(req.body.nameJa)) ? '' : req.body.nameJa,
+            nameEn: (_.isEmpty(req.body.nameEn)) ? '' : req.body.nameEn,
+            minutes: (_.isEmpty(req.body.minutes)) ? '' : req.body.minutes
+        };
         // 作品マスタ画面遷移
         debug('errors:', errors);
-        res.render(view, {
+        res.render('master/film/add', {
             message: message,
             errors: errors,
-            layout: layout
+            layout: 'layouts/master/layout',
+            forms: forms
         });
     });
 }
@@ -98,7 +103,7 @@ function update(req, res) {
                             ja: req.body.nameJa,
                             en: req.body.nameEn
                         },
-                        charge: req.body.minutes
+                        minutes: req.body.minutes
                     };
                     yield chevre_domain_1.Models.Film.findByIdAndUpdate(id, update);
                     message = '編集完了';
@@ -110,7 +115,7 @@ function update(req, res) {
         }
         const film = yield chevre_domain_1.Models.Film.findById(id).exec();
         const forms = {
-            filmCode: (_.isEmpty(req.body.filmCode)) ? film.get('_id') : req.body.filmCode,
+            code: (_.isEmpty(req.body.code)) ? film.get('_id') : req.body.code,
             nameJa: (_.isEmpty(req.body.nameJa)) ? film.get('name').ja : req.body.nameJa,
             nameEn: (_.isEmpty(req.body.nameEn)) ? film.get('name').en : req.body.nameEn,
             minutes: (_.isEmpty(req.body.minutes)) ? film.get('minutes') : req.body.minutes
@@ -135,7 +140,7 @@ function getList(req, res) {
         const limit = (!_.isEmpty(req.query.limit)) ? parseInt(req.query.limit, DEFAULT_RADIX) : DEFAULT_LINES;
         const page = (!_.isEmpty(req.query.page)) ? parseInt(req.query.page, DEFAULT_RADIX) : 1;
         // 作品コード
-        const filmCode = (!_.isEmpty(req.query.filmCode)) ? req.query.filmCode : null;
+        const code = (!_.isEmpty(req.query.code)) ? req.query.code : null;
         // 登録日
         const createDateFrom = (!_.isEmpty(req.query.dateFrom)) ? req.query.dateFrom : null;
         const createDateTo = (!_.isEmpty(req.query.dateTo)) ? req.query.dateTo : null;
@@ -146,9 +151,9 @@ function getList(req, res) {
         // 検索条件を作成
         const conditions = {};
         // 作品コード
-        if (filmCode !== null) {
+        if (code !== null) {
             const key = '_id';
-            conditions[key] = filmCode;
+            conditions[key] = code;
         }
         if (createDateFrom !== null || createDateTo !== null) {
             const conditionsDate = {};
@@ -276,4 +281,3 @@ function validate(req) {
     colName = '上映形態';
     req.checkBody('screeningForm', Message.Common.required.replace('$fieldName$', colName)).notEmpty();
 }
-//# sourceMappingURL=film.js.map

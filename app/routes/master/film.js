@@ -14,4 +14,3 @@ router.all('', filmController.index);
 router.all('/getlist', filmController.getList);
 router.all('/:filmId/update', filmController.update);
 exports.default = router;
-//# sourceMappingURL=film.js.map
