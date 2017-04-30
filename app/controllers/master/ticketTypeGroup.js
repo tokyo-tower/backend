@@ -125,7 +125,7 @@ function update(req, res) {
                         },
                         ticket_types: req.body.ticketTypes
                     };
-                    yield chevre_domain_1.Models.TicketTypeGroup.findByIdAndUpdate(id, update);
+                    yield chevre_domain_1.Models.TicketTypeGroup.findByIdAndUpdate(id, update).exec();
                     message = '編集完了';
                 }
                 catch (error) {

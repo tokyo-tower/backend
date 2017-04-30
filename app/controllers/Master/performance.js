@@ -56,16 +56,17 @@ exports.index = index;
  */
 function search(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        searchValidation(req);
-        const validatorResult = yield req.getValidationResult();
-        const validations = req.validationErrors(true);
-        if (!validatorResult.isEmpty()) {
-            res.json({
-                validation: validations,
-                error: null
-            });
-        }
         try {
+            searchValidation(req);
+            const validatorResult = yield req.getValidationResult();
+            const validations = req.validationErrors(true);
+            if (!validatorResult.isEmpty()) {
+                res.json({
+                    validation: validations,
+                    error: null
+                });
+                return;
+            }
             const theater = req.body.theater;
             const day = req.body.day;
             const screens = yield chevre_domain_1.Models.Screen.find({
@@ -75,7 +76,7 @@ function search(req, res) {
                 theater: theater,
                 day: day
             }).populate('film', 'name').exec();
-            const ticketGroups = yield chevre_domain_1.Models.TicketTypeGroup.find();
+            const ticketGroups = yield chevre_domain_1.Models.TicketTypeGroup.find().exec();
             res.json({
                 validation: null,
                 error: null,
@@ -106,16 +107,17 @@ exports.search = search;
  */
 function filmSearch(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        filmSearchValidation(req);
-        const validatorResult = yield req.getValidationResult();
-        const validations = req.validationErrors(true);
-        if (!validatorResult.isEmpty()) {
-            res.json({
-                validation: validations,
-                error: null
-            });
-        }
         try {
+            filmSearchValidation(req);
+            const validatorResult = yield req.getValidationResult();
+            const validations = req.validationErrors(true);
+            if (!validatorResult.isEmpty()) {
+                res.json({
+                    validation: validations,
+                    error: null
+                });
+                return;
+            }
             const id = req.body.id;
             const film = yield chevre_domain_1.Models.Film.findById(id).exec();
             res.json({
@@ -146,16 +148,17 @@ exports.filmSearch = filmSearch;
  */
 function regist(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        addValidation(req);
-        const validatorResult = yield req.getValidationResult();
-        const validations = req.validationErrors(true);
-        if (!validatorResult.isEmpty()) {
-            res.json({
-                validation: validations,
-                error: null
-            });
-        }
         try {
+            addValidation(req);
+            const validatorResult = yield req.getValidationResult();
+            const validations = req.validationErrors(true);
+            if (!validatorResult.isEmpty()) {
+                res.json({
+                    validation: validations,
+                    error: null
+                });
+                return;
+            }
             const theater = yield chevre_domain_1.Models.Theater.findById(req.body.theater).exec();
             const screen = yield chevre_domain_1.Models.Screen.findById(req.body.screen).exec();
             const docs = {
@@ -198,16 +201,17 @@ exports.regist = regist;
  */
 function update(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        updateValidation(req);
-        const validatorResult = yield req.getValidationResult();
-        const validations = req.validationErrors(true);
-        if (!validatorResult.isEmpty()) {
-            res.json({
-                validation: validations,
-                error: null
-            });
-        }
         try {
+            updateValidation(req);
+            const validatorResult = yield req.getValidationResult();
+            const validations = req.validationErrors(true);
+            if (!validatorResult.isEmpty()) {
+                res.json({
+                    validation: validations,
+                    error: null
+                });
+                return;
+            }
             const id = req.body.performance;
             const update = {
                 screen: req.body.screen,
@@ -266,7 +270,7 @@ function addValidation(req) {
     req.checkBody('startTime', '開始時間が未選択です').notEmpty();
     req.checkBody('endTime', '終了時間が未選択です').notEmpty();
     req.checkBody('screen', 'スクリーンが未選択です').notEmpty();
-    req.checkBody('券種グループ', '券種グループが未選択です').notEmpty();
+    req.checkBody('ticketTypeGroup', '券種グループが未選択です').notEmpty();
 }
 /**
  * 編集バリデーション
@@ -280,5 +284,5 @@ function updateValidation(req) {
     req.checkBody('startTime', '開始時間が未選択です').notEmpty();
     req.checkBody('endTime', '終了時間が未選択です').notEmpty();
     req.checkBody('screen', 'スクリーンが未選択です').notEmpty();
-    req.checkBody('券種グループ', '券種グループが未選択です').notEmpty();
+    req.checkBody('ticketTypeGroup', '券種グループが未選択です').notEmpty();
 }

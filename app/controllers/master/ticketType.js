@@ -115,7 +115,7 @@ function update(req, res) {
                         },
                         charge: req.body.ticketCharge
                     };
-                    yield chevre_domain_1.Models.TicketType.findByIdAndUpdate(id, update);
+                    yield chevre_domain_1.Models.TicketType.findByIdAndUpdate(id, update).exec();
                     message = '編集完了';
                 }
                 catch (error) {
@@ -165,7 +165,7 @@ function getList(req, res) {
         // 検索条件を作成
         const conditions = {};
         // 券種コード
-        if (ticketCode) {
+        if (ticketCode !== null) {
             const key = '_id';
             conditions[key] = ticketCode;
         }
@@ -174,7 +174,7 @@ function getList(req, res) {
             conditions['name.ja'] = { $regex: managementTypeName };
         }
         // 金額
-        if (ticketCharge) {
+        if (ticketCharge !== null) {
             const key = 'charge';
             conditions[key] = ticketCharge;
         }

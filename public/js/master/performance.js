@@ -14,7 +14,9 @@ $(function () {
     // 検索
     $(document).on('click', '.search-button', function (event) {
         event.preventDefault();
-        search();
+        var theater = $('.search select[name=theater]').val();
+        var day = $('.search select[name=day]').val();
+        search(theater, day);
     });
     // 新規作成
     $(document).on('click', '.add-button', function (event) {
@@ -96,7 +98,7 @@ function regist() {
     }).done(function (data) {
         if (!data.error) {
             modal.modal('hide');
-            search();
+            search(theater, day);
             return;
         }
         alert('登録に失敗しました');
@@ -113,6 +115,8 @@ function regist() {
  */
 function update() {
     var modal = $('#editModal');
+    var theater = modal.find('input[name=theater]').val();
+    var day = modal.find('input[name=day]').val();
     var performance = modal.find('input[name=performance]').val();
     var screen = modal.find('select[name=screen]').val();
     var openTime = modal.find('select[name=openTimeHour]').val() + modal.find('select[name=openTimeMinutes]').val();
@@ -143,7 +147,7 @@ function update() {
     }).done(function (data) {
         if (!data.error) {
             modal.modal('hide');
-            search();
+            search(theater, day);
             return;
         }
         alert('更新に失敗しました');
@@ -156,11 +160,11 @@ function update() {
 /**
  * 検索
  * @function search
+ * @param {theater}
+ * @param {day}
  * @returns {void}
  */
-function search() {
-    var theater = $('.search select[name=theater]').val();
-    var day = $('.search select[name=day]').val();
+function search(theater, day) {
     if (!theater || !day) {
         alert('劇場、上映日を選択してください');
         return;
@@ -177,6 +181,16 @@ function search() {
         if (data) {
             create(data.screens, data.performances);
             modalInit(theater, day, data.screens, data.ticketGroups);
+            // スケジューラーのスクロール位置を変更
+            var scheduler = $('.scheduler');
+            var top;
+            scheduler.find('.performance').each(function (index, elem) {
+                var radix = 10;
+                var tmp = parseInt($(elem).css('top'), radix);
+                if (top === undefined) top = tmp;
+                if (top > tmp) top = tmp;
+            });
+            scheduler.scrollTop(top);
         }
     }).fail(function (jqxhr, textStatus, error) {
         console.error(jqxhr, textStatus, error);
@@ -200,7 +214,7 @@ function modalInit(theater, day, screens, ticketGroups) {
         var ticketGroup = ticketGroups[i];
         ticketGroupDom.push('<option value="' + ticketGroup._id + '">' + ticketGroup.name.ja + '</option>')
     }
-    
+
     var newModal = $('#newModal');
     newModal.find('.theater span').text($('select[name=theater] option[value=' + theater + ']').text());
     newModal.find('.day span').text(moment(day).format('YYYY年MM月DD日(ddd)'));

@@ -45,16 +45,17 @@ export async function index(_: Request, res: Response, next: NextFunction): Prom
  * @returns {Promise<void>}
  */
 export async function search(req: Request, res: Response): Promise<void> {
-    searchValidation(req);
-    const validatorResult = await req.getValidationResult();
-    const validations = req.validationErrors(true);
-    if (!validatorResult.isEmpty()) {
-        res.json({
-            validation: validations,
-            error: null
-        });
-    }
     try {
+        searchValidation(req);
+        const validatorResult = await req.getValidationResult();
+        const validations = req.validationErrors(true);
+        if (!validatorResult.isEmpty()) {
+            res.json({
+                validation: validations,
+                error: null
+            });
+            return;
+        }
         const theater = req.body.theater;
         const day = req.body.day;
         const screens = await Models.Screen.find({
@@ -92,16 +93,17 @@ export async function search(req: Request, res: Response): Promise<void> {
  * @returns {Promise<void>}
  */
 export async function filmSearch(req: Request, res: Response): Promise<void> {
-    filmSearchValidation(req);
-    const validatorResult = await req.getValidationResult();
-    const validations = req.validationErrors(true);
-    if (!validatorResult.isEmpty()) {
-        res.json({
-            validation: validations,
-            error: null
-        });
-    }
     try {
+        filmSearchValidation(req);
+        const validatorResult = await req.getValidationResult();
+        const validations = req.validationErrors(true);
+        if (!validatorResult.isEmpty()) {
+            res.json({
+                validation: validations,
+                error: null
+            });
+            return;
+        }
         const id = req.body.id;
         const film = await Models.Film.findById(id).exec();
         res.json({
@@ -129,17 +131,17 @@ export async function filmSearch(req: Request, res: Response): Promise<void> {
  * @returns {Promise<void>}
  */
 export async function regist(req: Request, res: Response): Promise<void> {
-    addValidation(req);
-    const validatorResult = await req.getValidationResult();
-    const validations = req.validationErrors(true);
-    if (!validatorResult.isEmpty()) {
-        res.json({
-            validation: validations,
-            error: null
-        });
-    }
     try {
-
+        addValidation(req);
+        const validatorResult = await req.getValidationResult();
+        const validations = req.validationErrors(true);
+        if (!validatorResult.isEmpty()) {
+            res.json({
+                validation: validations,
+                error: null
+            });
+            return;
+        }
         const theater = await Models.Theater.findById(req.body.theater).exec();
         const screen = await Models.Screen.findById(req.body.screen).exec();
         const docs = {
@@ -168,7 +170,6 @@ export async function regist(req: Request, res: Response): Promise<void> {
         });
         return;
     }
-
 }
 
 /**
@@ -180,16 +181,17 @@ export async function regist(req: Request, res: Response): Promise<void> {
  * @returns {Promise<void>}
  */
 export async function update(req: Request, res: Response): Promise<void> {
-    updateValidation(req);
-    const validatorResult = await req.getValidationResult();
-    const validations = req.validationErrors(true);
-    if (!validatorResult.isEmpty()) {
-        res.json({
-            validation: validations,
-            error: null
-        });
-    }
     try {
+        updateValidation(req);
+        const validatorResult = await req.getValidationResult();
+        const validations = req.validationErrors(true);
+        if (!validatorResult.isEmpty()) {
+            res.json({
+                validation: validations,
+                error: null
+            });
+            return;
+        }
         const id = req.body.performance;
         const update = {
             screen: req.body.screen,
@@ -248,7 +250,7 @@ function addValidation(req: Request): void {
     req.checkBody('startTime', '開始時間が未選択です').notEmpty();
     req.checkBody('endTime', '終了時間が未選択です').notEmpty();
     req.checkBody('screen', 'スクリーンが未選択です').notEmpty();
-    req.checkBody('券種グループ', '券種グループが未選択です').notEmpty();
+    req.checkBody('ticketTypeGroup', '券種グループが未選択です').notEmpty();
 }
 
 /**
@@ -263,5 +265,5 @@ function updateValidation(req: Request): void {
     req.checkBody('startTime', '開始時間が未選択です').notEmpty();
     req.checkBody('endTime', '終了時間が未選択です').notEmpty();
     req.checkBody('screen', 'スクリーンが未選択です').notEmpty();
-    req.checkBody('券種グループ', '券種グループが未選択です').notEmpty();
+    req.checkBody('ticketTypeGroup', '券種グループが未選択です').notEmpty();
 }
