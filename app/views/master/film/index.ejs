@@ -22,7 +22,7 @@
         作品コード
       </label>
       <div class="col-sm-10">
-        <input type="text" class="form-control" name="filmCode" id="filmCode" placeholder="" maxlength=64 value="<%= filmModel.filmCode %>">
+        <input type="text" class="form-control" name="code" id="code" placeholder="" maxlength=64 value="<%= filmModel.filmCode %>">
       </div>
     </div>
     <% /* 登録日 */ %>
@@ -79,7 +79,7 @@
   <div>
     <p id="searchedCount" style="display:none;">
       <% /* 検索結果XX件 */ %>
-      検索結果 xx件
+      検索結果 $searched_count$件
     </p>
   </div>
   <div id="list" class="table-responsive" style="display:none;">

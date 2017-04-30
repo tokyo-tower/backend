@@ -173,7 +173,7 @@ function getList(req, res) {
         }
         // 作品名
         if (filmNameJa !== null) {
-            conditions['name.ja'] = { $regex: filmNameJa };
+            conditions['name.ja'] = { $regex: '^' + filmNameJa };
         }
         // 作品名カナ
         if (filmNameKana !== null) {

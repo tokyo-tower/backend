@@ -167,7 +167,7 @@ export async function getList(req: Request, res: Response): Promise<void> {
     }
     // 作品名
     if (filmNameJa !== null) {
-        conditions['name.ja'] = { $regex: filmNameJa };
+        conditions['name.ja'] = { $regex: '^' + filmNameJa };
     }
     // 作品名カナ
     if (filmNameKana !== null) {
