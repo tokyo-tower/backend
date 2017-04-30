@@ -106,7 +106,7 @@ function update(req, res) {
                         },
                         minutes: req.body.minutes
                     };
-                    yield chevre_domain_1.Models.Film.findByIdAndUpdate(id, update);
+                    yield chevre_domain_1.Models.Film.findByIdAndUpdate(id, update).exec();
                     message = '編集完了';
                 }
                 catch (error) {

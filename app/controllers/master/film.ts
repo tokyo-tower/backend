@@ -102,7 +102,7 @@ export async function update(req: Request, res: Response): Promise<void> {
                     },
                     minutes: req.body.minutes
                 };
-                await Models.Film.findByIdAndUpdate(id, update);
+                await Models.Film.findByIdAndUpdate(id, update).exec();
                 message = '編集完了';
             } catch (error) {
                 message = error.message;
