@@ -1,6 +1,6 @@
 "use strict";
 // tslint:disable-next-line:no-reference
-/// <reference path="definitions/chevre.d.ts" />
+/// <reference path="definitions/ttts.d.ts" />
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * サーバー起動ファイル
@@ -11,7 +11,7 @@ const startTime = process.hrtime();
 const createDebug = require("debug");
 const http = require("http");
 const app = require("./app/app");
-const debug = createDebug('chevre-frontend:server');
+const debug = createDebug('ttts-backend:server');
 /**
  * Get port from environment and store in Express.
  */

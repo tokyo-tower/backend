@@ -20,5 +20,5 @@ class MasterAdminUser extends base_1.default {
         return user;
     }
 }
-MasterAdminUser.AUTH_SESSION_NAME = 'CHEVREFrontendMasterAuth';
+MasterAdminUser.AUTH_SESSION_NAME = 'TTTSFrontendMasterAuth';
 exports.default = MasterAdminUser;

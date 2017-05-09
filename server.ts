@@ -1,5 +1,5 @@
 // tslint:disable-next-line:no-reference
-/// <reference path="definitions/chevre.d.ts" />
+/// <reference path="definitions/ttts.d.ts" />
 
 /**
  * サーバー起動ファイル
@@ -13,7 +13,7 @@ import * as createDebug from 'debug';
 import * as http from 'http';
 import * as app from './app/app';
 
-const debug = createDebug('chevre-frontend:server');
+const debug = createDebug('ttts-backend:server');
 
 /**
  * Get port from environment and store in Express.

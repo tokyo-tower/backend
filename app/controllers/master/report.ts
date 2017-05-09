@@ -3,7 +3,7 @@
  *
  * @namespace controller/film
  */
-import { Models } from '@motionpicture/chevre-domain';
+import { Models } from '@motionpicture/ttts-domain';
 //import * as createDebug from 'debug';
 import { Request, Response } from 'express';
 //import * as jconv from 'jconv';
@@ -13,7 +13,7 @@ import * as _ from 'underscore';
 // tslint:disable-next-line:no-var-requires no-require-imports
 const jconv = require('jconv');
 //import * as Message from '../../../common/Const/Message';
-//const debug = createDebug('chevre-backend:controller:film');
+//const debug = createDebug('ttts-backend:controller:film');
 
 // カラム区切り(タブ)
 const csvSeparator: string = '\t';

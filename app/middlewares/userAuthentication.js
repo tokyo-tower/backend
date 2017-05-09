@@ -13,11 +13,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const chevre_domain_1 = require("@motionpicture/chevre-domain");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const createDebug = require("debug");
 const Message = require("../../common/Const/Message");
 const masterAdmin_1 = require("../models/user/masterAdmin");
-const debug = createDebug('chevre-backend:middlewares:userAuthentication');
+const debug = createDebug('ttts-backend:middlewares:userAuthentication');
 const cookieName = 'remember_master_admin';
 exports.default = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
     res.locals.req = req;
@@ -35,7 +35,7 @@ exports.default = (req, res, next) => __awaiter(this, void 0, void 0, function* 
     // 自動ログインチェック
     if (req.cookies[cookieName] !== undefined) {
         try {
-            const authenticationDoc = yield chevre_domain_1.Models.Authentication.findOne({
+            const authenticationDoc = yield ttts_domain_1.Models.Authentication.findOne({
                 token: req.cookies[cookieName],
                 owner: { $ne: null }
             }).exec();
@@ -44,11 +44,11 @@ exports.default = (req, res, next) => __awaiter(this, void 0, void 0, function* 
             }
             else {
                 // トークン再生成
-                const token = chevre_domain_1.CommonUtil.createToken();
+                const token = ttts_domain_1.CommonUtil.createToken();
                 yield authenticationDoc.update({ token: token }).exec();
                 // tslint:disable-next-line:no-cookies
                 res.cookie(cookieName, token, { path: '/', httpOnly: true, maxAge: 604800000 });
-                const owner = yield chevre_domain_1.Models.Owner.findOne({ _id: authenticationDoc.get('owner') }).exec();
+                const owner = yield ttts_domain_1.Models.Owner.findOne({ _id: authenticationDoc.get('owner') }).exec();
                 // ログインしてリダイレクト
                 req.session[masterAdmin_1.default.AUTH_SESSION_NAME] = owner.toObject();
                 res.redirect(req.originalUrl);

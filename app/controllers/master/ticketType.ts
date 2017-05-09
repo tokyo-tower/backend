@@ -4,7 +4,7 @@
  * @namespace controller/master/ticketType
  */
 
-import { Models } from '@motionpicture/chevre-domain';
+import { Models } from '@motionpicture/ttts-domain';
 import { Request, Response } from 'express';
 import * as _ from 'underscore';
 import * as Message from '../../../common/Const/Message';

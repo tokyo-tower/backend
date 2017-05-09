@@ -36,7 +36,7 @@ const report_1 = require("./routes/master/report");
 const ticketType_1 = require("./routes/master/ticketType");
 const ticketTypeGroup_1 = require("./routes/master/ticketTypeGroup");
 const router_1 = require("./routes/router");
-const debug = createDebug('chevre-backend:app');
+const debug = createDebug('ttts-backend:app');
 const app = express();
 app.use(basicAuth_1.default); // ベーシック認証
 app.use(cors()); // enable All CORS Requests

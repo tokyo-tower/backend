@@ -8,7 +8,7 @@ import * as createDebug from 'debug';
 import { NextFunction, Request, Response } from 'express';
 import { MOVED_PERMANENTLY } from 'http-status';
 
-const debug = createDebug('chevre-backend:controllers:index');
+const debug = createDebug('ttts-backend:controllers:index');
 
 export function index(req: Request, res: Response, next: NextFunction) {
     debug('query:', req.query);

@@ -12,10 +12,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @namespace performance
  * @desc パフォーマンスマスタコントローラー
  */
-const chevre_domain_1 = require("@motionpicture/chevre-domain");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const createDebug = require("debug");
 const moment = require("moment");
-const debug = createDebug('chevre-backend:controllers:performance');
+const debug = createDebug('ttts-backend:controllers:performance');
 /**
  * パフォーマンスマスタ管理表示
  * @memberof performance
@@ -28,7 +28,7 @@ const debug = createDebug('chevre-backend:controllers:performance');
 function index(_, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const theaters = yield chevre_domain_1.Models.Theater.find().exec();
+            const theaters = yield ttts_domain_1.Models.Theater.find().exec();
             if (theaters.length === 0) {
                 throw new Error('not theaters');
             }
@@ -69,14 +69,14 @@ function search(req, res) {
             }
             const theater = req.body.theater;
             const day = req.body.day;
-            const screens = yield chevre_domain_1.Models.Screen.find({
+            const screens = yield ttts_domain_1.Models.Screen.find({
                 theater: theater
             }).exec();
-            const performances = yield chevre_domain_1.Models.Performance.find({
+            const performances = yield ttts_domain_1.Models.Performance.find({
                 theater: theater,
                 day: day
             }).populate('film', 'name').exec();
-            const ticketGroups = yield chevre_domain_1.Models.TicketTypeGroup.find().exec();
+            const ticketGroups = yield ttts_domain_1.Models.TicketTypeGroup.find().exec();
             res.json({
                 validation: null,
                 error: null,
@@ -119,7 +119,7 @@ function filmSearch(req, res) {
                 return;
             }
             const id = req.body.id;
-            const film = yield chevre_domain_1.Models.Film.findById(id).exec();
+            const film = yield ttts_domain_1.Models.Film.findById(id).exec();
             res.json({
                 validation: null,
                 error: null,
@@ -159,8 +159,8 @@ function regist(req, res) {
                 });
                 return;
             }
-            const theater = yield chevre_domain_1.Models.Theater.findById(req.body.theater).exec();
-            const screen = yield chevre_domain_1.Models.Screen.findById(req.body.screen).exec();
+            const theater = yield ttts_domain_1.Models.Theater.findById(req.body.theater).exec();
+            const screen = yield ttts_domain_1.Models.Screen.findById(req.body.screen).exec();
             const docs = {
                 theater: req.body.theater,
                 screen: req.body.screen,
@@ -173,7 +173,7 @@ function regist(req, res) {
                 theater_name: theater.get('name'),
                 screen_name: screen.get('name')
             };
-            yield chevre_domain_1.Models.Performance.create(docs);
+            yield ttts_domain_1.Models.Performance.create(docs);
             res.json({
                 validation: null,
                 error: null
@@ -220,7 +220,7 @@ function update(req, res) {
                 start_time: req.body.startTime,
                 end_time: req.body.endTime
             };
-            yield chevre_domain_1.Models.Performance.findByIdAndUpdate(id, update).exec();
+            yield ttts_domain_1.Models.Performance.findByIdAndUpdate(id, update).exec();
             res.json({
                 validation: null,
                 error: null

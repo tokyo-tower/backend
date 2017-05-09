@@ -7,7 +7,7 @@
 import * as createDebug from 'debug';
 import { NextFunction, Request, Response } from 'express';
 
-const debug = createDebug('chevre-backend:middlewares:benchmarks');
+const debug = createDebug('ttts-backend:middlewares:benchmarks');
 
 export default (req: Request, __: Response, next: NextFunction) => {
     if (process.env.NODE_ENV === 'development') {

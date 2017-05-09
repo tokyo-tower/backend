@@ -2,12 +2,12 @@
  * @namespace performance
  * @desc パフォーマンスマスタコントローラー
  */
-import { Models } from '@motionpicture/chevre-domain';
+import { Models } from '@motionpicture/ttts-domain';
 import * as createDebug from 'debug';
 import { NextFunction, Request, Response } from 'express';
 import * as moment from 'moment';
 
-const debug = createDebug('chevre-backend:controllers:performance');
+const debug = createDebug('ttts-backend:controllers:performance');
 
 /**
  * パフォーマンスマスタ管理表示

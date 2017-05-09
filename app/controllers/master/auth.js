@@ -13,7 +13,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const chevre = require("@motionpicture/chevre-domain");
+const TTTS = require("@motionpicture/ttts-domain");
 const _ = require("underscore");
 const Message = require("../../../common/Const/Message");
 const masterAdmin_1 = require("../../models/user/masterAdmin");
@@ -37,24 +37,24 @@ function login(req, res) {
             errors = req.validationErrors(true);
             if (validatorResult.isEmpty()) {
                 // ユーザー認証
-                const owner = yield chevre.Models.Owner.findOne({
+                const owner = yield TTTS.Models.Owner.findOne({
                     username: req.body.username,
-                    group: chevre.OwnerUtil.GROUP_STAFF
+                    group: TTTS.OwnerUtil.GROUP_STAFF
                 }).exec();
                 if (owner === null) {
                     errors = { username: { msg: 'IDもしくはパスワードの入力に誤りがあります' } };
                 }
                 else {
                     // パスワードチェック
-                    if (owner.get('password_hash') !== chevre.CommonUtil.createHash(req.body.password, owner.get('password_salt'))) {
+                    if (owner.get('password_hash') !== TTTS.CommonUtil.createHash(req.body.password, owner.get('password_salt'))) {
                         errors = { username: { msg: 'IDもしくはパスワードの入力に誤りがあります' } };
                     }
                     else {
                         // ログイン記憶
                         if (req.body.remember === 'on') {
                             // トークン生成
-                            const authentication = yield chevre.Models.Authentication.create({
-                                token: chevre.CommonUtil.createToken(),
+                            const authentication = yield TTTS.Models.Authentication.create({
+                                token: TTTS.CommonUtil.createToken(),
                                 owner: owner.get('_id'),
                                 signature: req.body.signature
                             });
@@ -96,7 +96,7 @@ function logout(req, res, next) {
             return;
         }
         delete req.session[masterAdmin_1.default.AUTH_SESSION_NAME];
-        yield chevre.Models.Authentication.remove({ token: req.cookies[cookieName] }).exec();
+        yield TTTS.Models.Authentication.remove({ token: req.cookies[cookieName] }).exec();
         res.clearCookie(cookieName);
         res.redirect('/master/login');
     });

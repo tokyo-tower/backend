@@ -24,7 +24,7 @@
         "dateFormat": "ddd MMM Do YYYY",
         "outputSourceFiles": true,
         "outputSourcePath": true,
-        "systemName": "CHEVREマスター管理ウェブアプリケーション",
+        "systemName": "TTTSマスター管理ウェブアプリケーション",
         "footer": "",
         "navType": "vertical",
         "theme": "cosmo",

@@ -13,14 +13,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
  *
  * @namespace controller/film
  */
-const chevre_domain_1 = require("@motionpicture/chevre-domain");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 //import * as jconv from 'jconv';
 const moment = require("moment");
 const _ = require("underscore");
 // tslint:disable-next-line:no-var-requires no-require-imports
 const jconv = require('jconv');
 //import * as Message from '../../../common/Const/Message';
-//const debug = createDebug('chevre-backend:controller:film');
+//const debug = createDebug('ttts-backend:controller:film');
 // カラム区切り(タブ)
 const csvSeparator = '\t';
 // 改行コード(CR+LF)
@@ -105,10 +105,10 @@ function getSales(req, res) {
             conditions[key] = conditionsDate;
         }
         try {
-            const dataCount = yield chevre_domain_1.Models.Reservation.count(conditions).exec();
+            const dataCount = yield ttts_domain_1.Models.Reservation.count(conditions).exec();
             let results = [];
             if (dataCount > 0) {
-                const reservations = yield chevre_domain_1.Models.Reservation.find(conditions).exec();
+                const reservations = yield ttts_domain_1.Models.Reservation.find(conditions).exec();
                 //検索結果編集
                 results = reservations.map((reservation) => {
                     return getCsvData(reservation._id) +

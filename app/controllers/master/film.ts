@@ -4,7 +4,7 @@
  * @namespace controller/film
  */
 
-import { Models } from '@motionpicture/chevre-domain';
+import { Models } from '@motionpicture/ttts-domain';
 import * as createDebug from 'debug';
 import { Request, Response } from 'express';
 import * as moment from 'moment';
@@ -12,7 +12,7 @@ import * as _ from 'underscore';
 
 import * as Message from '../../../common/Const/Message';
 
-const debug = createDebug('chevre-backend:controller:film');
+const debug = createDebug('ttts-backend:controller:film');
 
 // 基数
 const DEFAULT_RADIX: number = 10;

@@ -40,7 +40,7 @@ import ticketTypeRouter from './routes/master/ticketType';
 import ticketTypeGroupRouter from './routes/master/ticketTypeGroup';
 import router from './routes/router';
 
-const debug = createDebug('chevre-backend:app');
+const debug = createDebug('ttts-backend:app');
 
 const app = express();
 

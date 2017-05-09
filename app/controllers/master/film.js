@@ -13,12 +13,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const chevre_domain_1 = require("@motionpicture/chevre-domain");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const createDebug = require("debug");
 const moment = require("moment");
 const _ = require("underscore");
 const Message = require("../../../common/Const/Message");
-const debug = createDebug('chevre-backend:controller:film');
+const debug = createDebug('ttts-backend:controller:film');
 // 基数
 const DEFAULT_RADIX = 10;
 // 1ページに表示するデータ数
@@ -49,7 +49,7 @@ function add(req, res) {
                 // 作品DB登録
                 try {
                     const id = req.body._id;
-                    yield chevre_domain_1.Models.Film.create({
+                    yield ttts_domain_1.Models.Film.create({
                         _id: id,
                         name: {
                             ja: req.body.nameJa,
@@ -106,7 +106,7 @@ function update(req, res) {
                         },
                         minutes: req.body.minutes
                     };
-                    yield chevre_domain_1.Models.Film.findByIdAndUpdate(id, update).exec();
+                    yield ttts_domain_1.Models.Film.findByIdAndUpdate(id, update).exec();
                     message = '編集完了';
                 }
                 catch (error) {
@@ -114,7 +114,7 @@ function update(req, res) {
                 }
             }
         }
-        const film = yield chevre_domain_1.Models.Film.findById(id).exec();
+        const film = yield ttts_domain_1.Models.Film.findById(id).exec();
         const forms = {
             code: (_.isEmpty(req.body.code)) ? film.get('_id') : req.body.code,
             nameJa: (_.isEmpty(req.body.nameJa)) ? film.get('name').ja : req.body.nameJa,
@@ -184,10 +184,10 @@ function getList(req, res) {
             conditions['name.en'] = { $regex: filmNameEn };
         }
         try {
-            const filmsCount = yield chevre_domain_1.Models.Film.count(conditions).exec();
+            const filmsCount = yield ttts_domain_1.Models.Film.count(conditions).exec();
             let results = [];
             if (filmsCount > 0) {
-                const films = yield chevre_domain_1.Models.Film.find(conditions).skip(limit * (page - 1)).limit(limit).exec();
+                const films = yield ttts_domain_1.Models.Film.find(conditions).skip(limit * (page - 1)).limit(limit).exec();
                 //検索結果編集
                 results = films.map((film) => {
                     return {

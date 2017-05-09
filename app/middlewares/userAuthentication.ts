@@ -4,14 +4,14 @@
  * @module middlewares/userAuthentication
  */
 
-import { CommonUtil, Models } from '@motionpicture/chevre-domain';
+import { CommonUtil, Models } from '@motionpicture/ttts-domain';
 import * as createDebug from 'debug';
 import { NextFunction, Request, Response } from 'express';
 
 import * as Message from '../../common/Const/Message';
 import MasterAdminUser from '../models/user/masterAdmin';
 
-const debug = createDebug('chevre-backend:middlewares:userAuthentication');
+const debug = createDebug('ttts-backend:middlewares:userAuthentication');
 const cookieName = 'remember_master_admin';
 
 export default async (req: Request, res: Response, next: NextFunction) => {

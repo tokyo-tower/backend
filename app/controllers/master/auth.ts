@@ -4,7 +4,7 @@
  * @namespace controller/master/auth
  */
 
-import * as chevre from '@motionpicture/chevre-domain';
+import * as TTTS from '@motionpicture/ttts-domain';
 import { NextFunction, Request, Response } from 'express';
 import * as _ from 'underscore';
 
@@ -33,10 +33,10 @@ export async function login(req: Request, res: Response): Promise<void> {
         errors = req.validationErrors(true);
         if (validatorResult.isEmpty()) {
             // ユーザー認証
-            const owner = await chevre.Models.Owner.findOne(
+            const owner = await TTTS.Models.Owner.findOne(
                 {
                     username: req.body.username,
-                    group: chevre.OwnerUtil.GROUP_STAFF
+                    group: TTTS.OwnerUtil.GROUP_STAFF
                 }
             ).exec();
 
@@ -44,15 +44,15 @@ export async function login(req: Request, res: Response): Promise<void> {
                 errors = { username: { msg: 'IDもしくはパスワードの入力に誤りがあります' } };
             } else {
                 // パスワードチェック
-                if (owner.get('password_hash') !== chevre.CommonUtil.createHash(req.body.password, owner.get('password_salt'))) {
+                if (owner.get('password_hash') !== TTTS.CommonUtil.createHash(req.body.password, owner.get('password_salt'))) {
                     errors = { username: { msg: 'IDもしくはパスワードの入力に誤りがあります' } };
                 } else {
                     // ログイン記憶
                     if (req.body.remember === 'on') {
                         // トークン生成
-                        const authentication = await chevre.Models.Authentication.create(
+                        const authentication = await TTTS.Models.Authentication.create(
                             {
-                                token: chevre.CommonUtil.createToken(),
+                                token: TTTS.CommonUtil.createToken(),
                                 owner: owner.get('_id'),
                                 signature: req.body.signature
                             }
@@ -102,7 +102,7 @@ export async function logout(req: Request, res: Response, next: NextFunction): P
     }
 
     delete req.session[MasterAdminUser.AUTH_SESSION_NAME];
-    await chevre.Models.Authentication.remove({ token: req.cookies[cookieName] }).exec();
+    await TTTS.Models.Authentication.remove({ token: req.cookies[cookieName] }).exec();
 
     res.clearCookie(cookieName);
     res.redirect('/master/login');

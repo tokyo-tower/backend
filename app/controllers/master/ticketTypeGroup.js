@@ -13,7 +13,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const chevre_domain_1 = require("@motionpicture/chevre-domain");
+const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const _ = require("underscore");
 const Message = require("../../../common/Const/Message");
 // 基数
@@ -70,7 +70,7 @@ function add(req, res) {
                         },
                         ticket_types: req.body.ticketTypes
                     };
-                    yield chevre_domain_1.Models.TicketTypeGroup.create(docs);
+                    yield ttts_domain_1.Models.TicketTypeGroup.create(docs);
                     message = '登録完了';
                     res.redirect(`/master/ticketTypeGroups/${id}/update`);
                 }
@@ -80,7 +80,7 @@ function add(req, res) {
             }
         }
         // 券種マスタから取得
-        const ticketTypes = yield chevre_domain_1.Models.TicketType.find().exec();
+        const ticketTypes = yield ttts_domain_1.Models.TicketType.find().exec();
         const forms = {
             _id: (_.isEmpty(req.body._id)) ? '' : req.body._id,
             nameJa: (_.isEmpty(req.body.nameJa)) ? '' : req.body.nameJa,
@@ -125,7 +125,7 @@ function update(req, res) {
                         },
                         ticket_types: req.body.ticketTypes
                     };
-                    yield chevre_domain_1.Models.TicketTypeGroup.findByIdAndUpdate(id, update).exec();
+                    yield ttts_domain_1.Models.TicketTypeGroup.findByIdAndUpdate(id, update).exec();
                     message = '編集完了';
                 }
                 catch (error) {
@@ -134,9 +134,9 @@ function update(req, res) {
             }
         }
         // 券種マスタから取得
-        const ticketTypes = yield chevre_domain_1.Models.TicketType.find().exec();
+        const ticketTypes = yield ttts_domain_1.Models.TicketType.find().exec();
         // 券種グループ取得
-        const ticketGroup = yield chevre_domain_1.Models.TicketTypeGroup.findById(id).exec();
+        const ticketGroup = yield ttts_domain_1.Models.TicketTypeGroup.findById(id).exec();
         const forms = {
             _id: (_.isEmpty(req.body._id)) ? ticketGroup.get('_id') : req.body._id,
             nameJa: (_.isEmpty(req.body.nameJa)) ? ticketGroup.get('name').ja : req.body.nameJa,
@@ -181,10 +181,10 @@ function getList(req, res) {
             conditions['name.ja'] = { $regex: ticketGroupNameJa };
         }
         try {
-            const count = yield chevre_domain_1.Models.TicketTypeGroup.count(conditions).exec();
+            const count = yield ttts_domain_1.Models.TicketTypeGroup.count(conditions).exec();
             let results = [];
             if (count > 0) {
-                const ticketTypeGroups = yield chevre_domain_1.Models.TicketTypeGroup.find(conditions)
+                const ticketTypeGroups = yield ttts_domain_1.Models.TicketTypeGroup.find(conditions)
                     .skip(limit * (page - 1))
                     .limit(limit)
                     .exec();
