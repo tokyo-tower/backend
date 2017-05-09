@@ -32,6 +32,7 @@ const dev_1 = require("./routes/dev");
 const auth_1 = require("./routes/master/auth");
 const film_1 = require("./routes/master/film");
 const performance_1 = require("./routes/master/performance");
+const report_1 = require("./routes/master/report");
 const ticketType_1 = require("./routes/master/ticketType");
 const ticketTypeGroup_1 = require("./routes/master/ticketTypeGroup");
 const router_1 = require("./routes/router");
@@ -81,6 +82,7 @@ app.use('/master/films', film_1.default); //作品
 app.use('/master/performances', performance_1.default); //パフォーマンス
 app.use('/master/ticketTypes', ticketType_1.default); //券種
 app.use('/master/ticketTypeGroups', ticketTypeGroup_1.default); //券種グループ
+app.use('/master/report', report_1.default); //レポート出力
 if (process.env.NODE_ENV !== 'production') {
     app.use('/dev', dev_1.default);
 }

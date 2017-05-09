@@ -35,6 +35,7 @@ import devRouter from './routes/dev';
 import authRouter from './routes/master/auth';
 import filmRouter from './routes/master/film';
 import performanceRouter from './routes/master/performance';
+import reportRouter from './routes/master/report';
 import ticketTypeRouter from './routes/master/ticketType';
 import ticketTypeGroupRouter from './routes/master/ticketTypeGroup';
 import router from './routes/router';
@@ -98,6 +99,7 @@ app.use('/master/films', filmRouter); //作品
 app.use('/master/performances', performanceRouter); //パフォーマンス
 app.use('/master/ticketTypes', ticketTypeRouter); //券種
 app.use('/master/ticketTypeGroups', ticketTypeGroupRouter); //券種グループ
+app.use('/master/report', reportRouter); //レポート出力
 
 if (process.env.NODE_ENV !== 'production') {
     app.use('/dev', devRouter);
