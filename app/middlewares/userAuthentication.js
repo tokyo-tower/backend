@@ -33,57 +33,39 @@ exports.default = (req, res, next) => __awaiter(this, void 0, void 0, function* 
         return;
     }
     // 自動ログインチェック
-    const userSession = yield checkRemember(req, res);
-    if (userSession !== null && req.session !== undefined) {
-        // ログインしてリダイレクト
-        req.session[masterAdmin_1.default.AUTH_SESSION_NAME] = userSession.staff.toObject();
-        res.redirect(req.originalUrl);
-    }
-    else {
-        if (req.xhr) {
-            res.json({
-                success: false,
-                message: 'login required'
-            });
-        }
-        else {
-            res.redirect(`/master/login?cb=${req.originalUrl}`);
-        }
-    }
-});
-/**
- * ログイン記憶しているかどうか確認する
- *
- * @param {Request} req リクエスト
- * @param {Response} res レスポンス
- * @returns {Document|null}
- */
-function checkRemember(req, res) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (req.cookies[cookieName] === undefined) {
-            return null;
-        }
+    if (req.cookies[cookieName] !== undefined) {
         try {
             const authenticationDoc = yield chevre_domain_1.Models.Authentication.findOne({
                 token: req.cookies[cookieName],
-                staff: { $ne: null }
+                owner: { $ne: null }
             }).exec();
             if (authenticationDoc === null) {
                 res.clearCookie(cookieName);
-                return null;
             }
-            // トークン再生成
-            const token = chevre_domain_1.CommonUtil.createToken();
-            yield authenticationDoc.update({ token: token }).exec();
-            // tslint:disable-next-line:no-cookies
-            res.cookie(cookieName, token, { path: '/', httpOnly: true, maxAge: 604800000 });
-            const staff = yield chevre_domain_1.Models.Staff.findOne({ _id: authenticationDoc.get('staff') }).exec();
-            return {
-                staff: staff
-            };
+            else {
+                // トークン再生成
+                const token = chevre_domain_1.CommonUtil.createToken();
+                yield authenticationDoc.update({ token: token }).exec();
+                // tslint:disable-next-line:no-cookies
+                res.cookie(cookieName, token, { path: '/', httpOnly: true, maxAge: 604800000 });
+                const owner = yield chevre_domain_1.Models.Owner.findOne({ _id: authenticationDoc.get('owner') }).exec();
+                // ログインしてリダイレクト
+                req.session[masterAdmin_1.default.AUTH_SESSION_NAME] = owner.toObject();
+                res.redirect(req.originalUrl);
+                return;
+            }
         }
         catch (error) {
-            return null;
+            console.error(error);
         }
-    });
-}
+    }
+    if (req.xhr) {
+        res.json({
+            success: false,
+            message: 'login required'
+        });
+    }
+    else {
+        res.redirect(`/master/login?cb=${req.originalUrl}`);
+    }
+});

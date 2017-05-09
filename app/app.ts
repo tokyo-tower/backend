@@ -90,6 +90,10 @@ app.use(expressValidator()); // バリデーション
 mongoose.connect(process.env.MONGOLAB_URI, mongooseConnectionOptions);
 
 // ルーティング登録の順序に注意！
+if (process.env.NODE_ENV !== 'production') {
+    app.use('/dev', devRouter);
+}
+
 app.use(authRouter); // ログイン・ログアウト
 
 app.use(userAuthentication); // ユーザー認証
@@ -100,10 +104,6 @@ app.use('/master/performances', performanceRouter); //パフォーマンス
 app.use('/master/ticketTypes', ticketTypeRouter); //券種
 app.use('/master/ticketTypeGroups', ticketTypeGroupRouter); //券種グループ
 app.use('/master/report', reportRouter); //レポート出力
-
-if (process.env.NODE_ENV !== 'production') {
-    app.use('/dev', devRouter);
-}
 
 // 404
 app.use(notFoundHandler);

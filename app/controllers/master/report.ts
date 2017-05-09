@@ -18,7 +18,7 @@ const jconv = require('jconv');
 // カラム区切り(タブ)
 const csvSeparator: string = '\t';
 // 改行コード(CR+LF)
-const csvLineFeed : string = '\r\n';
+const csvLineFeed: string = '\r\n';
 // 売り上げレポートヘッダ
 const arrayHeadSales = [
     '"購入番号"',
@@ -73,8 +73,8 @@ export async function index(__: Request, res: Response): Promise<void> {
 export async function getSales(req: Request, res: Response): Promise<void> {
     // Responseヘッダセット
     const filename = '売り上げレポート';
-    res.setHeader( 'Content-disposition', 'attachment; filename*=UTF-8\'\'' + encodeURIComponent( filename + '.csv' ) );
-    res.setHeader( 'Content-Type', 'text/csv; charset=Shift_JIS' );
+    res.setHeader('Content-disposition', 'attachment; filename*=UTF-8\'\'' + encodeURIComponent(filename + '.csv'));
+    res.setHeader('Content-Type', 'text/csv; charset=Shift_JIS');
 
     // 登録日
     const createDateFrom: string = (!_.isEmpty(req.query.dateFrom)) ? req.query.dateFrom : null;
@@ -105,37 +105,37 @@ export async function getSales(req: Request, res: Response): Promise<void> {
             //検索結果編集
             results = reservations.map((reservation) => {
                 return getCsvData(reservation._id) +
-                       getCsvData(reservation.get('performance')) +
-                       getCsvData(reservation.get('seat_code')) +
-                       getCsvData(reservation.get('status')) +
-                       getCsvData(toYMD(reservation.get('performance_day'))) +
-                       getCsvData(toHM(reservation.get('performance_start_time'))) +
-                       getCsvData(reservation.get('theater_name').ja) +
-                       getCsvData(reservation.get('screen')) +
-                       getCsvData(reservation.get('screen_name').ja) +
-                       getCsvData(reservation.get('film')) +
-                       getCsvData(reservation.get('film_name').ja) +
-                       getCsvData(reservation.get('purchaser_group')) +
-                       getCsvData(reservation.get('purchaser_first_name')) +
-                       getCsvData(reservation.get('purchaser_last_name')) +
-                       getCsvData(reservation.get('purchaser_email')) +
-                       getCsvData(reservation.get('purchaser_tel')) +
-                       getCsvData(reservation.get('purchaser_age')) +
-                       getCsvData(reservation.get('purchaser_address')) +
-                       getCsvData(reservation.get('purchaser_gender')) +
-                       getCsvData(toString(reservation.get('purchased_at'))) +
-                       getCsvData(reservation.get('payment_method')) +
-                       getCsvData(reservation.get('seat_grade_name').ja) +
-                       getCsvData(reservation.get('seat_grade_additional_charge')) +
-                       getCsvData(reservation.get('ticket_type_name').ja) +
-                       getCsvData(reservation.get('ticket_type_charge')) +
-                       getCsvData(reservation.get('watcher_name')) +
-                       getCsvData(toString(reservation.get('watcher_name_updated_at'))) +
-                       getCsvData(reservation.get('payment_seat_index')) +
-                       getCsvData(reservation.get('gmo_amount')) +
-                       getCsvData(reservation.get('window_user_id')) +
-                       getCsvData('入場フラグ') + //checkins? TRUE,FALSE
-                       getCsvData('入場日時', false); //checkins[0]?.when 2016/10/28 17:50:40
+                    getCsvData(reservation.get('performance')) +
+                    getCsvData(reservation.get('seat_code')) +
+                    getCsvData(reservation.get('status')) +
+                    getCsvData(toYMD(reservation.get('performance_day'))) +
+                    getCsvData(toHM(reservation.get('performance_start_time'))) +
+                    getCsvData(reservation.get('theater_name').ja) +
+                    getCsvData(reservation.get('screen')) +
+                    getCsvData(reservation.get('screen_name').ja) +
+                    getCsvData(reservation.get('film')) +
+                    getCsvData(reservation.get('film_name').ja) +
+                    getCsvData(reservation.get('purchaser_group')) +
+                    getCsvData(reservation.get('purchaser_first_name')) +
+                    getCsvData(reservation.get('purchaser_last_name')) +
+                    getCsvData(reservation.get('purchaser_email')) +
+                    getCsvData(reservation.get('purchaser_tel')) +
+                    getCsvData(reservation.get('purchaser_age')) +
+                    getCsvData(reservation.get('purchaser_address')) +
+                    getCsvData(reservation.get('purchaser_gender')) +
+                    getCsvData(toString(reservation.get('purchased_at'))) +
+                    getCsvData(reservation.get('payment_method')) +
+                    getCsvData(reservation.get('seat_grade_name').ja) +
+                    getCsvData(reservation.get('seat_grade_additional_charge')) +
+                    getCsvData(reservation.get('ticket_type_name').ja) +
+                    getCsvData(reservation.get('ticket_type_charge')) +
+                    getCsvData(reservation.get('watcher_name')) +
+                    getCsvData(toString(reservation.get('watcher_name_updated_at'))) +
+                    getCsvData(reservation.get('payment_seat_index')) +
+                    getCsvData(reservation.get('gmo_amount')) +
+                    getCsvData(reservation.get('window_user_id')) +
+                    getCsvData('入場フラグ') + //checkins? TRUE,FALSE
+                    getCsvData('入場日時', false); //checkins[0]?.when 2016/10/28 17:50:40
             });
         }
         const head = arrayHeadSales.join(csvSeparator) + csvLineFeed;
@@ -155,8 +155,8 @@ export async function getSales(req: Request, res: Response): Promise<void> {
  * @param {boolean} addSeparator
  * @returns {string}
  */
-function getCsvData(value: any, addSeparator: boolean = true): string {
-    return '"' + (value ? value : '' + '"') + (addSeparator ? csvSeparator : '');
+function getCsvData(value: string, addSeparator: boolean = true): string {
+    return '"' + ((!_.isEmpty(value)) ? value : '' + '"') + (addSeparator ? csvSeparator : '');
 }
 /**
  * YYYY/MM/DD日付取得
@@ -184,7 +184,7 @@ function toHM(timeStr: string): string {
  * @returns {string} ('YYYY/MM/DD HH:mm:ss')
  */
 function toString(date: Date): string {
-    return (date) ? moment(date).format('YYYY/MM/DD HH:mm:ss') : '';
+    return (date instanceof Date) ? moment(date).format('YYYY/MM/DD HH:mm:ss') : '';
 }
 /**
  * DB検索用ISO日付取得

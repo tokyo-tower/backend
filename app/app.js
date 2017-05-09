@@ -75,6 +75,9 @@ app.use(expressValidator()); // バリデーション
 mongoose.Promise = global.Promise;
 mongoose.connect(process.env.MONGOLAB_URI, mongooseConnectionOptions_1.default);
 // ルーティング登録の順序に注意！
+if (process.env.NODE_ENV !== 'production') {
+    app.use('/dev', dev_1.default);
+}
 app.use(auth_1.default); // ログイン・ログアウト
 app.use(userAuthentication_1.default); // ユーザー認証
 app.use(router_1.default);
@@ -83,9 +86,6 @@ app.use('/master/performances', performance_1.default); //パフォーマンス
 app.use('/master/ticketTypes', ticketType_1.default); //券種
 app.use('/master/ticketTypeGroups', ticketTypeGroup_1.default); //券種グループ
 app.use('/master/report', report_1.default); //レポート出力
-if (process.env.NODE_ENV !== 'production') {
-    app.use('/dev', dev_1.default);
-}
 // 404
 app.use(notFoundHandler_1.default);
 // error handlers

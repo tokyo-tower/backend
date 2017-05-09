@@ -50,7 +50,6 @@ npm run css
 ## Required environment variables
 ```shell
 set NODE_ENV=**********環境名(development,test,production)**********
-set SENDGRID_API_KEY=**********sendgrid api key**********
 set CHEVRE_PERFORMANCE_STATUSES_REDIS_HOST=**********パフォーマンス空席状況保管先redis host**********
 set CHEVRE_PERFORMANCE_STATUSES_REDIS_PORT=**********パフォーマンス空席状況保管先redis port**********
 set CHEVRE_PERFORMANCE_STATUSES_REDIS_KEY=**********パフォーマンス空席状況保管先redis key**********

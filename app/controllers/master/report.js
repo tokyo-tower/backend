@@ -166,7 +166,7 @@ exports.getSales = getSales;
  * @returns {string}
  */
 function getCsvData(value, addSeparator = true) {
-    return '"' + (value ? value : '' + '"') + (addSeparator ? csvSeparator : '');
+    return '"' + ((!_.isEmpty(value)) ? value : '' + '"') + (addSeparator ? csvSeparator : '');
 }
 /**
  * YYYY/MM/DD日付取得
@@ -194,7 +194,7 @@ function toHM(timeStr) {
  * @returns {string} ('YYYY/MM/DD HH:mm:ss')
  */
 function toString(date) {
-    return (date) ? moment(date).format('YYYY/MM/DD HH:mm:ss') : '';
+    return (date instanceof Date) ? moment(date).format('YYYY/MM/DD HH:mm:ss') : '';
 }
 /**
  * DB検索用ISO日付取得

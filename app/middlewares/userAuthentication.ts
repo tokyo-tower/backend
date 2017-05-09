@@ -31,59 +31,42 @@ export default async (req: Request, res: Response, next: NextFunction) => {
     }
 
     // 自動ログインチェック
-    const userSession = await checkRemember(req, res);
-    if (userSession !== null && req.session !== undefined) {
-        // ログインしてリダイレクト
-        req.session[MasterAdminUser.AUTH_SESSION_NAME] = userSession.staff.toObject();
-        res.redirect(req.originalUrl);
-    } else {
-        if (req.xhr) {
-            res.json({
-                success: false,
-                message: 'login required'
-            });
-        } else {
-            res.redirect(`/master/login?cb=${req.originalUrl}`);
+    if (req.cookies[cookieName] !== undefined) {
+        try {
+            const authenticationDoc = await Models.Authentication.findOne(
+                {
+                    token: req.cookies[cookieName],
+                    owner: { $ne: null }
+                }
+            ).exec();
+
+            if (authenticationDoc === null) {
+                res.clearCookie(cookieName);
+            } else {
+                // トークン再生成
+                const token = CommonUtil.createToken();
+                await authenticationDoc.update({ token: token }).exec();
+
+                // tslint:disable-next-line:no-cookies
+                res.cookie(cookieName, token, { path: '/', httpOnly: true, maxAge: 604800000 });
+                const owner = await Models.Owner.findOne({ _id: authenticationDoc.get('owner') }).exec();
+
+                // ログインしてリダイレクト
+                (<Express.Session>req.session)[MasterAdminUser.AUTH_SESSION_NAME] = owner.toObject();
+                res.redirect(req.originalUrl);
+                return;
+            }
+        } catch (error) {
+            console.error(error);
         }
+    }
+
+    if (req.xhr) {
+        res.json({
+            success: false,
+            message: 'login required'
+        });
+    } else {
+        res.redirect(`/master/login?cb=${req.originalUrl}`);
     }
 };
-
-/**
- * ログイン記憶しているかどうか確認する
- *
- * @param {Request} req リクエスト
- * @param {Response} res レスポンス
- * @returns {Document|null}
- */
-async function checkRemember(req: Request, res: Response) {
-    if (req.cookies[cookieName] === undefined) {
-        return null;
-    }
-
-    try {
-        const authenticationDoc = await Models.Authentication.findOne(
-            {
-                token: req.cookies[cookieName],
-                staff: { $ne: null }
-            }
-        ).exec();
-
-        if (authenticationDoc === null) {
-            res.clearCookie(cookieName);
-            return null;
-        }
-
-        // トークン再生成
-        const token = CommonUtil.createToken();
-        await authenticationDoc.update({ token: token }).exec();
-
-        // tslint:disable-next-line:no-cookies
-        res.cookie(cookieName, token, { path: '/', httpOnly: true, maxAge: 604800000 });
-        const staff = await Models.Staff.findOne({ _id: authenticationDoc.get('staff') }).exec();
-        return {
-            staff: staff
-        };
-    } catch (error) {
-        return null;
-    }
-}
