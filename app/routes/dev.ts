@@ -38,7 +38,7 @@ devRouter.get(
     '/mongoose/connect',
     (__, res, next) => {
         debug('connecting...');
-        mongoose.connect(process.env.MONGOLAB_URI, mongooseConnectionOptions, (err) => {
+        mongoose.connect((<any>process.env).MONGOLAB_URI, mongooseConnectionOptions, (err) => {
             if (err instanceof Error) {
                 next(err);
 

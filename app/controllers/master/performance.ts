@@ -150,8 +150,8 @@ export async function regist(req: Request, res: Response): Promise<void> {
             start_time: req.body.startTime,
             end_time: req.body.endTime,
             ticket_type_group: req.body.ticketTypeGroup,
-            theater_name: theater.get('name'),
-            screen_name: screen.get('name')
+            theater_name: (theater !== null) ? theater.get('name') : '',
+            screen_name: (screen !== null) ? screen.get('name') : ''
         };
         await Models.Performance.create(docs);
         res.json({

@@ -113,16 +113,19 @@ export async function update(req: Request, res: Response): Promise<void> {
         }
     }
     const ticket = await Models.TicketType.findById(id).exec();
-    const forms = {
-        ticketCode: (_.isEmpty(req.body.ticketCode)) ? ticket.get('_id') : req.body.ticketCode,
-        ticketNameJa: (_.isEmpty(req.body.ticketNameJa)) ? ticket.get('name').ja : req.body.ticketNameJa,
-        ticketNameEn: (_.isEmpty(req.body.ticketNameEn)) ? ticket.get('name').en : req.body.ticketNameEn,
-        managementTypeName: (_.isEmpty(req.body.managementTypeName)) ? '' : req.body.managementTypeName,
-        ticketCharge: (_.isEmpty(req.body.ticketCharge)) ? ticket.get('charge') : req.body.ticketCharge,
-        descriptionJa: (_.isEmpty(req.body.descriptionJa)) ? '' : req.body.descriptionJa,
-        descriptionEn: (_.isEmpty(req.body.descriptionEn)) ? '' : req.body.descriptionEn,
-        hiddenColor: (_.isEmpty(req.body.hiddenColor)) ? '' : req.body.hiddenColor
-    };
+    let forms: any = {};
+    if (ticket !== null) {
+        forms = {
+            ticketCode: (_.isEmpty(req.body.ticketCode)) ? ticket.get('_id') : req.body.ticketCode,
+            ticketNameJa: (_.isEmpty(req.body.ticketNameJa)) ? ticket.get('name').ja : req.body.ticketNameJa,
+            ticketNameEn: (_.isEmpty(req.body.ticketNameEn)) ? ticket.get('name').en : req.body.ticketNameEn,
+            managementTypeName: (_.isEmpty(req.body.managementTypeName)) ? '' : req.body.managementTypeName,
+            ticketCharge: (_.isEmpty(req.body.ticketCharge)) ? ticket.get('charge') : req.body.ticketCharge,
+            descriptionJa: (_.isEmpty(req.body.descriptionJa)) ? '' : req.body.descriptionJa,
+            descriptionEn: (_.isEmpty(req.body.descriptionEn)) ? '' : req.body.descriptionEn,
+            hiddenColor: (_.isEmpty(req.body.hiddenColor)) ? '' : req.body.hiddenColor
+        };
+    }
     res.render('master/ticketType/update', {
         message: message,
         errors: errors,

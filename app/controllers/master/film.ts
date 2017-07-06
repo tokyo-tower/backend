@@ -110,12 +110,15 @@ export async function update(req: Request, res: Response): Promise<void> {
         }
     }
     const film = await Models.Film.findById(id).exec();
-    const forms = {
-        code: (_.isEmpty(req.body.code)) ? film.get('_id') : req.body.code,
-        nameJa: (_.isEmpty(req.body.nameJa)) ? film.get('name').ja : req.body.nameJa,
-        nameEn: (_.isEmpty(req.body.nameEn)) ? film.get('name').en : req.body.nameEn,
-        minutes: (_.isEmpty(req.body.minutes)) ? film.get('minutes') : req.body.minutes
-    };
+    let forms : any = [];
+    if (film !== null) {
+        forms = {
+            code: (_.isEmpty(req.body.code)) ? film.get('_id') : req.body.code,
+            nameJa: (_.isEmpty(req.body.nameJa)) ? film.get('name').ja : req.body.nameJa,
+            nameEn: (_.isEmpty(req.body.nameEn)) ? film.get('name').en : req.body.nameEn,
+            minutes: (_.isEmpty(req.body.minutes)) ? film.get('minutes') : req.body.minutes
+        };
+    }
     // 作品マスタ画面遷移
     debug('errors:', errors);
     res.render('master/film/edit', {

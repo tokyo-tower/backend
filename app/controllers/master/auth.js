@@ -17,7 +17,8 @@ const TTTS = require("@motionpicture/ttts-domain");
 const _ = require("underscore");
 const Message = require("../../../common/Const/Message");
 const masterAdmin_1 = require("../../models/user/masterAdmin");
-const masterHome = '/master/films';
+//const masterHome: string = '/master/films';
+const masterHome = '/master/report';
 // todo 別の場所で定義
 const cookieName = 'remember_master_admin';
 /**

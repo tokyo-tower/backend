@@ -87,7 +87,9 @@ app.use(expressValidator()); // バリデーション
 
 // Use native promises
 (<any>mongoose).Promise = global.Promise;
-mongoose.connect(process.env.MONGOLAB_URI, mongooseConnectionOptions);
+// 2017/07/06
+//mongoose.connect(process.env.MONGOLAB_URI, mongooseConnectionOptions);
+mongoose.connect((<any>process.env).MONGOLAB_URI, mongooseConnectionOptions);
 
 // ルーティング登録の順序に注意！
 if (process.env.NODE_ENV !== 'production') {

@@ -50,7 +50,9 @@ exports.default = (req, res, next) => __awaiter(this, void 0, void 0, function* 
                 res.cookie(cookieName, token, { path: '/', httpOnly: true, maxAge: 604800000 });
                 const owner = yield ttts_domain_1.Models.Owner.findOne({ _id: authenticationDoc.get('owner') }).exec();
                 // ログインしてリダイレクト
-                req.session[masterAdmin_1.default.AUTH_SESSION_NAME] = owner.toObject();
+                if (owner !== null) {
+                    req.session[masterAdmin_1.default.AUTH_SESSION_NAME] = owner.toObject();
+                }
                 res.redirect(req.originalUrl);
                 return;
             }

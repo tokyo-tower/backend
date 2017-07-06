@@ -73,6 +73,8 @@ app.use(express.static(`${__dirname}/../public`));
 app.use(expressValidator()); // バリデーション
 // Use native promises
 mongoose.Promise = global.Promise;
+// 2017/07/06
+//mongoose.connect(process.env.MONGOLAB_URI, mongooseConnectionOptions);
 mongoose.connect(process.env.MONGOLAB_URI, mongooseConnectionOptions_1.default);
 // ルーティング登録の順序に注意！
 if (process.env.NODE_ENV !== 'production') {

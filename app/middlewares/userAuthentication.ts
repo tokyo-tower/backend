@@ -54,7 +54,9 @@ export default async (req: Request, res: Response, next: NextFunction) => {
                 const owner = await Models.Owner.findOne({ _id: authenticationDoc.get('owner') }).exec();
 
                 // ログインしてリダイレクト
-                (<Express.Session>req.session)[MasterAdminUser.AUTH_SESSION_NAME] = owner.toObject();
+                if (owner !== null) {
+                    (<Express.Session>req.session)[MasterAdminUser.AUTH_SESSION_NAME] = owner.toObject();
+                }
                 res.redirect(req.originalUrl);
 
                 return;

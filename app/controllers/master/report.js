@@ -14,13 +14,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @namespace controller/film
  */
 const ttts_domain_1 = require("@motionpicture/ttts-domain");
-//import * as jconv from 'jconv';
+const ttts_domain_2 = require("@motionpicture/ttts-domain");
 const moment = require("moment");
 const _ = require("underscore");
 // tslint:disable-next-line:no-var-requires no-require-imports
 const jconv = require('jconv');
 //import * as Message from '../../../common/Const/Message';
-//const debug = createDebug('ttts-backend:controller:film');
 // カラム区切り(タブ)
 const csvSeparator = '\t';
 // 改行コード(CR+LF)
@@ -31,8 +30,8 @@ const arrayHeadSales = [
     '"パフォーマンスID"',
     '"座席コード"',
     '"予約ステータス"',
-    '"上映日"',
-    '"開演時刻"',
+    '"入塔予約年月日"',
+    '"入塔予約時刻"',
     '"劇場名称"',
     '"スクリーンID"',
     '"スクリーン名"',
@@ -43,17 +42,15 @@ const arrayHeadSales = [
     '"購入者（姓）"',
     '"購入者メール"',
     '"購入者電話"',
-    '"購入者年齢"',
-    '"購入者住所"',
-    '"購入者性別"',
     '"購入日時"',
+    '"キャンセル日時"',
     '"決済方法"',
     '"座席グレード名称"',
     '"座席グレード追加料金"',
     '"券種名称"',
+    '"チケットコード"',
     '"券種料金"',
-    '"鑑賞者"',
-    '"鑑賞者更新日時"',
+    '"客層"',
     '"payment_seat_index"',
     '"予約単位料金"',
     '"窓口ユーザーID"',
@@ -85,64 +82,75 @@ function getSales(req, res) {
         res.setHeader('Content-disposition', `attachment; filename*=UTF-8\'\'${encodeURIComponent(`${filename}.csv`)}`);
         res.setHeader('Content-Type', 'text/csv; charset=Shift_JIS');
         // 登録日
-        const createDateFrom = (!_.isEmpty(req.query.dateFrom)) ? req.query.dateFrom : null;
-        const createDateTo = (!_.isEmpty(req.query.dateTo)) ? req.query.dateTo : null;
-        // 検索条件を作成
-        const conditions = {};
-        if (createDateFrom !== null || createDateTo !== null) {
-            const conditionsDate = {};
-            const key = 'created_at';
-            // 登録日From
-            if (createDateFrom !== null) {
-                const keyFrom = '$gte';
-                conditionsDate[keyFrom] = toISOStringJapan(createDateFrom);
-            }
-            // 登録日To
-            if (createDateTo !== null) {
-                const keyFrom = '$lt';
-                conditionsDate[keyFrom] = toISOStringJapan(createDateTo, 1);
-            }
-            conditions[key] = conditionsDate;
-        }
+        const performanceDayFrom = (!_.isEmpty(req.query.dateFrom)) ? req.query.dateFrom : null;
+        const performanceDayTo = (!_.isEmpty(req.query.dateTo)) ? req.query.dateTo : null;
         try {
-            const dataCount = yield ttts_domain_1.Models.Reservation.count(conditions).exec();
+            // 予約情報・キャンセル予約情報取得
+            const reservations = yield getReservations(getConditons(performanceDayFrom, performanceDayTo, 'reservation'));
+            const cancels = yield getCancels(getConditons(performanceDayFrom, performanceDayTo, 'cancel'));
+            const datas = Array.prototype.concat(reservations, cancels);
+            // ソート昇順(上映日→開始時刻→座席番号)
+            datas.sort((a, b) => {
+                // const key1 = a.performance_day + a.performance_start_time + a.seat_code;
+                // const key2 = b.performance_day + b.performance_start_time + b.seat_code;
+                // if (key1 > key2) {
+                //     return 1;
+                // }
+                // if (key1 < key2) {
+                //     return -1;
+                // }
+                // return 0;
+                if (a.performance_day > b.performance_day) {
+                    return 1;
+                }
+                if (a.performance_day < b.performance_day) {
+                    return -1;
+                }
+                if (a.performance_start_time > b.performance_start_time) {
+                    return 1;
+                }
+                if (a.performance_start_time < b.performance_start_time) {
+                    return -1;
+                }
+                // if (a.screen > b.screen) {
+                //     return 1;
+                // }
+                return ttts_domain_2.ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
+            });
             let results = [];
-            if (dataCount > 0) {
-                const reservations = yield ttts_domain_1.Models.Reservation.find(conditions).exec();
+            if (datas.length > 0) {
                 //検索結果編集
-                results = reservations.map((reservation) => {
-                    return getCsvData(reservation._id) +
-                        getCsvData(reservation.get('performance')) +
-                        getCsvData(reservation.get('seat_code')) +
-                        getCsvData(reservation.get('status')) +
-                        getCsvData(toYMD(reservation.get('performance_day'))) +
-                        getCsvData(toHM(reservation.get('performance_start_time'))) +
-                        getCsvData(reservation.get('theater_name').ja) +
-                        getCsvData(reservation.get('screen')) +
-                        getCsvData(reservation.get('screen_name').ja) +
-                        getCsvData(reservation.get('film')) +
-                        getCsvData(reservation.get('film_name').ja) +
-                        getCsvData(reservation.get('purchaser_group')) +
-                        getCsvData(reservation.get('purchaser_first_name')) +
-                        getCsvData(reservation.get('purchaser_last_name')) +
-                        getCsvData(reservation.get('purchaser_email')) +
-                        getCsvData(reservation.get('purchaser_tel')) +
-                        getCsvData(reservation.get('purchaser_age')) +
-                        getCsvData(reservation.get('purchaser_address')) +
-                        getCsvData(reservation.get('purchaser_gender')) +
-                        getCsvData(toString(reservation.get('purchased_at'))) +
-                        getCsvData(reservation.get('payment_method')) +
-                        getCsvData(reservation.get('seat_grade_name').ja) +
-                        getCsvData(reservation.get('seat_grade_additional_charge')) +
-                        getCsvData(reservation.get('ticket_type_name').ja) +
-                        getCsvData(reservation.get('ticket_type_charge')) +
-                        getCsvData(reservation.get('watcher_name')) +
-                        getCsvData(toString(reservation.get('watcher_name_updated_at'))) +
-                        getCsvData(reservation.get('payment_seat_index')) +
-                        getCsvData(reservation.get('gmo_amount')) +
-                        getCsvData(reservation.get('window_user_id')) +
-                        getCsvData('入場フラグ') +
-                        getCsvData('入場日時', false); //checkins[0]?.when 2016/10/28 17:50:40
+                results = datas.map((reservation) => {
+                    return getCsvData(reservation.payment_no) +
+                        getCsvData(reservation.performance) +
+                        getCsvData(reservation.seat_code) +
+                        getCsvData(reservation.status) +
+                        getCsvData(toYMD(reservation.performance_day)) +
+                        getCsvData(toHM(reservation.performance_start_time)) +
+                        getCsvData(reservation.theater_name.ja) +
+                        getCsvData(reservation.screen) +
+                        getCsvData(reservation.screen_name.ja) +
+                        getCsvData(reservation.film) +
+                        getCsvData(reservation.film_name.ja) +
+                        getCsvData(reservation.purchaser_group) +
+                        getCsvData(reservation.purchaser_first_name) +
+                        getCsvData(reservation.purchaser_last_name) +
+                        getCsvData(reservation.purchaser_email) +
+                        getCsvData(reservation.purchaser_tel) +
+                        getCsvData(toString(reservation.purchased_at)) +
+                        getCsvData(toString(reservation.cancelled_at)) +
+                        getCsvData(reservation.payment_method) +
+                        getCsvData(reservation.seat_grade_name.ja) +
+                        getCsvData(reservation.seat_grade_additional_charge) +
+                        getCsvData(reservation.ticket_type_name.ja) +
+                        getCsvData('チケットコード') +
+                        getCsvData(reservation.ticket_type_charge) +
+                        getCsvData(getCustomerGroup(reservation)) +
+                        getCsvData(reservation.payment_seat_index) +
+                        getCsvData(reservation.gmo_amount) +
+                        getCsvData(reservation.window_user_id) +
+                        getCsvData(reservation.checkins.length > 0 ? 'TRUE' : 'FALSE') +
+                        getCsvData(reservation.checkins.length > 0 ? toString(reservation.checkins[0].when) : '', false);
                 });
             }
             const head = arrayHeadSales.join(csvSeparator) + csvLineFeed;
@@ -159,6 +167,83 @@ function getSales(req, res) {
 }
 exports.getSales = getSales;
 /**
+ * 検索条件取得
+ *
+ * @param {string|null} performanceDayFrom
+ * @param {string|null} performanceDayTo
+ * @param {string} type
+ * @returns {any}
+ */
+function getConditons(performanceDayFrom, performanceDayTo, typeDB) {
+    // 検索条件を作成
+    let conditions = {};
+    if (performanceDayFrom !== null || performanceDayTo !== null) {
+        const conditionsDate = {};
+        // 登録日From
+        if (performanceDayFrom !== null) {
+            conditionsDate.$gte = toYMDDB(performanceDayFrom);
+        }
+        // 登録日To
+        if (performanceDayTo !== null) {
+            conditionsDate.$lte = toYMDDB(performanceDayTo);
+        }
+        if (typeDB === 'reservation') {
+            conditions = {
+                status: ttts_domain_2.ReservationUtil.STATUS_RESERVED,
+                performance_day: conditionsDate
+            };
+            conditions.performance_day = conditionsDate;
+        }
+        else {
+            // キャンセルデータではreservationの下に予約レコードが丸ごと入っている
+            conditions = {
+                'reservation.status': ttts_domain_2.ReservationUtil.STATUS_RESERVED,
+                'reservation.performance_day': conditionsDate
+            };
+        }
+    }
+    return conditions;
+}
+/**
+ * 予約情報取得
+ *
+ * @param {any} conditions
+ * @returns {Promise<any>}
+ */
+function getReservations(conditions) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const dataCount = yield ttts_domain_1.Models.Reservation.count(conditions).exec();
+        let reservations = [];
+        if (dataCount > 0) {
+            reservations = yield ttts_domain_1.Models.Reservation.find(conditions).exec();
+        }
+        return reservations;
+    });
+}
+/**
+ * キャンセル予約情報取得
+ *
+ * @param {any} conditions
+ * @returns {Promise<any>}
+ */
+function getCancels(conditions) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const dataCount = yield ttts_domain_1.Models.CustomerCancelRequest.count(conditions).exec();
+        let reservations = [];
+        if (dataCount > 0) {
+            const cancels = yield ttts_domain_1.Models.CustomerCancelRequest.find(conditions).exec();
+            reservations = cancels.map((cancel) => {
+                cancel.reservation.cancelled_at = cancel.created_at;
+                // tslint:disable-next-line:max-line-length
+                cancel.reservation.status = (cancel.reservation.purchaser_group === ttts_domain_2.ReservationUtil.PURCHASER_GROUP_STAFF) ? ttts_domain_2.ReservationUtil.STATUS_CANCELLATION_FEE : ttts_domain_2.ReservationUtil.STATUS_CANCELLED;
+                //cancel.reservation.status = 'CANCELLED'; //@@@@@@@@@@
+                return cancel.reservation;
+            });
+        }
+        return reservations;
+    });
+}
+/**
  * CSV出力用データ取得
  *
  * @param {any} value
@@ -166,7 +251,26 @@ exports.getSales = getSales;
  * @returns {string}
  */
 function getCsvData(value, addSeparator = true) {
-    return `"${((!_.isEmpty(value)) ? value : '' + '"')}${(addSeparator ? csvSeparator : '')}`;
+    value = convertToString(value);
+    // // tslint:disable-next-line:no-console
+    // console.debug(value);
+    //return `"${((!_.isEmpty(value) ? value : '') + '"')}${(addSeparator ? csvSeparator : '')}`;
+    return `"${(!_.isEmpty(value) ? value : '')}"${(addSeparator ? csvSeparator : '')}`;
+}
+/**
+ * 文字列変換
+ *
+ * @param {any} value
+ * @returns {string}
+ */
+function convertToString(value) {
+    if (value === undefined) {
+        return '';
+    }
+    if (value === null) {
+        return '';
+    }
+    return value.toString();
 }
 /**
  * YYYY/MM/DD日付取得
@@ -176,6 +280,15 @@ function getCsvData(value, addSeparator = true) {
  */
 function toYMD(dateStr) {
     return moment(dateStr, 'YYYYMMDD').format('YYYY/MM/DD');
+}
+/**
+ * YYYYMMDD日付取得
+ *
+ * @param {string} dateStr('YYYY/MM/DD')
+ * @returns {string} ('YYYYMMDD')
+ */
+function toYMDDB(dateStr) {
+    return moment(dateStr, 'YYYY/MM/DD').format('YYYYMMDD');
 }
 /**
  * HH:MM時刻取得
@@ -194,17 +307,21 @@ function toHM(timeStr) {
  * @returns {string} ('YYYY/MM/DD HH:mm:ss')
  */
 function toString(date) {
-    return (date instanceof Date) ? moment(date).format('YYYY/MM/DD HH:mm:ss') : '';
+    if (convertToString(date) === '') {
+        return '';
+    }
+    //return (date instanceof Date) ? moment(date).format('YYYY/MM/DD HH:mm:ss') : '';
+    return moment(date).format('YYYY/MM/DD HH:mm:ss');
 }
 /**
- * DB検索用ISO日付取得
+ * 客層取得 (購入者居住国：2桁、年代：2桁、性別：1桁)
  *
- * @param {string} dateStr
- * @param {number} addDay
+ * @param {any} reservation
  * @returns {string}
  */
-function toISOStringJapan(dateStr, addDay = 0) {
-    const dateWk = moment(dateStr, 'YYYY/MM/DD').add(addDay, 'days').format('YYYYMMDD');
-    // tslint:disable-next-line:no-magic-numbers
-    return `${dateWk.substr(0, 4)}-${dateWk.substr(4, 2)}-${dateWk.substr(6, 2)}T00:00:00+09:00`;
+function getCustomerGroup(reservation) {
+    const locale = convertToString(reservation.purchaser_address);
+    const age = convertToString(reservation.purchaser_age);
+    const gender = convertToString(reservation.purchaser_gender);
+    return (locale !== '' ? locale : '__') + (age !== '' ? age : '__') + (gender !== '' ? gender : '_');
 }

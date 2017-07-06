@@ -14,6 +14,7 @@ function index(req, res, next) {
         next(new Error(req.param('next')));
         return;
     }
-    res.redirect(http_status_1.MOVED_PERMANENTLY, 'master/films');
+    //res.redirect(MOVED_PERMANENTLY, 'master/films');
+    res.redirect(http_status_1.MOVED_PERMANENTLY, 'master/report');
 }
 exports.index = index;

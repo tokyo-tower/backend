@@ -5,10 +5,12 @@ $(function () {
     })
 
     // レポート出力ボタンイベント
-    var conditions = {};
     $(document).on('click', '.btn-ok', function () {
+        var dateFrom = $('input[name="dateFrom"]').val();
+        var dateTo = $('input[name="dateTo"]').val();
         var now = (new Date()).getTime();
-        var url = '/master/report/getSales/' + '?dummy=' + now;
+        var url = '/master/report/getSales/' + 
+            '?dateFrom=' + dateFrom + '&dateTo=' + dateTo +'&dummy=' + now;
         window.open(url);
     });
 });

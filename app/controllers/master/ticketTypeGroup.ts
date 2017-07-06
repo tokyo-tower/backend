@@ -127,12 +127,15 @@ export async function update(req: Request, res: Response): Promise<void> {
     const ticketTypes = await Models.TicketType.find().exec();
     // 券種グループ取得
     const ticketGroup = await Models.TicketTypeGroup.findById(id).exec();
-    const forms = {
-        _id: (_.isEmpty(req.body._id)) ? ticketGroup.get('_id') : req.body._id,
-        nameJa: (_.isEmpty(req.body.nameJa)) ? ticketGroup.get('name').ja : req.body.nameJa,
-        ticketTypes: (_.isEmpty(req.body.ticketTypes)) ? ticketGroup.get('ticket_types') : req.body.ticketTypes,
-        descriptionJa: (_.isEmpty(req.body.descriptionJa)) ? ticketGroup.get('descriptionJa') : req.body.descriptionJa
-    };
+    let forms: any = {};
+    if (ticketGroup !== null) {
+        forms = {
+            _id: (_.isEmpty(req.body._id)) ? ticketGroup.get('_id') : req.body._id,
+            nameJa: (_.isEmpty(req.body.nameJa)) ? ticketGroup.get('name').ja : req.body.nameJa,
+            ticketTypes: (_.isEmpty(req.body.ticketTypes)) ? ticketGroup.get('ticket_types') : req.body.ticketTypes,
+            descriptionJa: (_.isEmpty(req.body.descriptionJa)) ? ticketGroup.get('descriptionJa') : req.body.descriptionJa
+        };
+    }
     res.render('master/ticketTypeGroup/update', {
         message: message,
         errors: errors,

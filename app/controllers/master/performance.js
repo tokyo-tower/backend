@@ -164,8 +164,8 @@ function regist(req, res) {
                 start_time: req.body.startTime,
                 end_time: req.body.endTime,
                 ticket_type_group: req.body.ticketTypeGroup,
-                theater_name: theater.get('name'),
-                screen_name: screen.get('name')
+                theater_name: (theater !== null) ? theater.get('name') : '',
+                screen_name: (screen !== null) ? screen.get('name') : ''
             };
             yield ttts_domain_1.Models.Performance.create(docs);
             res.json({

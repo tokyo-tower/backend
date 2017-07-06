@@ -18,5 +18,6 @@ export function index(req: Request, res: Response, next: NextFunction) {
         return;
     }
 
-    res.redirect(MOVED_PERMANENTLY, 'master/films');
+    //res.redirect(MOVED_PERMANENTLY, 'master/films');
+    res.redirect(MOVED_PERMANENTLY, 'master/report');
 }

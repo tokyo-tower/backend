@@ -115,12 +115,15 @@ function update(req, res) {
             }
         }
         const film = yield ttts_domain_1.Models.Film.findById(id).exec();
-        const forms = {
-            code: (_.isEmpty(req.body.code)) ? film.get('_id') : req.body.code,
-            nameJa: (_.isEmpty(req.body.nameJa)) ? film.get('name').ja : req.body.nameJa,
-            nameEn: (_.isEmpty(req.body.nameEn)) ? film.get('name').en : req.body.nameEn,
-            minutes: (_.isEmpty(req.body.minutes)) ? film.get('minutes') : req.body.minutes
-        };
+        let forms = [];
+        if (film !== null) {
+            forms = {
+                code: (_.isEmpty(req.body.code)) ? film.get('_id') : req.body.code,
+                nameJa: (_.isEmpty(req.body.nameJa)) ? film.get('name').ja : req.body.nameJa,
+                nameEn: (_.isEmpty(req.body.nameEn)) ? film.get('name').en : req.body.nameEn,
+                minutes: (_.isEmpty(req.body.minutes)) ? film.get('minutes') : req.body.minutes
+            };
+        }
         // 作品マスタ画面遷移
         debug('errors:', errors);
         res.render('master/film/edit', {

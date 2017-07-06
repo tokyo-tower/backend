@@ -11,7 +11,8 @@ import * as _ from 'underscore';
 import * as Message from '../../../common/Const/Message';
 import MasterAdminUser from '../../models/user/masterAdmin';
 
-const masterHome: string = '/master/films';
+//const masterHome: string = '/master/films';
+const masterHome: string = '/master/report';
 // todo 別の場所で定義
 const cookieName = 'remember_master_admin';
 
