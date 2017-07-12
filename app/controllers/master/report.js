@@ -11,7 +11,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * レポート出力コントローラー
  *
- * @namespace controller/film
+ * @namespace controller/report
  */
 const ttts_domain_1 = require("@motionpicture/ttts-domain");
 const ttts_domain_2 = require("@motionpicture/ttts-domain");
@@ -19,7 +19,6 @@ const moment = require("moment");
 const _ = require("underscore");
 // tslint:disable-next-line:no-var-requires no-require-imports
 const jconv = require('jconv');
-//import * as Message from '../../../common/Const/Message';
 // カラム区切り(タブ)
 const csvSeparator = '\t';
 // 改行コード(CR+LF)
@@ -43,7 +42,6 @@ const arrayHeadSales = [
     '"購入者メール"',
     '"購入者電話"',
     '"購入日時"',
-    '"キャンセル日時"',
     '"決済方法"',
     '"座席グレード名称"',
     '"座席グレード追加料金"',
@@ -91,15 +89,6 @@ function getSales(req, res) {
             const datas = Array.prototype.concat(reservations, cancels);
             // ソート昇順(上映日→開始時刻→座席番号)
             datas.sort((a, b) => {
-                // const key1 = a.performance_day + a.performance_start_time + a.seat_code;
-                // const key2 = b.performance_day + b.performance_start_time + b.seat_code;
-                // if (key1 > key2) {
-                //     return 1;
-                // }
-                // if (key1 < key2) {
-                //     return -1;
-                // }
-                // return 0;
                 if (a.performance_day > b.performance_day) {
                     return 1;
                 }
@@ -112,9 +101,6 @@ function getSales(req, res) {
                 if (a.performance_start_time < b.performance_start_time) {
                     return -1;
                 }
-                // if (a.screen > b.screen) {
-                //     return 1;
-                // }
                 return ttts_domain_2.ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
             });
             let results = [];
@@ -138,12 +124,11 @@ function getSales(req, res) {
                         getCsvData(reservation.purchaser_email) +
                         getCsvData(reservation.purchaser_tel) +
                         getCsvData(toString(reservation.purchased_at)) +
-                        getCsvData(toString(reservation.cancelled_at)) +
                         getCsvData(reservation.payment_method) +
                         getCsvData(reservation.seat_grade_name.ja) +
                         getCsvData(reservation.seat_grade_additional_charge) +
                         getCsvData(reservation.ticket_type_name.ja) +
-                        getCsvData('チケットコード') +
+                        getCsvData(reservation.ticket_notes) +
                         getCsvData(reservation.ticket_type_charge) +
                         getCsvData(getCustomerGroup(reservation)) +
                         getCsvData(reservation.payment_seat_index) +
@@ -229,19 +214,49 @@ function getReservations(conditions) {
 function getCancels(conditions) {
     return __awaiter(this, void 0, void 0, function* () {
         const dataCount = yield ttts_domain_1.Models.CustomerCancelRequest.count(conditions).exec();
-        let reservations = [];
+        const reservations = [];
+        // そのまま＋予約ステータス：CANCELLED＋予約ステータス：CANCELLATION_FEEの3レコード作成
         if (dataCount > 0) {
             const cancels = yield ttts_domain_1.Models.CustomerCancelRequest.find(conditions).exec();
-            reservations = cancels.map((cancel) => {
-                cancel.reservation.cancelled_at = cancel.created_at;
-                // tslint:disable-next-line:max-line-length
-                cancel.reservation.status = (cancel.reservation.purchaser_group === ttts_domain_2.ReservationUtil.PURCHASER_GROUP_STAFF) ? ttts_domain_2.ReservationUtil.STATUS_CANCELLATION_FEE : ttts_domain_2.ReservationUtil.STATUS_CANCELLED;
-                //cancel.reservation.status = 'CANCELLED'; //@@@@@@@@@@
-                return cancel.reservation;
+            // reservations = cancels.map((cancel) => {
+            //     cancel.reservation.cancelled_at = cancel.created_at;
+            // tslint:disable-next-line:max-line-length
+            //     cancel.reservation.status = (cancel.reservation.purchaser_group === ReservationUtil.PURCHASER_GROUP_STAFF) ? ReservationUtil.STATUS_CANCELLATION_FEE : ReservationUtil.STATUS_CANCELLED;
+            //     //cancel.reservation.status = 'CANCELLED'; //@@@@@@@@@@
+            //     return cancel.reservation;
+            // });
+            cancels.map((cancel) => {
+                const cancelReservation = cancel.reservation;
+                // 予約データ
+                reservations.push(cancelReservation);
+                // キャンセルデータ
+                const cancelCan = copyModel(cancelReservation);
+                cancelCan.purchased_at = cancel.created_at;
+                cancelCan.status = ttts_domain_2.ReservationUtil.STATUS_CANCELLED;
+                reservations.push(cancelCan);
+                // キャンセル料データ
+                const cancelFee = copyModel(cancelReservation);
+                cancelFee.purchased_at = cancel.created_at;
+                cancelFee.status = ttts_domain_2.ReservationUtil.STATUS_CANCELLATION_FEE;
+                cancelFee.gmo_amount = cancel.cancellation_fee;
+                reservations.push(cancelFee);
             });
         }
         return reservations;
     });
+}
+/**
+ * モデルコピー
+ *
+ * @param {any} model
+ * @returns {any}
+ */
+function copyModel(model) {
+    const copiedModel = {};
+    Object.getOwnPropertyNames(model).forEach((propertyName) => {
+        copiedModel[propertyName] = model[propertyName];
+    });
+    return copiedModel;
 }
 /**
  * CSV出力用データ取得
