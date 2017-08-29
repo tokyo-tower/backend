@@ -121,8 +121,8 @@ export async function getSales(req: Request, res: Response): Promise<void> {
                     getCsvData(reservation.seat_grade_name.ja) +
                     getCsvData(reservation.seat_grade_additional_charge) +
                     getCsvData(reservation.ticket_type_name.ja) +
-                    getCsvData(reservation.ticket_notes) +
-                    getCsvData(reservation.ticket_type_charge) +
+                    getCsvData(reservation.ticket_ttts_extension.csv_code) +
+                    getCsvData(reservation.charge) +
                     getCsvData(getCustomerGroup(reservation)) +
                     getCsvData(reservation.payment_seat_index) +
                     getCsvData(reservation.gmo_amount) +
@@ -151,7 +151,13 @@ export async function getSales(req: Request, res: Response): Promise<void> {
  */
 function getConditons(performanceDayFrom: string | null, performanceDayTo: string | null, typeDB: string) : any {
     // 検索条件を作成
-    let conditions: any = {};
+    const conditions: any = {};
+    if (typeDB === 'reservation') {
+        conditions.status = ReservationUtil.STATUS_RESERVED;
+    } else {
+        conditions.reservation = {};
+        conditions.reservation.status = ReservationUtil.STATUS_RESERVED;
+    }
     if (performanceDayFrom !== null || performanceDayTo !== null) {
         const conditionsDate: any = {};
         // 登録日From
@@ -163,17 +169,10 @@ function getConditons(performanceDayFrom: string | null, performanceDayTo: strin
             conditionsDate.$lte = toYMDDB(performanceDayTo);
         }
         if (typeDB === 'reservation') {
-            conditions = {
-                status: ReservationUtil.STATUS_RESERVED,
-                performance_day: conditionsDate
-            };
             conditions.performance_day = conditionsDate;
         } else {
             // キャンセルデータではreservationの下に予約レコードが丸ごと入っている
-            conditions = {
-                'reservation.status': ReservationUtil.STATUS_RESERVED,
-                'reservation.performance_day': conditionsDate
-            };
+            conditions.reservation.performance_day = conditionsDate;
         }
     }
 
@@ -206,14 +205,6 @@ async function getCancels(conditions: any): Promise<any> {
     // そのまま＋予約ステータス：CANCELLED＋予約ステータス：CANCELLATION_FEEの3レコード作成
     if (dataCount > 0) {
         const cancels: any[] = await Models.CustomerCancelRequest.find(conditions).exec();
-        // reservations = cancels.map((cancel) => {
-        //     cancel.reservation.cancelled_at = cancel.created_at;
-        // tslint:disable-next-line:max-line-length
-        //     cancel.reservation.status = (cancel.reservation.purchaser_group === ReservationUtil.PURCHASER_GROUP_STAFF) ? ReservationUtil.STATUS_CANCELLATION_FEE : ReservationUtil.STATUS_CANCELLED;
-        //     //cancel.reservation.status = 'CANCELLED'; //@@@@@@@@@@
-
-        //     return cancel.reservation;
-        // });
         cancels.map((cancel) => {
             const cancelReservation = cancel.reservation;
             // 予約データ
@@ -256,11 +247,10 @@ function copyModel(model: any): any {
  * @returns {string}
  */
 function getCsvData(value: string, addSeparator: boolean = true): string {
+    // tslint:disable-next-line:no-console
+    console.debug(value);
     value = convertToString(value);
-    // // tslint:disable-next-line:no-console
-    // console.debug(value);
 
-    //return `"${((!_.isEmpty(value) ? value : '') + '"')}${(addSeparator ? csvSeparator : '')}`;
     return `"${(!_.isEmpty(value) ? value : '')}"${(addSeparator ? csvSeparator : '')}`;
 }
 /**
