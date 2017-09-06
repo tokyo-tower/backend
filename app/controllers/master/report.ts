@@ -151,13 +151,7 @@ export async function getSales(req: Request, res: Response): Promise<void> {
  */
 function getConditons(performanceDayFrom: string | null, performanceDayTo: string | null, typeDB: string) : any {
     // 検索条件を作成
-    const conditions: any = {};
-    if (typeDB === 'reservation') {
-        conditions.status = ReservationUtil.STATUS_RESERVED;
-    } else {
-        conditions.reservation = {};
-        conditions.reservation.status = ReservationUtil.STATUS_RESERVED;
-    }
+    let conditions: any = {};
     if (performanceDayFrom !== null || performanceDayTo !== null) {
         const conditionsDate: any = {};
         // 登録日From
@@ -169,10 +163,27 @@ function getConditons(performanceDayFrom: string | null, performanceDayTo: strin
             conditionsDate.$lte = toYMDDB(performanceDayTo);
         }
         if (typeDB === 'reservation') {
+            conditions = {
+                status: ReservationUtil.STATUS_RESERVED,
+                performance_day: conditionsDate
+            };
             conditions.performance_day = conditionsDate;
         } else {
             // キャンセルデータではreservationの下に予約レコードが丸ごと入っている
-            conditions.reservation.performance_day = conditionsDate;
+            conditions = {
+                'reservation.status': ReservationUtil.STATUS_RESERVED,
+                'reservation.performance_day': conditionsDate
+            };
+        }
+    } else {
+        if (typeDB === 'reservation') {
+            conditions = {
+                status: ReservationUtil.STATUS_RESERVED
+            };
+        } else {
+            conditions = {
+                'reservation.status': ReservationUtil.STATUS_RESERVED
+            };
         }
     }
 

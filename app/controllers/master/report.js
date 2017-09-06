@@ -161,14 +161,7 @@ exports.getSales = getSales;
  */
 function getConditons(performanceDayFrom, performanceDayTo, typeDB) {
     // 検索条件を作成
-    const conditions = {};
-    if (typeDB === 'reservation') {
-        conditions.status = ttts_domain_2.ReservationUtil.STATUS_RESERVED;
-    }
-    else {
-        conditions.reservation = {};
-        conditions.reservation.status = ttts_domain_2.ReservationUtil.STATUS_RESERVED;
-    }
+    let conditions = {};
     if (performanceDayFrom !== null || performanceDayTo !== null) {
         const conditionsDate = {};
         // 登録日From
@@ -180,11 +173,30 @@ function getConditons(performanceDayFrom, performanceDayTo, typeDB) {
             conditionsDate.$lte = toYMDDB(performanceDayTo);
         }
         if (typeDB === 'reservation') {
+            conditions = {
+                status: ttts_domain_2.ReservationUtil.STATUS_RESERVED,
+                performance_day: conditionsDate
+            };
             conditions.performance_day = conditionsDate;
         }
         else {
             // キャンセルデータではreservationの下に予約レコードが丸ごと入っている
-            conditions.reservation.performance_day = conditionsDate;
+            conditions = {
+                'reservation.status': ttts_domain_2.ReservationUtil.STATUS_RESERVED,
+                'reservation.performance_day': conditionsDate
+            };
+        }
+    }
+    else {
+        if (typeDB === 'reservation') {
+            conditions = {
+                status: ttts_domain_2.ReservationUtil.STATUS_RESERVED
+            };
+        }
+        else {
+            conditions = {
+                'reservation.status': ttts_domain_2.ReservationUtil.STATUS_RESERVED
+            };
         }
     }
     return conditions;
