@@ -61,6 +61,31 @@ export async function index(__: Request, res: Response): Promise<void> {
     });
 }
 /**
+ *
+ * アカウント別レポート出力
+ */
+export async function account(__: Request, res: Response): Promise<void> {
+    // アカウント一覧取得
+    const owners = await Models.Owner.find({}, '_id name', { sort: { _id: 1 } }).exec();
+    const hours: string[] = [];
+    // tslint:disable-next-line:no-magic-numbers
+    for (let hour: number = 0; hour < 24; hour += 1) {
+        // tslint:disable-next-line:no-magic-numbers
+        hours.push((`00${hour}`).slice(-2));
+    }
+    const minutes: string[] = ['00', '15', '30', '45'];
+    // 画面描画
+    res.render('master/report/account', {
+        owners: owners,
+        hours: hours,
+        minutes: minutes,
+        displayId: 'Aa-10',
+        title: 'アカウント別レポート出力',
+        filmModel: {},
+        layout: 'layouts/master/layout'
+    });
+}
+/**
  * 一覧データ取得API
  */
 export async function getSales(req: Request, res: Response): Promise<void> {

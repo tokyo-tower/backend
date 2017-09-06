@@ -12,6 +12,7 @@ const reportMasterRouter = Router();
 
 // 売り上げレポート出力
 reportMasterRouter.get('', reportController.index);
+reportMasterRouter.get('/account', reportController.account);
 reportMasterRouter.get('/getSales', reportController.getSales);
 // アカウント別レポート出力
 

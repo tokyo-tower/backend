@@ -71,6 +71,34 @@ function index(__, res) {
 }
 exports.index = index;
 /**
+ *
+ * アカウント別レポート出力
+ */
+function account(__, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        // アカウント一覧取得
+        const owners = yield ttts_domain_1.Models.Owner.find({}, '_id name', { sort: { _id: 1 } }).exec();
+        const hours = [];
+        // tslint:disable-next-line:no-magic-numbers
+        for (let hour = 0; hour < 24; hour += 1) {
+            // tslint:disable-next-line:no-magic-numbers
+            hours.push((`00${hour}`).slice(-2));
+        }
+        const minutes = ['00', '15', '30', '45'];
+        // 画面描画
+        res.render('master/report/account', {
+            owners: owners,
+            hours: hours,
+            minutes: minutes,
+            displayId: 'Aa-10',
+            title: 'アカウント別レポート出力',
+            filmModel: {},
+            layout: 'layouts/master/layout'
+        });
+    });
+}
+exports.account = account;
+/**
  * 一覧データ取得API
  */
 function getSales(req, res) {
