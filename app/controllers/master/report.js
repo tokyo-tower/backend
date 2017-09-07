@@ -107,13 +107,26 @@ function getSales(req, res) {
         const filename = '売り上げレポート';
         res.setHeader('Content-disposition', `attachment; filename*=UTF-8\'\'${encodeURIComponent(`${filename}.csv`)}`);
         res.setHeader('Content-Type', 'text/csv; charset=Shift_JIS');
+        const prmConditons = {};
         // 登録日
-        const performanceDayFrom = (!_.isEmpty(req.query.dateFrom)) ? req.query.dateFrom : null;
-        const performanceDayTo = (!_.isEmpty(req.query.dateTo)) ? req.query.dateTo : null;
+        // const performanceDayFrom: string|null = (!_.isEmpty(req.query.dateFrom)) ? req.query.dateFrom : null;
+        // const performanceDayTo: string = (!_.isEmpty(req.query.dateTo)) ? req.query.dateTo : null;
+        prmConditons.performanceDayFrom = getValue(req.query.dateFrom);
+        prmConditons.performanceDayTo = getValue(req.query.dateTo);
+        // アカウント
+        prmConditons.owner = getValue(req.query.owner);
+        // 時刻From
+        prmConditons.performanceStartHour1 = getValue(req.query.start_hour1);
+        prmConditons.performanceStartMinute1 = getValue(req.query.start_minute1);
+        // 時刻To
+        prmConditons.performanceStartHour2 = getValue(req.query.start_hour2);
+        prmConditons.performanceStartMinute2 = getValue(req.query.start_minute2);
         try {
             // 予約情報・キャンセル予約情報取得
-            const reservations = yield getReservations(getConditons(performanceDayFrom, performanceDayTo, 'reservation'));
-            const cancels = yield getCancels(getConditons(performanceDayFrom, performanceDayTo, 'cancel'));
+            // const reservations: any[] = await getReservations(getConditons(performanceDayFrom, performanceDayTo, 'reservation'));
+            // const cancels: any[] = await getCancels(getConditons(performanceDayFrom, performanceDayTo, 'cancel'));
+            const reservations = yield getReservations(getConditons(prmConditons, 'reservation'));
+            const cancels = yield getCancels(getConditons(prmConditons, 'cancel'));
             const datas = Array.prototype.concat(reservations, cancels);
             // ソート昇順(上映日→開始時刻→座席番号)
             datas.sort((a, b) => {
@@ -180,25 +193,33 @@ function getSales(req, res) {
 }
 exports.getSales = getSales;
 /**
+ * 入力値取得(空文字はnullに変換)
+ *
+ * @param {string|null} inputValue
+ * @returns {string|null}
+ */
+function getValue(inputValue) {
+    return (!_.isEmpty(inputValue)) ? inputValue : null;
+}
+/**
  * 検索条件取得
  *
- * @param {string|null} performanceDayFrom
- * @param {string|null} performanceDayTo
+ * @param {any} prmConditons
  * @param {string} type
  * @returns {any}
  */
-function getConditons(performanceDayFrom, performanceDayTo, typeDB) {
+function getConditons(prmConditons, typeDB) {
     // 検索条件を作成
     let conditions = {};
-    if (performanceDayFrom !== null || performanceDayTo !== null) {
+    if (prmConditons.performanceDayFrom !== null || prmConditons.performanceDayTo !== null) {
         const conditionsDate = {};
         // 登録日From
-        if (performanceDayFrom !== null) {
-            conditionsDate.$gte = toYMDDB(performanceDayFrom);
+        if (prmConditons.performanceDayFrom !== null) {
+            conditionsDate.$gte = toYMDDB(prmConditons.performanceDayFrom);
         }
         // 登録日To
-        if (performanceDayTo !== null) {
-            conditionsDate.$lte = toYMDDB(performanceDayTo);
+        if (prmConditons.performanceDayTo !== null) {
+            conditionsDate.$lte = toYMDDB(prmConditons.performanceDayTo);
         }
         if (typeDB === 'reservation') {
             conditions = {
