@@ -18,6 +18,8 @@ $(function () {
         var start_minute1 = getValue('select[name="start_minute1"]');
         var start_hour2 = getValue('select[name="start_hour2"]');
         var start_minute2 = getValue('select[name="start_minute2"]');
+        // レポート区分
+        var reportType = getValue('input[name="reportType"]');
         // now:キャッシュ避け
         var now = (new Date()).getTime();
         var url = '/master/report/getSales/' + 
@@ -25,6 +27,7 @@ $(function () {
             '&owner=' + owner +
             '&start_hour1=' + start_hour1 + '&start_minute1=' + start_minute1 +
             '&start_hour2=' + start_hour2 + '&start_minute2=' + start_minute2 +
+            '&reportType=' + reportType +
             '&dummy=' + now;
         window.open(url);
     });

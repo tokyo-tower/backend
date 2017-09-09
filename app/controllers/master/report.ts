@@ -88,16 +88,12 @@ export async function account(__: Request, res: Response): Promise<void> {
 /**
  * 一覧データ取得API
  */
+// tslint:disable-next-line:max-func-body-length
 export async function getSales(req: Request, res: Response): Promise<void> {
-    // Responseヘッダセット
-    const filename = '売り上げレポート';
-    res.setHeader('Content-disposition', `attachment; filename*=UTF-8\'\'${encodeURIComponent(`${filename}.csv`)}`);
-    res.setHeader('Content-Type', 'text/csv; charset=Shift_JIS');
-
+    // 引数セット
     const prmConditons: any = {};
+    prmConditons.reportType = getValue(req.query.reportType);
     // 登録日
-    // const performanceDayFrom: string|null = (!_.isEmpty(req.query.dateFrom)) ? req.query.dateFrom : null;
-    // const performanceDayTo: string = (!_.isEmpty(req.query.dateTo)) ? req.query.dateTo : null;
     prmConditons.performanceDayFrom = getValue(req.query.dateFrom);
     prmConditons.performanceDayTo = getValue(req.query.dateTo);
     // アカウント
@@ -109,10 +105,19 @@ export async function getSales(req: Request, res: Response): Promise<void> {
     prmConditons.performanceStartHour2 = getValue(req.query.start_hour2);
     prmConditons.performanceStartMinute2 = getValue(req.query.start_minute2);
 
+    // Responseヘッダセット
+    const filename = getValue(req.query.reportType) === 'sales' ?
+                     '売上げレポート' : 'アカウント別レポート';
+    res.setHeader('Content-disposition', `attachment; filename*=UTF-8\'\'${encodeURIComponent(`${filename}.csv`)}`);
+    res.setHeader('Content-Type', 'text/csv; charset=Shift_JIS');
+
     try {
+        // バリデーション(時分が片方のみ指定されていたらエラー)
+        const errorMessage = await validate(req);
+        if (errorMessage !== '') {
+            throw new Error(errorMessage);
+        }
         // 予約情報・キャンセル予約情報取得
-        // const reservations: any[] = await getReservations(getConditons(performanceDayFrom, performanceDayTo, 'reservation'));
-        // const cancels: any[] = await getCancels(getConditons(performanceDayFrom, performanceDayTo, 'cancel'));
         const reservations: any[] = await getReservations(getConditons( prmConditons, 'reservation'));
         const cancels: any[] = await getCancels(getConditons(prmConditons, 'cancel'));
         const datas: any[] = Array.prototype.concat(reservations, cancels);
@@ -180,6 +185,49 @@ export async function getSales(req: Request, res: Response): Promise<void> {
     }
 }
 /**
+ * レポート出力検証
+ *
+ * @param {any} req
+ * @return {any}
+ */
+async function validate(req: Request): Promise<any> {
+    // 検証
+    const validatorResult = await req.getValidationResult();
+    const errors: any = (!validatorResult.isEmpty()) ? req.validationErrors(true) : {};
+
+    // 片方入力エラーチェック
+    if (!isInputEven(req.query.start_hour1, req.query.start_minute1)) {
+        (<any>errors).start_hour1 = {msg: '集計期間の時分Fromが片方しか指定されていません'};
+    }
+    if (!isInputEven(req.query.start_hour2, req.query.start_minute2)) {
+        (<any>errors).start_hour2 = {msg: '集計期間の時分Toが片方しか指定されていません'};
+    }
+    let errorMessage: string = '';
+    Object.keys(errors).forEach((key) => {
+        if (errorMessage !== '') {errorMessage += csvLineFeed; }
+        errorMessage += errors[key].msg;
+    });
+
+    return errorMessage;
+}
+/**
+ * 両方入力チェック(両方入力、または両方未入力の時true)
+ *
+ * @param {string} value1
+ * @param {string} value2
+ * @return {boolean}
+ */
+function isInputEven(value1: string, value2: string): boolean {
+    if (_.isEmpty(value1) && _.isEmpty(value2)) {
+        return true;
+    }
+    if (!_.isEmpty(value1) && !_.isEmpty(value2)) {
+        return true;
+    }
+
+    return false;
+}
+/**
  * 入力値取得(空文字はnullに変換)
  *
  * @param {string|null} inputValue
@@ -197,7 +245,12 @@ function getValue( inputValue: string | null ): string | null {
  */
 function getConditons(prmConditons: any, typeDB: string) : any {
     // 検索条件を作成
-    let conditions: any = {};
+    const conditions: any = {};
+    // キャンセルデータではreservationの下に予約レコードが丸ごと入っている
+    const preKey: string = typeDB === 'reservation' ? '' : 'reservation.';
+    conditions[`${preKey}status`] = ReservationUtil.STATUS_RESERVED;
+
+    // 登録日
     if (prmConditons.performanceDayFrom !== null || prmConditons.performanceDayTo !== null) {
         const conditionsDate: any = {};
         // 登録日From
@@ -208,29 +261,7 @@ function getConditons(prmConditons: any, typeDB: string) : any {
         if (prmConditons.performanceDayTo !== null) {
             conditionsDate.$lte = toYMDDB(prmConditons.performanceDayTo);
         }
-        if (typeDB === 'reservation') {
-            conditions = {
-                status: ReservationUtil.STATUS_RESERVED,
-                performance_day: conditionsDate
-            };
-            conditions.performance_day = conditionsDate;
-        } else {
-            // キャンセルデータではreservationの下に予約レコードが丸ごと入っている
-            conditions = {
-                'reservation.status': ReservationUtil.STATUS_RESERVED,
-                'reservation.performance_day': conditionsDate
-            };
-        }
-    } else {
-        if (typeDB === 'reservation') {
-            conditions = {
-                status: ReservationUtil.STATUS_RESERVED
-            };
-        } else {
-            conditions = {
-                'reservation.status': ReservationUtil.STATUS_RESERVED
-            };
-        }
+        conditions[`${preKey}performance_day`] = conditionsDate;
     }
 
     return conditions;
