@@ -255,13 +255,17 @@ function getConditons(prmConditons: any, typeDB: string) : any {
         const conditionsDate: any = {};
         // 登録日From
         if (prmConditons.performanceDayFrom !== null) {
-            conditionsDate.$gte =  toYMDDB(prmConditons.performanceDayFrom);
+            //conditionsDate.$gte =  toYMDDB(prmConditons.performanceDayFrom);
+            conditionsDate.$gte =  toISOStringJapan(prmConditons.performanceDayFrom);
         }
         // 登録日To
         if (prmConditons.performanceDayTo !== null) {
-            conditionsDate.$lte = toYMDDB(prmConditons.performanceDayTo);
+            //conditionsDate.$lte = toYMDDB(prmConditons.performanceDayTo);
+            conditionsDate.$lt = toISOStringJapan(prmConditons.performanceDayTo, 1);
         }
-        conditions[`${preKey}performance_day`] = conditionsDate;
+        //conditions[`${preKey}performance_day`] = conditionsDate;
+        const keyDate: string = typeDB === 'reservation' ? 'updated_at' : 'created_at';
+        conditions[keyDate] = conditionsDate;
     }
 
     return conditions;
@@ -362,14 +366,26 @@ function convertToString(value: any): string {
 function toYMD(dateStr: string): string {
     return moment(dateStr, 'YYYYMMDD').format('YYYY/MM/DD');
 }
+// /**
+//  * YYYYMMDD日付取得
+//  *
+//  * @param {string} dateStr('YYYY/MM/DD')
+//  * @returns {string} ('YYYYMMDD')
+//  */
+// function toYMDDB(dateStr: string): string {
+//     return moment(dateStr, 'YYYY/MM/DD').format('YYYYMMDD');
+// }
 /**
- * YYYYMMDD日付取得
+ * DB検索用ISO日付取得
  *
- * @param {string} dateStr('YYYY/MM/DD')
- * @returns {string} ('YYYYMMDD')
+ * @param {string} dateStr
+ * @param {number} addDay
+ * @returns {string}
  */
-function toYMDDB(dateStr: string): string {
-    return moment(dateStr, 'YYYY/MM/DD').format('YYYYMMDD');
+function toISOStringJapan(dateStr: string, addDay: number = 0): string {
+    const dateWk: string = moment(dateStr, 'YYYY/MM/DD').add(addDay, 'days').format('YYYY-MM-DD');
+
+    return `${dateWk}T00:00:00+09:00`;
 }
 /**
  * HH:MM時刻取得

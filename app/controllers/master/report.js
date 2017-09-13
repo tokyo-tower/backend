@@ -268,13 +268,17 @@ function getConditons(prmConditons, typeDB) {
         const conditionsDate = {};
         // 登録日From
         if (prmConditons.performanceDayFrom !== null) {
-            conditionsDate.$gte = toYMDDB(prmConditons.performanceDayFrom);
+            //conditionsDate.$gte =  toYMDDB(prmConditons.performanceDayFrom);
+            conditionsDate.$gte = toISOStringJapan(prmConditons.performanceDayFrom);
         }
         // 登録日To
         if (prmConditons.performanceDayTo !== null) {
-            conditionsDate.$lte = toYMDDB(prmConditons.performanceDayTo);
+            //conditionsDate.$lte = toYMDDB(prmConditons.performanceDayTo);
+            conditionsDate.$lt = toISOStringJapan(prmConditons.performanceDayTo, 1);
         }
-        conditions[`${preKey}performance_day`] = conditionsDate;
+        //conditions[`${preKey}performance_day`] = conditionsDate;
+        const keyDate = typeDB === 'reservation' ? 'updated_at' : 'created_at';
+        conditions[keyDate] = conditionsDate;
     }
     return conditions;
 }
@@ -377,14 +381,25 @@ function convertToString(value) {
 function toYMD(dateStr) {
     return moment(dateStr, 'YYYYMMDD').format('YYYY/MM/DD');
 }
+// /**
+//  * YYYYMMDD日付取得
+//  *
+//  * @param {string} dateStr('YYYY/MM/DD')
+//  * @returns {string} ('YYYYMMDD')
+//  */
+// function toYMDDB(dateStr: string): string {
+//     return moment(dateStr, 'YYYY/MM/DD').format('YYYYMMDD');
+// }
 /**
- * YYYYMMDD日付取得
+ * DB検索用ISO日付取得
  *
- * @param {string} dateStr('YYYY/MM/DD')
- * @returns {string} ('YYYYMMDD')
+ * @param {string} dateStr
+ * @param {number} addDay
+ * @returns {string}
  */
-function toYMDDB(dateStr) {
-    return moment(dateStr, 'YYYY/MM/DD').format('YYYYMMDD');
+function toISOStringJapan(dateStr, addDay = 0) {
+    const dateWk = moment(dateStr, 'YYYY/MM/DD').add(addDay, 'days').format('YYYY-MM-DD');
+    return `${dateWk}T00:00:00+09:00`;
 }
 /**
  * HH:MM時刻取得
