@@ -254,31 +254,78 @@ function getValue(inputValue) {
  * 検索条件取得
  *
  * @param {any} prmConditons
- * @param {string} type
+ * @param {string} dbType
  * @returns {any}
  */
-function getConditons(prmConditons, typeDB) {
+function getConditons(prmConditons, dbType) {
     // 検索条件を作成
     const conditions = {};
     // キャンセルデータではreservationの下に予約レコードが丸ごと入っている
-    const preKey = typeDB === 'reservation' ? '' : 'reservation.';
+    const preKey = dbType === 'reservation' ? '' : 'reservation.';
+    // レポートタイプが売上げか否か
+    const isSales = prmConditons.reportType === 'sales';
+    // ステータス
     conditions[`${preKey}status`] = ttts_domain_2.ReservationUtil.STATUS_RESERVED;
-    // 登録日
+    // GMO項目の有無: 売上げ:true,アカウント別:false
+    conditions[`${preKey}gmo_order_id`] = { $exists: isSales };
+    // アカウント
+    if (prmConditons.owner !== null) {
+        conditions[`${preKey}owner`] = prmConditons.owner;
+    }
+    // 集計期間
     if (prmConditons.performanceDayFrom !== null || prmConditons.performanceDayTo !== null) {
         const conditionsDate = {};
         // 登録日From
         if (prmConditons.performanceDayFrom !== null) {
-            //conditionsDate.$gte =  toYMDDB(prmConditons.performanceDayFrom);
-            conditionsDate.$gte = toISOStringJapan(prmConditons.performanceDayFrom);
+            if (isSales) {
+                // 売上げ
+                conditionsDate.$gte = (dbType === 'reservation') ?
+                    toYMDDB(prmConditons.performanceDayFrom) :
+                    toISOStringJapan(prmConditons.performanceDayFrom);
+            }
+            else {
+                // アカウント別
+                const timeWk = `${prmConditons.performanceDayFrom} ` +
+                    `${prmConditons.performanceStartHour1}` +
+                    `${prmConditons.performanceStartMinute1}`;
+                conditionsDate.$gte = toISOStringJapan2(timeWk);
+            }
         }
         // 登録日To
         if (prmConditons.performanceDayTo !== null) {
-            //conditionsDate.$lte = toYMDDB(prmConditons.performanceDayTo);
-            conditionsDate.$lt = toISOStringJapan(prmConditons.performanceDayTo, 1);
+            if (isSales) {
+                // 売上げ
+                if (dbType === 'reservation') {
+                    conditionsDate.$lte = toYMDDB(prmConditons.performanceDayTo);
+                }
+                else {
+                    conditionsDate.$lt = toISOStringJapan(prmConditons.performanceDayTo, 1);
+                }
+            }
+            else {
+                // アカウント別
+                const timeWk = `${prmConditons.performanceDayTo} ` +
+                    `${prmConditons.performanceStartHour2}` +
+                    `${prmConditons.performanceStartMinute2}`;
+                conditionsDate.$lt = toISOStringJapan2(timeWk, 1);
+            }
         }
-        //conditions[`${preKey}performance_day`] = conditionsDate;
-        const keyDate = typeDB === 'reservation' ? 'updated_at' : 'created_at';
+        const keyDate = dbType === 'reservation' ?
+            (isSales ? 'gmo_tran_date' : 'updated_at') : 'created_at';
         conditions[keyDate] = conditionsDate;
+        // // 登録日From
+        // if (prmConditons.performanceDayFrom !== null) {
+        //     //conditionsDate.$gte =  toYMDDB(prmConditons.performanceDayFrom);
+        //     conditionsDate.$gte =  toISOStringJapan(prmConditons.performanceDayFrom);
+        // }
+        // // 登録日To
+        // if (prmConditons.performanceDayTo !== null) {
+        //     //conditionsDate.$lte = toYMDDB(prmConditons.performanceDayTo);
+        //     conditionsDate.$lt = toISOStringJapan(prmConditons.performanceDayTo, 1);
+        // }
+        //conditions[`${preKey}performance_day`] = conditionsDate;
+        // const keyDate: string = dbType === 'reservation' ? 'updated_at' : 'created_at';
+        // conditions[keyDate] = conditionsDate;
     }
     return conditions;
 }
@@ -381,15 +428,15 @@ function convertToString(value) {
 function toYMD(dateStr) {
     return moment(dateStr, 'YYYYMMDD').format('YYYY/MM/DD');
 }
-// /**
-//  * YYYYMMDD日付取得
-//  *
-//  * @param {string} dateStr('YYYY/MM/DD')
-//  * @returns {string} ('YYYYMMDD')
-//  */
-// function toYMDDB(dateStr: string): string {
-//     return moment(dateStr, 'YYYY/MM/DD').format('YYYYMMDD');
-// }
+/**
+ * YYYYMMDD日付取得
+ *
+ * @param {string} dateStr('YYYY/MM/DD')
+ * @returns {string} ('YYYYMMDD')
+ */
+function toYMDDB(dateStr) {
+    return moment(dateStr, 'YYYY/MM/DD').format('YYYYMMDD');
+}
 /**
  * DB検索用ISO日付取得
  *
@@ -400,6 +447,20 @@ function toYMD(dateStr) {
 function toISOStringJapan(dateStr, addDay = 0) {
     const dateWk = moment(dateStr, 'YYYY/MM/DD').add(addDay, 'days').format('YYYY-MM-DD');
     return `${dateWk}T00:00:00+09:00`;
+}
+/**
+ * DB検索用ISO日付+時分取得
+ *
+ * @param {string} dateStr
+ * @param {number} addMinute
+ * @returns {string}
+ */
+function toISOStringJapan2(dateStr, addMinute = 0) {
+    const dateWk = moment(dateStr, 'YYYY/MM/DD HHmm').add(addMinute, 'minutes').format('YYYY-MM-DD');
+    const timeWk = moment(dateStr, 'YYYY/MM/DD HHmm').add(addMinute, 'minutes').format('HH:mm:ss');
+    // tslint:disable-next-line:no-console
+    console.log(`${dateWk}T${timeWk}+09:00`);
+    return `${dateWk}T${timeWk}+09:00`;
 }
 /**
  * HH:MM時刻取得
