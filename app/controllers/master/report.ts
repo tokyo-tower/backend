@@ -73,7 +73,13 @@ export async function account(__: Request, res: Response): Promise<void> {
         // tslint:disable-next-line:no-magic-numbers
         hours.push((`00${hour}`).slice(-2));
     }
-    const minutes: string[] = ['00', '15', '30', '45'];
+    //const minutes: string[] = ['00', '15', '30', '45'];
+    const minutes: string[] = [];
+    // tslint:disable-next-line:no-magic-numbers
+    for (let minute: number = 0; minute < 60; minute += 1) {
+        // tslint:disable-next-line:no-magic-numbers
+        minutes.push((`00${minute}`).slice(-2));
+    }
     // 画面描画
     res.render('master/report/account', {
         owners: owners,
@@ -274,7 +280,7 @@ function getConditons(prmConditons: any, dbType: string) : any {
                 const timeWk: string = `${prmConditons.performanceDayFrom} ` +
                                        `${prmConditons.performanceStartHour1}` +
                                        `${prmConditons.performanceStartMinute1}`;
-                conditionsDate.$gte = toISOStringJapan2(timeWk);
+                conditionsDate.$gte = toISOStringUTC(timeWk);
             }
         }
         // 登録日To
@@ -291,7 +297,7 @@ function getConditons(prmConditons: any, dbType: string) : any {
                 const timeWk: string = `${prmConditons.performanceDayTo} ` +
                                        `${prmConditons.performanceStartHour2}` +
                                        `${prmConditons.performanceStartMinute2}`;
-                conditionsDate.$lt = toISOStringJapan2(timeWk, 1);
+                conditionsDate.$lt = toISOStringUTC(timeWk, 1);
             }
         }
         const keyDate: string = dbType === 'reservation' ?
@@ -439,14 +445,16 @@ function toISOStringJapan(dateStr: string, addDay: number = 0): string {
  * @param {number} addMinute
  * @returns {string}
  */
-function toISOStringJapan2(dateStr: string, addMinute: number = 0): string {
-    const dateWk: string = moment(dateStr, 'YYYY/MM/DD HHmm').add(addMinute, 'minutes').format('YYYY-MM-DD');
-    const timeWk: string = moment(dateStr, 'YYYY/MM/DD HHmm').add(addMinute, 'minutes').format('HH:mm:ss');
+function toISOStringUTC(dateStr: string, addMinute: number = 0): string {
+    // tslint:disable-next-line:no-magic-numbers
+    const gtc: moment.Moment = moment(dateStr, 'YYYY/MM/DD HHmm').add(-9, 'hours').add(addMinute, 'minutes');
+    const dateWk: string = gtc.format('YYYY-MM-DD');
+    const timeWk: string = gtc.format('HH:mm:ss');
 
     // tslint:disable-next-line:no-console
-    console.log(`${dateWk}T${timeWk}+09:00`);
+    console.log(`${dateWk}T${timeWk}Z`);
 
-    return `${dateWk}T${timeWk}+09:00`;
+    return `${dateWk}T${timeWk}Z`;
 }
 /**
  * HH:MM時刻取得

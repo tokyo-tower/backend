@@ -84,7 +84,13 @@ function account(__, res) {
             // tslint:disable-next-line:no-magic-numbers
             hours.push((`00${hour}`).slice(-2));
         }
-        const minutes = ['00', '15', '30', '45'];
+        //const minutes: string[] = ['00', '15', '30', '45'];
+        const minutes = [];
+        // tslint:disable-next-line:no-magic-numbers
+        for (let minute = 0; minute < 60; minute += 1) {
+            // tslint:disable-next-line:no-magic-numbers
+            minutes.push((`00${minute}`).slice(-2));
+        }
         // 画面描画
         res.render('master/report/account', {
             owners: owners,
@@ -288,7 +294,7 @@ function getConditons(prmConditons, dbType) {
                 const timeWk = `${prmConditons.performanceDayFrom} ` +
                     `${prmConditons.performanceStartHour1}` +
                     `${prmConditons.performanceStartMinute1}`;
-                conditionsDate.$gte = toISOStringJapan2(timeWk);
+                conditionsDate.$gte = toISOStringUTC(timeWk);
             }
         }
         // 登録日To
@@ -307,7 +313,7 @@ function getConditons(prmConditons, dbType) {
                 const timeWk = `${prmConditons.performanceDayTo} ` +
                     `${prmConditons.performanceStartHour2}` +
                     `${prmConditons.performanceStartMinute2}`;
-                conditionsDate.$lt = toISOStringJapan2(timeWk, 1);
+                conditionsDate.$lt = toISOStringUTC(timeWk, 1);
             }
         }
         const keyDate = dbType === 'reservation' ?
@@ -455,12 +461,14 @@ function toISOStringJapan(dateStr, addDay = 0) {
  * @param {number} addMinute
  * @returns {string}
  */
-function toISOStringJapan2(dateStr, addMinute = 0) {
-    const dateWk = moment(dateStr, 'YYYY/MM/DD HHmm').add(addMinute, 'minutes').format('YYYY-MM-DD');
-    const timeWk = moment(dateStr, 'YYYY/MM/DD HHmm').add(addMinute, 'minutes').format('HH:mm:ss');
+function toISOStringUTC(dateStr, addMinute = 0) {
+    // tslint:disable-next-line:no-magic-numbers
+    const gtc = moment(dateStr, 'YYYY/MM/DD HHmm').add(-9, 'hours').add(addMinute, 'minutes');
+    const dateWk = gtc.format('YYYY-MM-DD');
+    const timeWk = gtc.format('HH:mm:ss');
     // tslint:disable-next-line:no-console
-    console.log(`${dateWk}T${timeWk}+09:00`);
-    return `${dateWk}T${timeWk}+09:00`;
+    console.log(`${dateWk}T${timeWk}Z`);
+    return `${dateWk}T${timeWk}Z`;
 }
 /**
  * HH:MM時刻取得
