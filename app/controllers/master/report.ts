@@ -3,8 +3,7 @@
  *
  * @namespace controller/report
  */
-import { Models } from '@motionpicture/ttts-domain';
-import { ReservationUtil, ScreenUtil } from '@motionpicture/ttts-domain';
+import { Models, ReservationUtil, ScreenUtil } from '@motionpicture/ttts-domain';
 import { Request, Response } from 'express';
 import * as moment from 'moment';
 import * as _ from 'underscore';
@@ -50,13 +49,23 @@ const arrayHeadSales = [
 
 /**
  *
- * 売り上げレポート出力
+ * レポートindex
  */
 export async function index(__: Request, res: Response): Promise<void> {
     res.render('master/report/index', {
-        displayId: 'Aa-9',
+        title: 'レポート',
+        routeName: 'master.report.index',
+        layout: 'layouts/master/layout'
+    });
+}
+/**
+ *
+ * 売り上げレポート出力
+ */
+export async function sales(__: Request, res: Response): Promise<void> {
+    res.render('master/report/sales', {
         title: '売り上げレポート出力',
-        filmModel: {},
+        routeName: 'master.report.sales',
         layout: 'layouts/master/layout'
     });
 }
@@ -85,9 +94,8 @@ export async function account(__: Request, res: Response): Promise<void> {
         owners: owners,
         hours: hours,
         minutes: minutes,
-        displayId: 'Aa-10',
         title: 'アカウント別レポート出力',
-        filmModel: {},
+        routeName: 'master.report.account',
         layout: 'layouts/master/layout'
     });
 }

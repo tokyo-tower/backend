@@ -78,6 +78,7 @@ function login(req, res) {
             displayId: 'Aa-1',
             title: 'マスタ管理ログイン',
             errors: errors,
+            routeName: 'master.login',
             layout: 'layouts/master/layoutLogin'
         });
     });

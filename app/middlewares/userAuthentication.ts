@@ -19,6 +19,8 @@ export default async (req: Request, res: Response, next: NextFunction) => {
     req.staffUser = MasterAdminUser.PARSE(req.session);
     debug('req.staffUser:', req.staffUser);
 
+    res.locals.loginName = (req.staffUser && req.staffUser.name && req.staffUser.name.ja) ? req.staffUser.name.ja : '';
+
     if (req.staffUser === undefined) {
         next(new Error(Message.Common.unexpectedError));
 

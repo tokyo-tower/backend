@@ -1,0 +1,25 @@
+<script src="/js/master/reportSales.js"></script>
+
+<section>
+    <h1>売り上げレポート出力</h1>
+    <hr>
+    <form method="post">
+        <%- include('../../common/master/_hidden') %>
+        <input type="hidden" name="reportType" value="sales">
+
+        <label for="dateFrom">出力期間選択</label>
+        <div class="daterange">
+            <input type="text" class="form-control datepicker" name="dateFrom" id="dateFrom">
+            ～
+            <input type="text" class="form-control datepicker" name="dateTo" id="dateTo">
+        </div>
+
+        <hr>
+
+        <a class="btn btn-ok btn-download"><span>レポートダウンロード</span></a>
+    </form>
+</sction>
+
+<% /* 共通Loading */ %>
+<%- include('../../common/master/_loading') %>
+

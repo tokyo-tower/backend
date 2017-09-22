@@ -14,7 +14,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @namespace controller/report
  */
 const ttts_domain_1 = require("@motionpicture/ttts-domain");
-const ttts_domain_2 = require("@motionpicture/ttts-domain");
 const moment = require("moment");
 const _ = require("underscore");
 // tslint:disable-next-line:no-var-requires no-require-imports
@@ -57,19 +56,32 @@ const arrayHeadSales = [
 ];
 /**
  *
- * 売り上げレポート出力
+ * レポートindex
  */
 function index(__, res) {
     return __awaiter(this, void 0, void 0, function* () {
         res.render('master/report/index', {
-            displayId: 'Aa-9',
-            title: '売り上げレポート出力',
-            filmModel: {},
+            title: 'レポート',
+            routeName: 'master.report.index',
             layout: 'layouts/master/layout'
         });
     });
 }
 exports.index = index;
+/**
+ *
+ * 売り上げレポート出力
+ */
+function sales(__, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        res.render('master/report/sales', {
+            title: '売り上げレポート出力',
+            routeName: 'master.report.sales',
+            layout: 'layouts/master/layout'
+        });
+    });
+}
+exports.sales = sales;
 /**
  *
  * アカウント別レポート出力
@@ -96,9 +108,8 @@ function account(__, res) {
             owners: owners,
             hours: hours,
             minutes: minutes,
-            displayId: 'Aa-10',
             title: 'アカウント別レポート出力',
-            filmModel: {},
+            routeName: 'master.report.account',
             layout: 'layouts/master/layout'
         });
     });
@@ -153,7 +164,7 @@ function getSales(req, res) {
                 if (a.performance_start_time < b.performance_start_time) {
                     return -1;
                 }
-                return ttts_domain_2.ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
+                return ttts_domain_1.ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
             });
             let results = [];
             if (datas.length > 0) {
@@ -271,7 +282,7 @@ function getConditons(prmConditons, dbType) {
     // レポートタイプが売上げか否か
     const isSales = prmConditons.reportType === 'sales';
     // ステータス
-    conditions[`${preKey}status`] = ttts_domain_2.ReservationUtil.STATUS_RESERVED;
+    conditions[`${preKey}status`] = ttts_domain_1.ReservationUtil.STATUS_RESERVED;
     // GMO項目の有無: 売上げ:true,アカウント別:false
     conditions[`${preKey}gmo_order_id`] = { $exists: isSales };
     // アカウント
@@ -371,12 +382,12 @@ function getCancels(conditions) {
                 // キャンセルデータ
                 const cancelCan = copyModel(cancelReservation);
                 cancelCan.purchased_at = cancel.created_at;
-                cancelCan.status = ttts_domain_2.ReservationUtil.STATUS_CANCELLED;
+                cancelCan.status = ttts_domain_1.ReservationUtil.STATUS_CANCELLED;
                 reservations.push(cancelCan);
                 // キャンセル料データ
                 const cancelFee = copyModel(cancelReservation);
                 cancelFee.purchased_at = cancel.created_at;
-                cancelFee.status = ttts_domain_2.ReservationUtil.STATUS_CANCELLATION_FEE;
+                cancelFee.status = ttts_domain_1.ReservationUtil.STATUS_CANCELLATION_FEE;
                 cancelFee.gmo_amount = cancel.cancellation_fee;
                 reservations.push(cancelFee);
             });

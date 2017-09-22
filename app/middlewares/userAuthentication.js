@@ -23,6 +23,7 @@ exports.default = (req, res, next) => __awaiter(this, void 0, void 0, function* 
     res.locals.req = req;
     req.staffUser = masterAdmin_1.default.PARSE(req.session);
     debug('req.staffUser:', req.staffUser);
+    res.locals.loginName = (req.staffUser && req.staffUser.name && req.staffUser.name.ja) ? req.staffUser.name.ja : '';
     if (req.staffUser === undefined) {
         next(new Error(Message.Common.unexpectedError));
         return;

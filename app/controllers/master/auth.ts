@@ -86,6 +86,7 @@ export async function login(req: Request, res: Response): Promise<void> {
         displayId: 'Aa-1',
         title: 'マスタ管理ログイン',
         errors: errors,
+        routeName: 'master.login',
         layout: 'layouts/master/layoutLogin'
     });
 }

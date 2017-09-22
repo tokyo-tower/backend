@@ -1,83 +1,28 @@
+
 <script src="/js/master/reportSales.js"></script>
-<% /* フォーム */ %>
-<div class="col-sm-12 form-container search">
-  <form method="post" class="form-horizontal" >
-    <% /* 共通Hiddenコントロール */ %>
-    <%- include('../../common/master/_hidden') %>
-    <div class="menu-group">
-      <% /* メッセージ */ %>
-      <% if (filmModel.message != '') { %>
-          <p class="error message">
-            <%= filmModel.message %>
-          </p>
-      <% } %>
-    </div>
-    <% /* アカウント名 */ %>
-    <div class="form-group form-inline">
-      <label for="dateFrom" class="col-sm-2 control-label label-title">
-      アカウント名
-      </label>
-      <div class="col-sm-10">
-        <select class="form-control" name="owner">
+<section>
+    <h1>アカウント別レポート出力</h1>
+    <hr>
+    <form method="post" class="form-accountreport">
+
+        <label for="select_account">アカウント名</label>
+        <select id="select_account" class="form-control" name="owner">
             <option value="">指定無し</option>
             <% owners.forEach((owner) => { %>
                 <option value="<%= owner._id %>"><%= owner.name.ja %></option>
             <% }) %>
         </select>
-      </div>
-    </div>
-    <br/>
-    <% /* 集計期間 */ %>
-    <div class="form-group form-inline">
-      <label for="dateFrom" class="col-sm-2 control-label label-title">
-        集計期間
-      </label>
-      <div class="col-sm-10">
-        <%- /* 日付From */ %>
-        <input type="text" class="form-control datepicker" name="dateFrom" id="dateFrom" />
-        <%- /* 時刻From */ %>
-        <select class="form-control" name="start_hour1">
-            <option value=""></option>
-            <% hours.forEach((hour) => { %>
-                <option value="<%= hour %>"><%= hour %></option>
-            <% }) %>
-        </select>
-        時
-        <select class="form-control" name="start_minute1">
-            <option value=""></option>
-            <% minutes.forEach((minute) => { %>
-                <option value="<%= minute %>"><%= minute %></option>
-            <% }) %>
-        </select>
-        分 ～<br/><span style='display:block; height:10px;'></span>
-        <%- /* 日付To */ %>
-        <input type="text" class="form-control datepicker" name="dateTo" id="dateTo" />
-        <%- /* 時刻To */ %>
-        <select class="form-control" name="start_hour2">
-            <option value=""></option>
-            <% hours.forEach((hour) => { %>
-                <option value="<%= hour %>"><%= hour %></option>
-            <% }) %>
-        </select>
-        時
-        <select class="form-control" name="start_minute2">
-            <option value=""></option>
-            <% minutes.forEach((minute) => { %>
-                <option value="<%= minute %>"><%= minute %></option>
-            <% }) %>
-        </select>
-        分
-      </div>
-    </div>
-    <% /* ダウンロードボタン */ %>
-    <div class="form-group">
-      <div class="btn-area">
-        <a class="btn btn-ok search"><span>レポートダウンロード</span></a>
-      </div>
-    </div>
-  </form>
-</div>
-<% /* レポート区分 */ %>
-<input type="hidden" name="reportType" value="account">
-<% /* 共通Loading */ %>
-<%- include('../../common/master/_loading') %>
+
+        <hr>
+
+        <label for="input_reportrange">集計期間</label>
+        <input id="input_reportrange" class="input-daterangepicker form-control" placeholder="(期間を指定してください)" name="reportrange">
+
+        <hr>
+
+        <p>
+            <a id="btn_download_accountreport" href="#" target="_blank" class="btn btn-download btn-disabled"><span>レポートダウンロード</span></a>
+        </p>
+    </form>
+    <%- include('../../common/master/_loading') %>
+</section>

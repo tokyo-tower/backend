@@ -1,15 +1,15 @@
-$(function () {
+$(function() {
     // datepickerセット
     $('.datepicker').datepicker({
         language: 'ja'
-    })
+    });
 
-    var getValue = function(selector){
+    var getValue = function(selector) {
         return ($(selector).length > 0) ? $(selector).val() : '';
-    }
+    };
 
     // レポート出力ボタンイベント
-    $(document).on('click', '.btn-ok', function () {
+    $(document).on('click', '.btn-ok', function() {
         var dateFrom = getValue('input[name="dateFrom"]');
         var dateTo = getValue('input[name="dateTo"]');
         // for account report
@@ -22,13 +22,45 @@ $(function () {
         var reportType = getValue('input[name="reportType"]');
         // now:キャッシュ避け
         var now = (new Date()).getTime();
-        var url = '/master/report/getSales/' + 
+        var url = '/master/report/getSales/' +
             '?dateFrom=' + dateFrom + '&dateTo=' + dateTo +
             '&owner=' + owner +
             '&start_hour1=' + start_hour1 + '&start_minute1=' + start_minute1 +
             '&start_hour2=' + start_hour2 + '&start_minute2=' + start_minute2 +
             '&reportType=' + reportType +
             '&dummy=' + now;
+        console.log('[donwload] sales report', url);
         window.open(url);
+    });
+
+
+    // アカウント別レポートダウンロード
+    var btn_download_accountreport = document.getElementById('btn_download_accountreport');
+    if (!btn_download_accountreport) { return false; }
+    $('#input_reportrange').daterangepicker({
+        timePicker: true,
+        timePicker24Hour: true,
+        autoUpdateInput: false, // 空欄状態を作るためにfalse
+        locale: {
+            applyLabel: '決定',
+            cancelLabel: '取消',
+            format: 'YYYY/MM/DD HH:mm'
+        }
+    }).on('apply.daterangepicker', function(ev, pckr) {
+        var url = '/master/report/getSales/' +
+            '?dateFrom=' + pckr.startDate.format('YYYY/MM/DD') +
+            '&dateTo=' + pckr.endDate.format('YYYY/MM/DD') +
+            '&owner=' + (document.getElementById('select_account').value || '') +
+            '&start_hour1=' + pckr.startDate.format('HH') + '&start_minute1=' + pckr.startDate.format('mm') +
+            '&start_hour2=' + pckr.endDate.format('HH') + '&start_minute2=' + pckr.endDate.format('mm') +
+            '&reportType=account&dummy=' + Date.now();
+        console.log('[donwload] account report', url);
+        btn_download_accountreport.href = url;
+        btn_download_accountreport.classList.remove('btn-disabled');
+        this.value = pckr.startDate.format('YYYY/MM/DD (ddd) HH:mm') + ' ～ ' + pckr.endDate.format('YYYY/MM/DD (ddd) HH:mm');
+    }).on('cancel.daterangepicker', function() {
+        btn_download_accountreport.href = '#';
+        btn_download_accountreport.classList.add('btn-disabled');
+        this.value = '';
     });
 });
