@@ -174,8 +174,8 @@ function getSales(req, res) {
                         getCsvData(reservation.performance) +
                         getCsvData(reservation.seat_code) +
                         getCsvData(reservation.status) +
-                        getCsvData(toYMD(reservation.performance_day)) +
-                        getCsvData(toHM(reservation.performance_start_time)) +
+                        getCsvData(toYMDDB(reservation.performance_day)) +
+                        getCsvData(reservation.performance_start_time) +
                         getCsvData(reservation.theater_name.ja) +
                         getCsvData(reservation.screen) +
                         getCsvData(reservation.screen_name.ja) +
