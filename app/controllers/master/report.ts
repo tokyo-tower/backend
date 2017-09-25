@@ -122,7 +122,7 @@ export async function getSales(req: Request, res: Response): Promise<void> {
     // Responseヘッダセット
     const filename = getValue(req.query.reportType) === 'sales' ?
                      '売上げレポート' : 'アカウント別レポート';
-    res.setHeader('Content-disposition', `attachment; filename*=UTF-8\'\'${encodeURIComponent(`${filename}.csv`)}`);
+    res.setHeader('Content-disposition', `attachment; filename*=UTF-8\'\'${encodeURIComponent(`${filename}.tsv`)}`);
     res.setHeader('Content-Type', 'text/csv; charset=Shift_JIS');
 
     try {
