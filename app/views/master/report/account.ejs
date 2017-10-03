@@ -9,7 +9,7 @@
         <select id="select_account" class="form-control" name="owner">
             <option value="">指定無し</option>
             <% owners.forEach((owner) => { %>
-                <option value="<%= owner._id %>"><%= owner.name.ja %></option>
+                <option value="<%= owner.username %>"><%= owner.name.ja %></option>
             <% }) %>
         </select>
 
@@ -21,7 +21,7 @@
         <hr>
 
         <p>
-            <a id="btn_download_accountreport" href="#" target="_blank" class="btn btn-download btn-disabled"><span>レポートダウンロード</span></a>
+            <p id="btn_download_accountreport" class="btn btn-download btn-disabled"><span>レポートダウンロード</span></p>
         </p>
     </form>
     <%- include('../../common/master/_loading') %>

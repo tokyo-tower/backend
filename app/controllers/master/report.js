@@ -89,7 +89,7 @@ exports.sales = sales;
 function account(__, res) {
     return __awaiter(this, void 0, void 0, function* () {
         // アカウント一覧取得
-        const owners = yield ttts_domain_1.Models.Owner.find({}, '_id name', { sort: { _id: 1 } }).exec();
+        const owners = yield ttts_domain_1.Models.Owner.find({}, 'username name', { sort: { _id: 1 } }).exec();
         const hours = [];
         // tslint:disable-next-line:no-magic-numbers
         for (let hour = 0; hour < 24; hour += 1) {
@@ -128,7 +128,7 @@ function getSales(req, res) {
         prmConditons.performanceDayFrom = getValue(req.query.dateFrom);
         prmConditons.performanceDayTo = getValue(req.query.dateTo);
         // アカウント
-        prmConditons.owner = getValue(req.query.owner);
+        prmConditons.owner_username = getValue(req.query.owner_username);
         // 時刻From
         prmConditons.performanceStartHour1 = getValue(req.query.start_hour1);
         prmConditons.performanceStartMinute1 = getValue(req.query.start_minute1);
@@ -286,8 +286,8 @@ function getConditons(prmConditons, dbType) {
     // GMO項目の有無: 売上げ:true,アカウント別:false
     conditions[`${preKey}gmo_order_id`] = { $exists: isSales };
     // アカウント
-    if (prmConditons.owner !== null) {
-        conditions[`${preKey}owner`] = prmConditons.owner;
+    if (prmConditons.owner_username !== null) {
+        conditions[`${preKey}owner_username`] = prmConditons.owner_username;
     }
     // 集計期間
     if (prmConditons.performanceDayFrom !== null || prmConditons.performanceDayTo !== null) {

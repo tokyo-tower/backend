@@ -75,7 +75,7 @@ export async function sales(__: Request, res: Response): Promise<void> {
  */
 export async function account(__: Request, res: Response): Promise<void> {
     // アカウント一覧取得
-    const owners = await Models.Owner.find({}, '_id name', { sort: { _id: 1 } }).exec();
+    const owners = await Models.Owner.find({}, 'username name', { sort: { _id: 1 } }).exec();
     const hours: string[] = [];
     // tslint:disable-next-line:no-magic-numbers
     for (let hour: number = 0; hour < 24; hour += 1) {
@@ -111,7 +111,7 @@ export async function getSales(req: Request, res: Response): Promise<void> {
     prmConditons.performanceDayFrom = getValue(req.query.dateFrom);
     prmConditons.performanceDayTo = getValue(req.query.dateTo);
     // アカウント
-    prmConditons.owner = getValue(req.query.owner);
+    prmConditons.owner_username = getValue(req.query.owner_username);
     // 時刻From
     prmConditons.performanceStartHour1 = getValue(req.query.start_hour1);
     prmConditons.performanceStartMinute1 = getValue(req.query.start_minute1);
@@ -132,7 +132,7 @@ export async function getSales(req: Request, res: Response): Promise<void> {
             throw new Error(errorMessage);
         }
         // 予約情報・キャンセル予約情報取得
-        const reservations: any[] = await getReservations(getConditons( prmConditons, 'reservation'));
+        const reservations: any[] = await getReservations(getConditons(prmConditons, 'reservation'));
         const cancels: any[] = await getCancels(getConditons(prmConditons, 'cancel'));
         const datas: any[] = Array.prototype.concat(reservations, cancels);
 
@@ -154,7 +154,7 @@ export async function getSales(req: Request, res: Response): Promise<void> {
             return ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
         });
         let results: any[] = [];
-        if ( datas.length > 0 ) {
+        if (datas.length > 0) {
             //検索結果編集
             results = datas.map((reservation) => {
                 return getCsvData(reservation.payment_no) +
@@ -247,7 +247,7 @@ function isInputEven(value1: string, value2: string): boolean {
  * @param {string|null} inputValue
  * @returns {string|null}
  */
-function getValue( inputValue: string | null ): string | null {
+function getValue(inputValue: string | null): string | null {
     return (!_.isEmpty(inputValue)) ? inputValue : null;
 }
 /**
@@ -270,8 +270,8 @@ function getConditons(prmConditons: any, dbType: string) : any {
     // GMO項目の有無: 売上げ:true,アカウント別:false
     conditions[`${preKey}gmo_order_id`] = {$exists: isSales};
     // アカウント
-    if (prmConditons.owner !== null) {
-        conditions[`${preKey}owner`] = prmConditons.owner;
+    if (prmConditons.owner_username !== null) {
+        conditions[`${preKey}owner_username`] = prmConditons.owner_username;
     }
     // 集計期間
     if (prmConditons.performanceDayFrom !== null || prmConditons.performanceDayTo !== null) {

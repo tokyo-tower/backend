@@ -13,7 +13,6 @@ $(function() {
         var dateFrom = getValue('input[name="dateFrom"]');
         var dateTo = getValue('input[name="dateTo"]');
         // for account report
-        var owner = getValue('select[name="owner"]');
         var start_hour1 = getValue('select[name="start_hour1"]');
         var start_minute1 = getValue('select[name="start_minute1"]');
         var start_hour2 = getValue('select[name="start_hour2"]');
@@ -24,7 +23,6 @@ $(function() {
         var now = (new Date()).getTime();
         var url = '/master/report/getSales/' +
             '?dateFrom=' + dateFrom + '&dateTo=' + dateTo +
-            '&owner=' + owner +
             '&start_hour1=' + start_hour1 + '&start_minute1=' + start_minute1 +
             '&start_hour2=' + start_hour2 + '&start_minute2=' + start_minute2 +
             '&reportType=' + reportType +
@@ -36,7 +34,9 @@ $(function() {
 
     // アカウント別レポートダウンロード
     var btn_download_accountreport = document.getElementById('btn_download_accountreport');
-    if (!btn_download_accountreport) { return false; }
+    var select_account = document.getElementById('select_account');
+    if (!btn_download_accountreport || !select_account) { return false; }
+    var acCondition = {};
     $('#input_reportrange').daterangepicker({
         timePicker: true,
         timePicker24Hour: true,
@@ -47,20 +47,29 @@ $(function() {
             format: 'YYYY/MM/DD HH:mm'
         }
     }).on('apply.daterangepicker', function(ev, pckr) {
-        var url = '/master/report/getSales/' +
-            '?dateFrom=' + pckr.startDate.format('YYYY/MM/DD') +
-            '&dateTo=' + pckr.endDate.format('YYYY/MM/DD') +
-            '&owner=' + (document.getElementById('select_account').value || '') +
-            '&start_hour1=' + pckr.startDate.format('HH') + '&start_minute1=' + pckr.startDate.format('mm') +
-            '&start_hour2=' + pckr.endDate.format('HH') + '&start_minute2=' + pckr.endDate.format('mm') +
-            '&reportType=account&dummy=' + Date.now();
-        console.log('[donwload] account report', url);
-        btn_download_accountreport.href = url;
+        acCondition.dateFrom = pckr.startDate.format('YYYY/MM/DD');
+        acCondition.dateTo = pckr.endDate.format('YYYY/MM/DD');
+        acCondition.start_hour1 = pckr.startDate.format('HH') + '&start_minute1=' + pckr.startDate.format('mm');
+        acCondition.start_hour2 = pckr.endDate.format('HH') + '&start_minute2=' + pckr.endDate.format('mm');
         btn_download_accountreport.classList.remove('btn-disabled');
         this.value = pckr.startDate.format('YYYY/MM/DD (ddd) HH:mm') + ' ～ ' + pckr.endDate.format('YYYY/MM/DD (ddd) HH:mm');
     }).on('cancel.daterangepicker', function() {
-        btn_download_accountreport.href = '#';
+        acCondition = {};
         btn_download_accountreport.classList.add('btn-disabled');
         this.value = '';
     });
+    btn_download_accountreport.onclick = function() {
+        if (!acCondition.dateFrom || !acCondition.dateTo || !acCondition.start_hour1 || !acCondition.start_hour2) {
+            return false;
+        }
+        var url = '/master/report/getSales/' +
+        '?dateFrom=' + acCondition.dateFrom +
+        '&dateTo=' + acCondition.dateTo +
+        '&owner_username=' + (select_account.value || '') +
+        '&start_hour1=' + acCondition.start_hour1 +
+        '&start_hour2=' + acCondition.start_hour2 +
+        '&reportType=account&dummy=' + Date.now();
+        console.log('[donwload] account report', url);
+        window.open(url);
+    };
 });
