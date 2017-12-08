@@ -280,9 +280,7 @@ function getConditons(prmConditons: any, dbType: string) : any {
         if (prmConditons.performanceDayFrom !== null) {
             if (isSales) {
                 // 売上げ
-                conditionsDate.$gte = (dbType === 'reservation') ?
-                    toYMDDB(prmConditons.performanceDayFrom) :
-                    toISOStringJapan(prmConditons.performanceDayFrom);
+                conditionsDate.$gte = toISOStringJapan(prmConditons.performanceDayFrom);
             } else {
                 // アカウント別
                 const timeWk: string = `${prmConditons.performanceDayFrom} ` +
@@ -295,11 +293,7 @@ function getConditons(prmConditons: any, dbType: string) : any {
         if (prmConditons.performanceDayTo !== null) {
             if (isSales) {
                 // 売上げ
-                if (dbType === 'reservation') {
-                    conditionsDate.$lte = toYMDDB(prmConditons.performanceDayTo);
-                } else {
-                    conditionsDate.$lt = toISOStringJapan(prmConditons.performanceDayTo, 1);
-                }
+                conditionsDate.$lt = toISOStringJapan(prmConditons.performanceDayTo, 1);
             } else {
                 // アカウント別
                 const timeWk: string = `${prmConditons.performanceDayTo} ` +
@@ -308,7 +302,8 @@ function getConditons(prmConditons: any, dbType: string) : any {
                 conditionsDate.$lt = toISOStringUTC(timeWk, 1);
             }
         }
-        const keyDate: string = dbType === 'reservation' ? 'updated_at' : 'created_at';
+        const keyDate: string = dbType === 'reservation' ?
+            (isSales ? 'purchased_at' : 'updated_at') : 'created_at';
         conditions[keyDate] = conditionsDate;
 
         // // 登録日From
