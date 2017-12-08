@@ -308,8 +308,7 @@ function getConditons(prmConditons: any, dbType: string) : any {
                 conditionsDate.$lt = toISOStringUTC(timeWk, 1);
             }
         }
-        const keyDate: string = dbType === 'reservation' ?
-            (isSales ? 'gmo_tran_date' : 'updated_at') : 'created_at';
+        const keyDate: string = dbType === 'reservation' ? 'updated_at' : 'created_at';
         conditions[keyDate] = conditionsDate;
 
         // // 登録日From
