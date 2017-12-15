@@ -4,7 +4,7 @@
  * @namespace controller/master/ticketType
  */
 
-import { Models } from '@motionpicture/ttts-domain';
+import * as ttts from '@motionpicture/ttts-domain';
 import { Request, Response } from 'express';
 import * as _ from 'underscore';
 import * as Message from '../../../common/Const/Message';
@@ -50,7 +50,7 @@ export async function add(req: Request, res: Response): Promise<void> {
                     },
                     charge: req.body.ticketCharge
                 };
-                await Models.TicketType.create(docs);
+                await ttts.Models.TicketType.create(docs);
                 message = '登録完了';
                 res.redirect(`/master/ticketTypes/${id}/update`);
 
@@ -98,21 +98,21 @@ export async function update(req: Request, res: Response): Promise<void> {
         if (validatorResult.isEmpty()) {
             // 券種DB更新プロセス
             try {
-                const update = {
+                const updateData = {
                     name: {
                         ja: req.body.ticketNameJa,
                         en: ''
                     },
                     charge: req.body.ticketCharge
                 };
-                await Models.TicketType.findByIdAndUpdate(id, update).exec();
+                await ttts.Models.TicketType.findByIdAndUpdate(id, updateData).exec();
                 message = '編集完了';
             } catch (error) {
                 message = error.message;
             }
         }
     }
-    const ticket = await Models.TicketType.findById(id).exec();
+    const ticket = await ttts.Models.TicketType.findById(id).exec();
     let forms: any = {};
     if (ticket !== null) {
         forms = {
@@ -170,11 +170,11 @@ export async function getList(req: Request, res: Response): Promise<void> {
     }
 
     try {
-        const count = await Models.TicketType.count(conditions).exec();
+        const count = await ttts.Models.TicketType.count(conditions).exec();
         let results: any[] = [];
 
         if (count > 0) {
-            const ticketTypes = await Models.TicketType.find(conditions)
+            const ticketTypes = await ttts.Models.TicketType.find(conditions)
                 .skip(limit * (page - 1))
                 .limit(limit)
                 .exec();

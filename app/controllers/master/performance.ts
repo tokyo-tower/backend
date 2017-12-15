@@ -2,7 +2,7 @@
  * @namespace performance
  * @desc パフォーマンスマスタコントローラー
  */
-import { Models } from '@motionpicture/ttts-domain';
+import * as ttts from '@motionpicture/ttts-domain';
 import * as createDebug from 'debug';
 import { NextFunction, Request, Response } from 'express';
 import * as moment from 'moment';
@@ -20,7 +20,7 @@ const debug = createDebug('ttts-backend:controllers:performance');
  */
 export async function index(_: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-        const theaters = await Models.Theater.find().exec();
+        const theaters = await ttts.Models.Theater.find().exec();
         if (theaters.length === 0) {
             throw new Error('not theaters');
         }
@@ -57,14 +57,16 @@ export async function search(req: Request, res: Response): Promise<void> {
         }
         const theater = req.body.theater;
         const day = req.body.day;
-        const screens = await Models.Screen.find({
+        const screens = await ttts.Models.Screen.find({
             theater: theater
         }).exec();
-        const performances = await Models.Performance.find({
+
+        const performanceRepo = new ttts.repository.Performance(ttts.mongoose.connection);
+        const performances = await performanceRepo.performanceModel.find({
             theater: theater,
             day: day
         }).populate('film', 'name').exec();
-        const ticketGroups = await Models.TicketTypeGroup.find().exec();
+        const ticketGroups = await ttts.Models.TicketTypeGroup.find().exec();
         res.json({
             validation: null,
             error: null,
@@ -103,7 +105,7 @@ export async function filmSearch(req: Request, res: Response): Promise<void> {
             return;
         }
         const id = req.body.id;
-        const film = await Models.Film.findById(id).exec();
+        const film = await ttts.Models.Film.findById(id).exec();
         res.json({
             validation: null,
             error: null,
@@ -139,8 +141,8 @@ export async function regist(req: Request, res: Response): Promise<void> {
 
             return;
         }
-        const theater = await Models.Theater.findById(req.body.theater).exec();
-        const screen = await Models.Screen.findById(req.body.screen).exec();
+        const theater = await ttts.Models.Theater.findById(req.body.theater).exec();
+        const screen = await ttts.Models.Screen.findById(req.body.screen).exec();
         const docs = {
             theater: req.body.theater,
             screen: req.body.screen,
@@ -153,7 +155,8 @@ export async function regist(req: Request, res: Response): Promise<void> {
             theater_name: (theater !== null) ? theater.get('name') : '',
             screen_name: (screen !== null) ? screen.get('name') : ''
         };
-        await Models.Performance.create(docs);
+        const performanceRepo = new ttts.repository.Performance(ttts.mongoose.connection);
+        await performanceRepo.performanceModel.create(docs);
         res.json({
             validation: null,
             error: null
@@ -189,14 +192,15 @@ export async function update(req: Request, res: Response): Promise<void> {
             return;
         }
         const id = req.body.performance;
-        const update = {
+        const updateData = {
             screen: req.body.screen,
             ticket_type_group: req.body.ticketTypeGroup,
             open_time: req.body.openTime,
             start_time: req.body.startTime,
             end_time: req.body.endTime
         };
-        await Models.Performance.findByIdAndUpdate(id, update).exec();
+        const performanceRepo = new ttts.repository.Performance(ttts.mongoose.connection);
+        await performanceRepo.performanceModel.findByIdAndUpdate(id, updateData).exec();
         res.json({
             validation: null,
             error: null

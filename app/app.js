@@ -5,17 +5,16 @@
  * @ignore
  */
 // 依存パッケージ
+const ttts = require("@motionpicture/ttts-domain");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const createDebug = require("debug");
 const express = require("express");
+const expressValidator = require("express-validator");
 const helmet = require("helmet");
-const mongoose = require("mongoose");
 const multer = require("multer");
 const favicon = require("serve-favicon");
-// tslint:disable-next-line:no-require-imports
-const expressValidator = require("express-validator");
 // tslint:disable-next-line:no-var-requires no-require-imports
 const expressLayouts = require('express-ejs-layouts');
 const mongooseConnectionOptions_1 = require("../mongooseConnectionOptions");
@@ -71,11 +70,11 @@ app.use(multer({ storage: storage }).any());
 app.use(cookieParser());
 app.use(express.static(`${__dirname}/../public`));
 app.use(expressValidator()); // バリデーション
-// Use native promises
-mongoose.Promise = global.Promise;
-// 2017/07/06
-//mongoose.connect(process.env.MONGOLAB_URI, mongooseConnectionOptions);
-mongoose.connect(process.env.MONGOLAB_URI, mongooseConnectionOptions_1.default);
+// // Use native promises
+// (<any>mongoose).Promise = global.Promise;
+// // 2017/07/06
+// //mongoose.connect(process.env.MONGOLAB_URI, mongooseConnectionOptions);
+// mongoose.connect((<any>process.env).MONGOLAB_URI, mongooseConnectionOptions);
 // ルーティング登録の順序に注意！
 if (process.env.NODE_ENV !== 'production') {
     app.use('/dev', dev_1.default);
@@ -92,4 +91,5 @@ app.use('/master/report', report_1.default); //レポート出力
 app.use(notFoundHandler_1.default);
 // error handlers
 app.use(errorHandler_1.default);
+ttts.mongoose.connect(process.env.MONGOLAB_URI, mongooseConnectionOptions_1.default);
 module.exports = app;

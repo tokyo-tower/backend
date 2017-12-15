@@ -3,12 +3,17 @@
  *
  * @namespace controller/report
  */
-import { Models, ReservationUtil, ScreenUtil } from '@motionpicture/ttts-domain';
+import * as ttts from '@motionpicture/ttts-domain';
 import { Request, Response } from 'express';
 import * as moment from 'moment';
 import * as _ from 'underscore';
 // tslint:disable-next-line:no-var-requires no-require-imports
 const jconv = require('jconv');
+
+const STATUS_CANCELLATION_FEE = 'CANCELLATION_FEE';
+// 返金キャンセル料
+const CANCEL_CHARGE_REFUND: number = 0;
+const CANCEL_CHARGE: number = 1000;
 
 // カラム区切り(タブ)
 const csvSeparator: string = '\t';
@@ -75,7 +80,8 @@ export async function sales(__: Request, res: Response): Promise<void> {
  */
 export async function account(__: Request, res: Response): Promise<void> {
     // アカウント一覧取得
-    const owners = await Models.Owner.find({}, 'username name', { sort: { _id: 1 } }).exec();
+    const ownerRepo = new ttts.repository.Owner(ttts.mongoose.connection);
+    const owners = await ownerRepo.ownerModel.find({}, 'username name', { sort: { _id: 1 } }).exec();
     const hours: string[] = [];
     // tslint:disable-next-line:no-magic-numbers
     for (let hour: number = 0; hour < 24; hour += 1) {
@@ -133,26 +139,54 @@ export async function getSales(req: Request, res: Response): Promise<void> {
         }
         // 予約情報・キャンセル予約情報取得
         const reservations: any[] = await getReservations(getConditons(prmConditons, 'reservation'));
-        const cancels: any[] = await getCancels(getConditons(prmConditons, 'cancel'));
+        let cancels: any[] = [];
+        if (prmConditons.reportType === 'sales') {
+            cancels = await getCancels(getConditons(prmConditons, 'cancel'));
+        }
         const datas: any[] = Array.prototype.concat(reservations, cancels);
 
-        // ソート昇順(上映日→開始時刻→座席番号)
-        datas.sort((a, b) => {
-            if (a.performance_day > b.performance_day) {
-                return 1;
-            }
-            if (a.performance_day < b.performance_day) {
-                return -1;
-            }
-            if (a.performance_start_time > b.performance_start_time) {
-                return 1;
-            }
-            if (a.performance_start_time < b.performance_start_time) {
-                return -1;
-            }
+        // ソート
+        if (datas.length > 0) {
+            datas.sort((a: any, b: any) => {
+                // 入塔日
+                if (a.performance_day > b.performance_day) {
+                    return 1;
+                }
+                if (a.performance_day < b.performance_day) {
+                    return -1;
+                }
+                // 開始時間
+                if (a.performance_start_time > b.performance_start_time) {
+                    return 1;
+                }
+                if (a.performance_start_time < b.performance_start_time) {
+                    return -1;
+                }
+                // 購入番号
+                if (a.payment_no > b.payment_no) {
+                    return 1;
+                }
+                if (a.payment_no < b.payment_no) {
+                    return -1;
+                }
+                // 座席番号
+                if (a.seat_code > b.seat_code) {
+                    return 1;
+                }
+                if (a.seat_code < b.seat_code) {
+                    return -1;
+                }
+                // 3レコード用:confirmed->cencelled->CANCELLATION_FEE
+                if (a.status_sort > b.status_sort) {
+                    return 1;
+                }
+                if (a.status_sort < b.status_sort) {
+                    return -1;
+                }
 
-            return ScreenUtil.sortBySeatCode(a.seat_code, b.seat_code);
-        });
+                return 0;
+            });
+        }
         let results: any[] = [];
         if (datas.length > 0) {
             //検索結果編集
@@ -260,19 +294,32 @@ function getValue(inputValue: string | null): string | null {
 function getConditons(prmConditons: any, dbType: string) : any {
     // 検索条件を作成
     const conditions: any = {};
-    // キャンセルデータではreservationの下に予約レコードが丸ごと入っている
-    const preKey: string = dbType === 'reservation' ? '' : 'reservation.';
+    // 予約か否か
+    const isReservation: boolean = (dbType === 'reservation');
     // レポートタイプが売上げか否か
     const isSales: boolean = prmConditons.reportType === 'sales';
+    // 購入区分
+    const purchaserGroup: string = isSales ?
+        ttts.ReservationUtil.PURCHASER_GROUP_CUSTOMER : ttts.ReservationUtil.PURCHASER_GROUP_STAFF;
 
-    // ステータス
-    conditions[`${preKey}status`] = ReservationUtil.STATUS_RESERVED;
-    // GMO項目の有無: 売上げ:true,アカウント別:false
-    conditions[`${preKey}gmo_order_id`] = {$exists: isSales};
-    // アカウント
-    if (prmConditons.owner_username !== null) {
-        conditions[`${preKey}owner_username`] = prmConditons.owner_username;
+    // 予約
+    if (isReservation) {
+        // ステータス
+        conditions.status = ttts.factory.reservationStatusType.ReservationConfirmed;
+        // 購入区分
+        conditions.purchaser_group = purchaserGroup;
+        // アカウント
+        if (prmConditons.owner_username !== null) {
+            conditions.owner_username = prmConditons.owner_username;
+        }
+    } else {
+        // キャンセルはsalesのみアカウント別はなし。
+        // ステータス
+        conditions.typeOf = ttts.factory.transactionType.ReturnOrder;
+        // 購入区分
+        conditions.object.transaction.object.purchaser_group = purchaserGroup;
     }
+
     // 集計期間
     if (prmConditons.performanceDayFrom !== null || prmConditons.performanceDayTo !== null) {
         const conditionsDate: any = {};
@@ -303,7 +350,7 @@ function getConditons(prmConditons: any, dbType: string) : any {
             }
         }
         const keyDate: string = dbType === 'reservation' ?
-            (isSales ? 'purchased_at' : 'updated_at') : 'created_at';
+            (isSales ? 'purchased_at' : 'updated_at') : 'createdAt';
         conditions[keyDate] = conditionsDate;
 
         // // 登録日From
@@ -330,10 +377,14 @@ function getConditons(prmConditons: any, dbType: string) : any {
  * @returns {Promise<any>}
  */
 async function getReservations(conditions: any): Promise<any> {
-    const dataCount = await Models.Reservation.count(conditions).exec();
+    const reservationRepo = new ttts.repository.Reservation(ttts.mongoose.connection);
+    const dataCount = await reservationRepo.reservationModel.count(conditions).exec();
     let reservations: any[] = [];
     if (dataCount > 0) {
-        reservations = await Models.Reservation.find(conditions).exec();
+        reservations = await reservationRepo.reservationModel.find(conditions).exec();
+        reservations.map((reservation) => {
+            reservation.status_sort = reservation.status;
+        });
     }
 
     return reservations;
@@ -345,27 +396,53 @@ async function getReservations(conditions: any): Promise<any> {
  * @returns {Promise<any>}
  */
 async function getCancels(conditions: any): Promise<any> {
-    const dataCount = await Models.CustomerCancelRequest.count(conditions).exec();
+    // 取引に対する返品リクエスト取得
+    const transactionRepo = new ttts.repository.Transaction(ttts.mongoose.connection);
+    const returnOrderTransactions = await transactionRepo.transactionModel.find(
+        conditions
+    ).exec();
+
+    // 予約情報をセット
+    let cancels: any[] = [];
+    const charges: number[] = [];
+    for (const returnOrderTransaction of returnOrderTransactions) {
+        const transaction = (<any>returnOrderTransaction).object._doc.transaction;
+        const eventReservations = transaction.result.eventReservations;
+        //const amount = transaction.object.authorizeActions[0].result.entryTranArgs.amount;
+        const amount = eventReservations[0].charge;
+        cancels = cancels.concat(eventReservations);
+        // tslint:disable-next-line:prefer-for-of
+        for (let indexCancel = 0; indexCancel < eventReservations.length; indexCancel += 1) {
+            charges.push(amount);
+        }
+    }
+
+    // キャンセルデータは1レコードで3行出力
     const reservations: any[] = [];
-    // そのまま＋予約ステータス：CANCELLED＋予約ステータス：CANCELLATION_FEEの3レコード作成
-    if (dataCount > 0) {
-        const cancels: any[] = await Models.CustomerCancelRequest.find(conditions).exec();
-        cancels.map((cancel) => {
-            const cancelReservation = cancel.reservation;
-            // 予約データ
-            reservations.push(cancelReservation);
-            // キャンセルデータ
-            const cancelCan = copyModel(cancelReservation);
-            cancelCan.purchased_at = cancel.created_at;
-            cancelCan.status = ReservationUtil.STATUS_CANCELLED;
-            reservations.push(cancelCan);
-            // キャンセル料データ
-            const cancelFee = copyModel(cancelReservation);
-            cancelFee.purchased_at = cancel.created_at;
-            cancelFee.status = ReservationUtil.STATUS_CANCELLATION_FEE;
-            cancelFee.gmo_amount = cancel.cancellation_fee;
-            reservations.push(cancelFee);
-        });
+    let indexSet: number = 0;
+    for (const cancelReservation of cancels) {
+        // 予約データ
+        cancelReservation.gmo_amount = charges[indexSet] ;
+        cancelReservation.status_sort = '0';
+        reservations.push(cancelReservation);
+        // キャンセルデータ
+        const cancelCan = copyModel(cancelReservation);
+        cancelCan.purchased_at = cancelReservation.created_at;
+        cancelCan.status = ttts.factory.reservationStatusType.ReservationCancelled;
+        cancelCan.status_sort = '1';
+        cancelCan.gmo_amount = charges[indexSet] ;
+        reservations.push(cancelCan);
+        // キャンセル料データ
+        const cancelFee = copyModel(cancelReservation);
+        cancelFee.purchased_at = cancelReservation.created_at;
+        cancelFee.status = STATUS_CANCELLATION_FEE;
+        cancelFee.status_sort = '2';
+        //cancelFee.gmo_amount = cancelReservation.cancellation_fee;
+        cancelFee.gmo_amount = cancelReservation.performance_ttts_extension.refund_status === ttts.PerformanceUtil.REFUND_STATUS.NONE ?
+            CANCEL_CHARGE : CANCEL_CHARGE_REFUND;
+        cancelFee.ticket_ttts_extension.csv_code = '';
+        reservations.push(cancelFee);
+        indexSet += 1;
     }
 
     return reservations;
@@ -378,8 +455,15 @@ async function getCancels(conditions: any): Promise<any> {
  */
 function copyModel(model: any): any {
     const copiedModel: any = {};
+    // オブジェクト判定
+    const isObject = ((obj: any) => {
+        return (obj !== null && typeof obj === 'object');
+    });
+    // プロパティコピー
     Object.getOwnPropertyNames(model).forEach((propertyName) => {
-        copiedModel[propertyName] = model[propertyName];
+        copiedModel[propertyName] = isObject(model[propertyName]) ?
+            copyModel(model[propertyName]) :
+            copiedModel[propertyName] = model[propertyName];
     });
 
     return copiedModel;
@@ -416,9 +500,9 @@ function convertToString(value: any): string {
  * @param {string} dateStr('YYYYMMDD')
  * @returns {string} ('YYYY/MM/DD')
  */
-function toYMD(dateStr: string): string {
-    return moment(dateStr, 'YYYYMMDD').format('YYYY/MM/DD');
-}
+// function toYMD(dateStr: string): string {
+//     return moment(dateStr, 'YYYYMMDD').format('YYYY/MM/DD');
+// }
 /**
  * YYYYMMDD日付取得
  *
@@ -464,10 +548,10 @@ function toISOStringUTC(dateStr: string, addMinute: number = 0): string {
  * @param {string} timeStr('HHMM')
  * @returns {string} ('HH:MM')
  */
-function toHM(timeStr: string): string {
-    // tslint:disable-next-line:no-magic-numbers
-    return `${timeStr.substr(0, 2)}:${timeStr.substr(2, 2)}`;
-}
+// function toHM(timeStr: string): string {
+//     // tslint:disable-next-line:no-magic-numbers
+//     return `${timeStr.substr(0, 2)}:${timeStr.substr(2, 2)}`;
+// }
 /**
  * YYYY/MM/DD HH:mm:ss 日時取得
  *

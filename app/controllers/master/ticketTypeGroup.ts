@@ -4,7 +4,7 @@
  * @namespace controller/master/ticketType
  */
 
-import { Models } from '@motionpicture/ttts-domain';
+import * as ttts from '@motionpicture/ttts-domain';
 import { Request, Response } from 'express';
 import * as _ from 'underscore';
 
@@ -62,7 +62,7 @@ export async function add(req: Request, res: Response): Promise<void> {
                     },
                     ticket_types: req.body.ticketTypes
                 };
-                await Models.TicketTypeGroup.create(docs);
+                await ttts.Models.TicketTypeGroup.create(docs);
                 message = '登録完了';
                 res.redirect(`/master/ticketTypeGroups/${id}/update`);
             } catch (error) {
@@ -72,7 +72,7 @@ export async function add(req: Request, res: Response): Promise<void> {
     }
 
     // 券種マスタから取得
-    const ticketTypes = await Models.TicketType.find().exec();
+    const ticketTypes = await ttts.Models.TicketType.find().exec();
     const forms = {
         _id: (_.isEmpty(req.body._id)) ? '' : req.body._id,
         nameJa: (_.isEmpty(req.body.nameJa)) ? '' : req.body.nameJa,
@@ -108,14 +108,14 @@ export async function update(req: Request, res: Response): Promise<void> {
             // 券種グループDB登録
             try {
                 // 券種グループDB登録
-                const update = {
+                const updateData = {
                     name: {
                         ja: req.body.nameJa,
                         en: ''
                     },
                     ticket_types: req.body.ticketTypes
                 };
-                await Models.TicketTypeGroup.findByIdAndUpdate(id, update).exec();
+                await ttts.Models.TicketTypeGroup.findByIdAndUpdate(id, updateData).exec();
                 message = '編集完了';
             } catch (error) {
                 message = error.message;
@@ -124,9 +124,9 @@ export async function update(req: Request, res: Response): Promise<void> {
     }
 
     // 券種マスタから取得
-    const ticketTypes = await Models.TicketType.find().exec();
+    const ticketTypes = await ttts.Models.TicketType.find().exec();
     // 券種グループ取得
-    const ticketGroup = await Models.TicketTypeGroup.findById(id).exec();
+    const ticketGroup = await ttts.Models.TicketTypeGroup.findById(id).exec();
     let forms: any = {};
     if (ticketGroup !== null) {
         forms = {
@@ -174,11 +174,11 @@ export async function getList(req: Request, res: Response): Promise<void> {
     }
 
     try {
-        const count = await Models.TicketTypeGroup.count(conditions).exec();
+        const count = await ttts.Models.TicketTypeGroup.count(conditions).exec();
         let results: any[] = [];
 
         if (count > 0) {
-            const ticketTypeGroups = await Models.TicketTypeGroup.find(conditions)
+            const ticketTypeGroups = await ttts.Models.TicketTypeGroup.find(conditions)
                 .skip(limit * (page - 1))
                 .limit(limit)
                 .exec();

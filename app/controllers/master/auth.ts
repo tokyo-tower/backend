@@ -4,14 +4,13 @@
  * @namespace controller/master/auth
  */
 
-import * as TTTS from '@motionpicture/ttts-domain';
+import * as ttts from '@motionpicture/ttts-domain';
 import { NextFunction, Request, Response } from 'express';
 import * as _ from 'underscore';
 
 import * as Message from '../../../common/Const/Message';
 import MasterAdminUser from '../../models/user/masterAdmin';
 
-//const masterHome: string = '/master/films';
 const masterHome: string = '/master/report';
 // todo 別の場所で定義
 const cookieName = 'remember_master_admin';
@@ -35,10 +34,11 @@ export async function login(req: Request, res: Response): Promise<void> {
         errors = req.validationErrors(true);
         if (validatorResult.isEmpty()) {
             // ユーザー認証
-            const owner = await TTTS.Models.Owner.findOne(
+            const ownerRepo = new ttts.repository.Owner(ttts.mongoose.connection);
+            const owner: any = await ownerRepo.ownerModel.findOne(
                 {
                     username: req.body.username,
-                    group: TTTS.OwnerUtil.GROUP_STAFF
+                    group: ttts.OwnerUtil.GROUP_STAFF
                 }
             ).exec();
 
@@ -46,15 +46,15 @@ export async function login(req: Request, res: Response): Promise<void> {
                 errors = { username: { msg: 'IDもしくはパスワードの入力に誤りがあります' } };
             } else {
                 // パスワードチェック
-                if (owner.get('password_hash') !== TTTS.CommonUtil.createHash(req.body.password, owner.get('password_salt'))) {
+                if (owner.get('password_hash') !== ttts.CommonUtil.createHash(req.body.password, owner.get('password_salt'))) {
                     errors = { username: { msg: 'IDもしくはパスワードの入力に誤りがあります' } };
                 } else {
                     // ログイン記憶
                     if (req.body.remember === 'on') {
                         // トークン生成
-                        const authentication = await TTTS.Models.Authentication.create(
+                        const authentication = await ttts.Models.Authentication.create(
                             {
-                                token: TTTS.CommonUtil.createToken(),
+                                token: ttts.CommonUtil.createToken(),
                                 owner: owner.get('_id'),
                                 signature: req.body.signature
                             }
@@ -107,7 +107,7 @@ export async function logout(req: Request, res: Response, next: NextFunction): P
     }
 
     delete req.session[MasterAdminUser.AUTH_SESSION_NAME];
-    await TTTS.Models.Authentication.remove({ token: req.cookies[cookieName] }).exec();
+    await ttts.Models.Authentication.remove({ token: req.cookies[cookieName] }).exec();
 
     res.clearCookie(cookieName);
     res.redirect('/master/login');

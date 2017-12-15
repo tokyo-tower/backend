@@ -5,17 +5,16 @@
  */
 
 // 依存パッケージ
+import * as ttts from '@motionpicture/ttts-domain';
 import * as bodyParser from 'body-parser';
 import * as cookieParser from 'cookie-parser';
 import * as cors from 'cors';
 import * as createDebug from 'debug';
 import * as express from 'express';
+import * as expressValidator from 'express-validator';
 import * as helmet from 'helmet';
-import * as mongoose from 'mongoose';
 import * as multer from 'multer';
 import * as favicon from 'serve-favicon';
-// tslint:disable-next-line:no-require-imports
-import expressValidator = require('express-validator');
 // tslint:disable-next-line:no-var-requires no-require-imports
 const expressLayouts = require('express-ejs-layouts');
 
@@ -85,11 +84,11 @@ app.use(express.static(`${__dirname}/../public`));
 
 app.use(expressValidator()); // バリデーション
 
-// Use native promises
-(<any>mongoose).Promise = global.Promise;
-// 2017/07/06
-//mongoose.connect(process.env.MONGOLAB_URI, mongooseConnectionOptions);
-mongoose.connect((<any>process.env).MONGOLAB_URI, mongooseConnectionOptions);
+// // Use native promises
+// (<any>mongoose).Promise = global.Promise;
+// // 2017/07/06
+// //mongoose.connect(process.env.MONGOLAB_URI, mongooseConnectionOptions);
+// mongoose.connect((<any>process.env).MONGOLAB_URI, mongooseConnectionOptions);
 
 // ルーティング登録の順序に注意！
 if (process.env.NODE_ENV !== 'production') {
@@ -112,5 +111,7 @@ app.use(notFoundHandler);
 
 // error handlers
 app.use(errorHandler);
+
+ttts.mongoose.connect(<string>process.env.MONGOLAB_URI, mongooseConnectionOptions);
 
 export = app;

@@ -13,7 +13,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const ttts_domain_1 = require("@motionpicture/ttts-domain");
+const ttts = require("@motionpicture/ttts-domain");
 const _ = require("underscore");
 const Message = require("../../../common/Const/Message");
 // 基数
@@ -57,7 +57,7 @@ function add(req, res) {
                         },
                         charge: req.body.ticketCharge
                     };
-                    yield ttts_domain_1.Models.TicketType.create(docs);
+                    yield ttts.Models.TicketType.create(docs);
                     message = '登録完了';
                     res.redirect(`/master/ticketTypes/${id}/update`);
                     return;
@@ -107,14 +107,14 @@ function update(req, res) {
             if (validatorResult.isEmpty()) {
                 // 券種DB更新プロセス
                 try {
-                    const update = {
+                    const updateData = {
                         name: {
                             ja: req.body.ticketNameJa,
                             en: ''
                         },
                         charge: req.body.ticketCharge
                     };
-                    yield ttts_domain_1.Models.TicketType.findByIdAndUpdate(id, update).exec();
+                    yield ttts.Models.TicketType.findByIdAndUpdate(id, updateData).exec();
                     message = '編集完了';
                 }
                 catch (error) {
@@ -122,7 +122,7 @@ function update(req, res) {
                 }
             }
         }
-        const ticket = yield ttts_domain_1.Models.TicketType.findById(id).exec();
+        const ticket = yield ttts.Models.TicketType.findById(id).exec();
         let forms = {};
         if (ticket !== null) {
             forms = {
@@ -180,10 +180,10 @@ function getList(req, res) {
             conditions[key] = ticketCharge;
         }
         try {
-            const count = yield ttts_domain_1.Models.TicketType.count(conditions).exec();
+            const count = yield ttts.Models.TicketType.count(conditions).exec();
             let results = [];
             if (count > 0) {
-                const ticketTypes = yield ttts_domain_1.Models.TicketType.find(conditions)
+                const ticketTypes = yield ttts.Models.TicketType.find(conditions)
                     .skip(limit * (page - 1))
                     .limit(limit)
                     .exec();
