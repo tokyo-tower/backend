@@ -4,12 +4,12 @@
  * @ignore
  */
 
-import * as express from 'express';
-const devRouter = express.Router();
-
+import * as ttts from '@motionpicture/ttts-domain';
 import * as createDebug from 'debug';
+import * as express from 'express';
 import { NO_CONTENT } from 'http-status';
-import * as mongoose from 'mongoose';
+
+const devRouter = express.Router();
 
 import mongooseConnectionOptions from '../../mongooseConnectionOptions';
 
@@ -38,7 +38,7 @@ devRouter.get(
     '/mongoose/connect',
     (__, res, next) => {
         debug('connecting...');
-        mongoose.connect((<any>process.env).MONGOLAB_URI, mongooseConnectionOptions, (err) => {
+        ttts.mongoose.connect((<any>process.env).MONGOLAB_URI, mongooseConnectionOptions, (err) => {
             if (err instanceof Error) {
                 next(err);
 
@@ -54,7 +54,7 @@ devRouter.get(
     '/mongoose/disconnect',
     (__, res, next) => {
         debug('disconnecting...');
-        mongoose.disconnect((err) => {
+        ttts.mongoose.disconnect((err) => {
             if (err instanceof Error) {
                 next(err);
 

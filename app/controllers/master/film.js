@@ -99,14 +99,13 @@ function update(req, res) {
             if (validatorResult.isEmpty()) {
                 // 作品DB登録
                 try {
-                    const update = {
+                    yield ttts_domain_1.Models.Film.findByIdAndUpdate(id, {
                         name: {
                             ja: req.body.nameJa,
                             en: req.body.nameEn
                         },
                         minutes: req.body.minutes
-                    };
-                    yield ttts_domain_1.Models.Film.findByIdAndUpdate(id, update).exec();
+                    }).exec();
                     message = '編集完了';
                 }
                 catch (error) {

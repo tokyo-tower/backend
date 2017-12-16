@@ -8,7 +8,6 @@ import * as ttts from '@motionpicture/ttts-domain';
 import * as createDebug from 'debug';
 import { NextFunction, Request, Response } from 'express';
 
-import * as Message from '../../common/Const/Message';
 import MasterAdminUser from '../models/user/masterAdmin';
 
 const debug = createDebug('ttts-backend:middlewares:userAuthentication');
@@ -19,13 +18,9 @@ export default async (req: Request, res: Response, next: NextFunction) => {
     req.staffUser = MasterAdminUser.PARSE(req.session);
     debug('req.staffUser:', req.staffUser);
 
-    res.locals.loginName = (req.staffUser && (<any>req.staffUser).name && (<any>req.staffUser).name.ja) ? (<any>req.staffUser).name.ja : '';
-
-    if (req.staffUser === undefined) {
-        next(new Error(Message.Common.unexpectedError));
-
-        return;
-    }
+    res.locals.loginName = (req.staffUser.get('name') !== undefined && req.staffUser.get('name').ja !== undefined)
+        ? (<any>req.staffUser).name.ja
+        : '';
 
     // 既ログインの場合
     if (req.staffUser.isAuthenticated()) {

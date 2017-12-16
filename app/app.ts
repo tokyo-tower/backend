@@ -21,7 +21,6 @@ const expressLayouts = require('express-ejs-layouts');
 import mongooseConnectionOptions from '../mongooseConnectionOptions';
 
 // ミドルウェア
-import basicAuth from './middlewares/basicAuth';
 import benchmarks from './middlewares/benchmarks';
 import errorHandler from './middlewares/errorHandler';
 import locals from './middlewares/locals';
@@ -43,7 +42,6 @@ const debug = createDebug('ttts-backend:app');
 
 const app = express();
 
-app.use(basicAuth); // ベーシック認証
 app.use(cors()); // enable All CORS Requests
 app.use(helmet());
 app.use(benchmarks); // ベンチマーク的な

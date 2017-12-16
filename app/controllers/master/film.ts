@@ -95,14 +95,16 @@ export async function update(req: Request, res: Response): Promise<void> {
         if (validatorResult.isEmpty()) {
             // 作品DB登録
             try {
-                const update = {
-                    name: {
-                        ja: req.body.nameJa,
-                        en: req.body.nameEn
-                    },
-                    minutes: req.body.minutes
-                };
-                await Models.Film.findByIdAndUpdate(id, update).exec();
+                await Models.Film.findByIdAndUpdate(
+                    id,
+                    {
+                        name: {
+                            ja: req.body.nameJa,
+                            en: req.body.nameEn
+                        },
+                        minutes: req.body.minutes
+                    }
+                ).exec();
                 message = '編集完了';
             } catch (error) {
                 message = error.message;
@@ -110,7 +112,7 @@ export async function update(req: Request, res: Response): Promise<void> {
         }
     }
     const film = await Models.Film.findById(id).exec();
-    let forms : any = [];
+    let forms: any = [];
     if (film !== null) {
         forms = {
             code: (_.isEmpty(req.body.code)) ? film.get('_id') : req.body.code,

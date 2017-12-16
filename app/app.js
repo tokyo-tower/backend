@@ -19,7 +19,6 @@ const favicon = require("serve-favicon");
 const expressLayouts = require('express-ejs-layouts');
 const mongooseConnectionOptions_1 = require("../mongooseConnectionOptions");
 // ミドルウェア
-const basicAuth_1 = require("./middlewares/basicAuth");
 const benchmarks_1 = require("./middlewares/benchmarks");
 const errorHandler_1 = require("./middlewares/errorHandler");
 const locals_1 = require("./middlewares/locals");
@@ -37,7 +36,6 @@ const ticketTypeGroup_1 = require("./routes/master/ticketTypeGroup");
 const router_1 = require("./routes/router");
 const debug = createDebug('ttts-backend:app');
 const app = express();
-app.use(basicAuth_1.default); // ベーシック認証
 app.use(cors()); // enable All CORS Requests
 app.use(helmet());
 app.use(benchmarks_1.default); // ベンチマーク的な

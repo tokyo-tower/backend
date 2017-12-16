@@ -5,11 +5,11 @@
  * @ignore
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-const express = require("express");
-const devRouter = express.Router();
+const ttts = require("@motionpicture/ttts-domain");
 const createDebug = require("debug");
+const express = require("express");
 const http_status_1 = require("http-status");
-const mongoose = require("mongoose");
+const devRouter = express.Router();
 const mongooseConnectionOptions_1 = require("../../mongooseConnectionOptions");
 const debug = createDebug('ttts-backend:devRouters:dev');
 devRouter.get('/400', () => {
@@ -25,7 +25,7 @@ devRouter.get('/environmentVariables', (__, res) => {
 });
 devRouter.get('/mongoose/connect', (__, res, next) => {
     debug('connecting...');
-    mongoose.connect(process.env.MONGOLAB_URI, mongooseConnectionOptions_1.default, (err) => {
+    ttts.mongoose.connect(process.env.MONGOLAB_URI, mongooseConnectionOptions_1.default, (err) => {
         if (err instanceof Error) {
             next(err);
             return;
@@ -35,7 +35,7 @@ devRouter.get('/mongoose/connect', (__, res, next) => {
 });
 devRouter.get('/mongoose/disconnect', (__, res, next) => {
     debug('disconnecting...');
-    mongoose.disconnect((err) => {
+    ttts.mongoose.disconnect((err) => {
         if (err instanceof Error) {
             next(err);
             return;
