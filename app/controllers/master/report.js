@@ -18,10 +18,8 @@ const moment = require("moment");
 const _ = require("underscore");
 // tslint:disable-next-line:no-var-requires no-require-imports
 const jconv = require('jconv');
+// キャンセル行ステータス
 const STATUS_CANCELLATION_FEE = 'CANCELLATION_FEE';
-// 返金キャンセル料
-const CANCEL_CHARGE_REFUND = 0;
-const CANCEL_CHARGE = 1000;
 // カラム区切り(タブ)
 const csvSeparator = '\t';
 // 改行コード(CR+LF)
@@ -410,6 +408,7 @@ function getCancels(conditions) {
             const eventReservations = transaction.result.eventReservations;
             for (const eventReservation of eventReservations) {
                 if (eventReservation.status === ttts.factory.reservationStatusType.ReservationConfirmed) {
+                    eventReservation.cancellationFee = returnOrderTransaction.object._doc.cancellationFee;
                     cancels.push(eventReservation);
                 }
             }
@@ -432,9 +431,8 @@ function getCancels(conditions) {
             cancelFee.status_sort = `${cancelFee.status}_2`;
             cancelFee.purchased_at = cancelReservation.created_at;
             cancelFee.status = STATUS_CANCELLATION_FEE;
-            cancelFee.gmo_amount = cancelReservation.performance_ttts_extension.refund_status === ttts.PerformanceUtil.REFUND_STATUS.NONE ?
-                CANCEL_CHARGE : CANCEL_CHARGE_REFUND;
-            cancelFee.charge = cancelFee.gmo_amount;
+            cancelFee.gmo_amount = cancelReservation.cancellationFee;
+            cancelFee.charge = cancelReservation.cancellationFee;
             cancelFee.ticket_ttts_extension.csv_code = '';
             reservations.push(cancelFee);
         }
