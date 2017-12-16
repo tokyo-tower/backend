@@ -317,7 +317,7 @@ function getConditons(prmConditons: any, dbType: string) : any {
         // ステータス
         conditions.typeOf = ttts.factory.transactionType.ReturnOrder;
         // 購入区分
-        conditions.object.transaction.object.purchaser_group = purchaserGroup;
+        conditions['object.transaction.object.purchaser_group'] = purchaserGroup;
     }
 
     // 集計期間
@@ -352,20 +352,6 @@ function getConditons(prmConditons: any, dbType: string) : any {
         const keyDate: string = dbType === 'reservation' ?
             (isSales ? 'purchased_at' : 'updated_at') : 'createdAt';
         conditions[keyDate] = conditionsDate;
-
-        // // 登録日From
-        // if (prmConditons.performanceDayFrom !== null) {
-        //     //conditionsDate.$gte =  toYMDDB(prmConditons.performanceDayFrom);
-        //     conditionsDate.$gte =  toISOStringJapan(prmConditons.performanceDayFrom);
-        // }
-        // // 登録日To
-        // if (prmConditons.performanceDayTo !== null) {
-        //     //conditionsDate.$lte = toYMDDB(prmConditons.performanceDayTo);
-        //     conditionsDate.$lt = toISOStringJapan(prmConditons.performanceDayTo, 1);
-        // }
-        //conditions[`${preKey}performance_day`] = conditionsDate;
-        // const keyDate: string = dbType === 'reservation' ? 'updated_at' : 'created_at';
-        // conditions[keyDate] = conditionsDate;
     }
 
     return conditions;
@@ -403,46 +389,40 @@ async function getCancels(conditions: any): Promise<any> {
     ).exec();
 
     // 予約情報をセット
-    let cancels: any[] = [];
-    const charges: number[] = [];
+    const cancels: any[] = [];
     for (const returnOrderTransaction of returnOrderTransactions) {
         const transaction = (<any>returnOrderTransaction).object._doc.transaction;
         const eventReservations = transaction.result.eventReservations;
-        //const amount = transaction.object.authorizeActions[0].result.entryTranArgs.amount;
-        const amount = eventReservations[0].charge;
-        cancels = cancels.concat(eventReservations);
-        // tslint:disable-next-line:prefer-for-of
-        for (let indexCancel = 0; indexCancel < eventReservations.length; indexCancel += 1) {
-            charges.push(amount);
+        for (const eventReservation of eventReservations) {
+            if (eventReservation.status === ttts.factory.reservationStatusType.ReservationConfirmed) {
+                cancels.push(eventReservation);
+            }
         }
     }
 
     // キャンセルデータは1レコードで3行出力
     const reservations: any[] = [];
-    let indexSet: number = 0;
     for (const cancelReservation of cancels) {
         // 予約データ
-        cancelReservation.gmo_amount = charges[indexSet] ;
-        cancelReservation.status_sort = '0';
+        cancelReservation.status_sort = `${cancelReservation.status}_0`;
         reservations.push(cancelReservation);
         // キャンセルデータ
         const cancelCan = copyModel(cancelReservation);
+        cancelCan.status_sort = `${cancelCan.status}_1`;
         cancelCan.purchased_at = cancelReservation.created_at;
         cancelCan.status = ttts.factory.reservationStatusType.ReservationCancelled;
-        cancelCan.status_sort = '1';
-        cancelCan.gmo_amount = charges[indexSet] ;
+        //cancelCan.gmo_amount = charges[indexSet] ;
         reservations.push(cancelCan);
         // キャンセル料データ
         const cancelFee = copyModel(cancelReservation);
+        cancelFee.status_sort = `${cancelFee.status}_2`;
         cancelFee.purchased_at = cancelReservation.created_at;
         cancelFee.status = STATUS_CANCELLATION_FEE;
-        cancelFee.status_sort = '2';
-        //cancelFee.gmo_amount = cancelReservation.cancellation_fee;
         cancelFee.gmo_amount = cancelReservation.performance_ttts_extension.refund_status === ttts.PerformanceUtil.REFUND_STATUS.NONE ?
             CANCEL_CHARGE : CANCEL_CHARGE_REFUND;
+        cancelFee.charge = cancelFee.gmo_amount;
         cancelFee.ticket_ttts_extension.csv_code = '';
         reservations.push(cancelFee);
-        indexSet += 1;
     }
 
     return reservations;
@@ -495,15 +475,6 @@ function convertToString(value: any): string {
     return value.toString();
 }
 /**
- * YYYY/MM/DD日付取得
- *
- * @param {string} dateStr('YYYYMMDD')
- * @returns {string} ('YYYY/MM/DD')
- */
-// function toYMD(dateStr: string): string {
-//     return moment(dateStr, 'YYYYMMDD').format('YYYY/MM/DD');
-// }
-/**
  * YYYYMMDD日付取得
  *
  * @param {string} dateStr('YYYY/MM/DD')
@@ -543,16 +514,6 @@ function toISOStringUTC(dateStr: string, addMinute: number = 0): string {
     return `${dateWk}T${timeWk}Z`;
 }
 /**
- * HH:MM時刻取得
- *
- * @param {string} timeStr('HHMM')
- * @returns {string} ('HH:MM')
- */
-// function toHM(timeStr: string): string {
-//     // tslint:disable-next-line:no-magic-numbers
-//     return `${timeStr.substr(0, 2)}:${timeStr.substr(2, 2)}`;
-// }
-/**
  * YYYY/MM/DD HH:mm:ss 日時取得
  *
  * @param {Date} date
@@ -562,7 +523,6 @@ function toString(date: Date): string {
     if (convertToString(date) === '') {
         return '';
     }
-    //return (date instanceof Date) ? moment(date).format('YYYY/MM/DD HH:mm:ss') : '';
 
     return moment(date).format('YYYY/MM/DD HH:mm:ss');
 }
