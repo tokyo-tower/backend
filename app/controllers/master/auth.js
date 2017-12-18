@@ -40,7 +40,7 @@ function login(req, res) {
                 const ownerRepo = new ttts.repository.Owner(ttts.mongoose.connection);
                 const owner = yield ownerRepo.ownerModel.findOne({
                     username: req.body.username,
-                    group: ttts.OwnerUtil.GROUP_STAFF
+                    group: ttts.factory.person.Group.Staff
                 }).exec();
                 if (owner === null) {
                     errors = { username: { msg: 'IDもしくはパスワードの入力に誤りがあります' } };
@@ -56,7 +56,7 @@ function login(req, res) {
                             // トークン生成
                             const authentication = yield ttts.Models.Authentication.create({
                                 token: ttts.CommonUtil.createToken(),
-                                owner: owner.get('_id'),
+                                owner: owner.get('id'),
                                 signature: req.body.signature
                             });
                             // tslint:disable-next-line:no-cookies

@@ -18,9 +18,7 @@ export default async (req: Request, res: Response, next: NextFunction) => {
     req.staffUser = MasterAdminUser.PARSE(req.session);
     debug('req.staffUser:', req.staffUser);
 
-    res.locals.loginName = (req.staffUser.get('name') !== undefined && req.staffUser.get('name').ja !== undefined)
-        ? (<any>req.staffUser).name.ja
-        : '';
+    res.locals.loginName = (req.staffUser.isAuthenticated()) ? (<Express.StaffUser>req.staffUser).get('name').ja : '';
 
     // 既ログインの場合
     if (req.staffUser.isAuthenticated()) {

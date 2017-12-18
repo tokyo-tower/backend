@@ -22,9 +22,7 @@ exports.default = (req, res, next) => __awaiter(this, void 0, void 0, function* 
     res.locals.req = req;
     req.staffUser = masterAdmin_1.default.PARSE(req.session);
     debug('req.staffUser:', req.staffUser);
-    res.locals.loginName = (req.staffUser.get('name') !== undefined && req.staffUser.get('name').ja !== undefined)
-        ? req.staffUser.name.ja
-        : '';
+    res.locals.loginName = (req.staffUser.isAuthenticated()) ? req.staffUser.get('name').ja : '';
     // 既ログインの場合
     if (req.staffUser.isAuthenticated()) {
         next();

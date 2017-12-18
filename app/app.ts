@@ -21,7 +21,6 @@ const expressLayouts = require('express-ejs-layouts');
 import mongooseConnectionOptions from '../mongooseConnectionOptions';
 
 // ミドルウェア
-import benchmarks from './middlewares/benchmarks';
 import errorHandler from './middlewares/errorHandler';
 import locals from './middlewares/locals';
 import notFoundHandler from './middlewares/notFoundHandler';
@@ -44,7 +43,6 @@ const app = express();
 
 app.use(cors()); // enable All CORS Requests
 app.use(helmet());
-app.use(benchmarks); // ベンチマーク的な
 app.use(session); // セッション
 app.use(locals); // テンプレート変数
 

@@ -125,7 +125,7 @@ export async function getSales(req: Request, res: Response): Promise<void> {
 
     // Responseヘッダセット
     const filename = getValue(req.query.reportType) === 'sales' ?
-                     '売上げレポート' : 'アカウント別レポート';
+        '売上げレポート' : 'アカウント別レポート';
     res.setHeader('Content-disposition', `attachment; filename*=UTF-8\'\'${encodeURIComponent(`${filename}.tsv`)}`);
     res.setHeader('Content-Type', 'text/csv; charset=Shift_JIS');
 
@@ -243,14 +243,14 @@ async function validate(req: Request): Promise<any> {
 
     // 片方入力エラーチェック
     if (!isInputEven(req.query.start_hour1, req.query.start_minute1)) {
-        (<any>errors).start_hour1 = {msg: '集計期間の時分Fromが片方しか指定されていません'};
+        (<any>errors).start_hour1 = { msg: '集計期間の時分Fromが片方しか指定されていません' };
     }
     if (!isInputEven(req.query.start_hour2, req.query.start_minute2)) {
-        (<any>errors).start_hour2 = {msg: '集計期間の時分Toが片方しか指定されていません'};
+        (<any>errors).start_hour2 = { msg: '集計期間の時分Toが片方しか指定されていません' };
     }
     let errorMessage: string = '';
     Object.keys(errors).forEach((key) => {
-        if (errorMessage !== '') {errorMessage += csvLineFeed; }
+        if (errorMessage !== '') { errorMessage += csvLineFeed; }
         errorMessage += errors[key].msg;
     });
 
@@ -289,7 +289,7 @@ function getValue(inputValue: string | null): string | null {
  * @param {string} dbType
  * @returns {any}
  */
-function getConditons(prmConditons: any, dbType: string) : any {
+function getConditons(prmConditons: any, dbType: string): any {
     // 検索条件を作成
     const conditions: any = {};
     // 予約か否か
@@ -298,7 +298,7 @@ function getConditons(prmConditons: any, dbType: string) : any {
     const isSales: boolean = prmConditons.reportType === 'sales';
     // 購入区分
     const purchaserGroup: string = isSales ?
-        ttts.ReservationUtil.PURCHASER_GROUP_CUSTOMER : ttts.ReservationUtil.PURCHASER_GROUP_STAFF;
+        ttts.factory.person.Group.Customer : ttts.factory.person.Group.Staff;
 
     // 予約
     if (isReservation) {
@@ -330,8 +330,8 @@ function getConditons(prmConditons: any, dbType: string) : any {
             } else {
                 // アカウント別
                 const timeWk: string = `${prmConditons.performanceDayFrom} ` +
-                                       `${prmConditons.performanceStartHour1}` +
-                                       `${prmConditons.performanceStartMinute1}`;
+                    `${prmConditons.performanceStartHour1}` +
+                    `${prmConditons.performanceStartMinute1}`;
                 conditionsDate.$gte = toISOStringUTC(timeWk);
             }
         }
@@ -343,14 +343,14 @@ function getConditons(prmConditons: any, dbType: string) : any {
             } else {
                 // アカウント別
                 const timeWk: string = `${prmConditons.performanceDayTo} ` +
-                                       `${prmConditons.performanceStartHour2}` +
-                                       `${prmConditons.performanceStartMinute2}`;
+                    `${prmConditons.performanceStartHour2}` +
+                    `${prmConditons.performanceStartMinute2}`;
                 conditionsDate.$lt = toISOStringUTC(timeWk, 1);
             }
         }
         const keyDate: string = dbType === 'reservation' ?
             (isSales ? 'updatedAt' : 'updatedAt') : 'createdAt';
-            //(isSales ? 'purchased_at' : 'updated_at') : 'createdAt';
+        //(isSales ? 'purchased_at' : 'updated_at') : 'createdAt';
         conditions[keyDate] = conditionsDate;
     }
 

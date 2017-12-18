@@ -8,7 +8,7 @@ import BaseUser from './base';
  * @extends {BaseUser}
  */
 export default class MasterAdminUser extends BaseUser {
-    public static AUTH_SESSION_NAME: string = 'TTTSFrontendMasterAuth';
+    public static AUTH_SESSION_NAME: string = 'TTTSBackendMasterAuth';
 
     public static PARSE(session: Express.Session | undefined): MasterAdminUser {
         const user = new MasterAdminUser();

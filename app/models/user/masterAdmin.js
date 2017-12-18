@@ -20,5 +20,5 @@ class MasterAdminUser extends base_1.default {
         return user;
     }
 }
-MasterAdminUser.AUTH_SESSION_NAME = 'TTTSFrontendMasterAuth';
+MasterAdminUser.AUTH_SESSION_NAME = 'TTTSBackendMasterAuth';
 exports.default = MasterAdminUser;

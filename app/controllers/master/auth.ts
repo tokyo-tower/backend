@@ -38,7 +38,7 @@ export async function login(req: Request, res: Response): Promise<void> {
             const owner: any = await ownerRepo.ownerModel.findOne(
                 {
                     username: req.body.username,
-                    group: ttts.OwnerUtil.GROUP_STAFF
+                    group: ttts.factory.person.Group.Staff
                 }
             ).exec();
 
@@ -55,7 +55,7 @@ export async function login(req: Request, res: Response): Promise<void> {
                         const authentication = await ttts.Models.Authentication.create(
                             {
                                 token: ttts.CommonUtil.createToken(),
-                                owner: owner.get('_id'),
+                                owner: owner.get('id'),
                                 signature: req.body.signature
                             }
                         );

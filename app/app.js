@@ -19,7 +19,6 @@ const favicon = require("serve-favicon");
 const expressLayouts = require('express-ejs-layouts');
 const mongooseConnectionOptions_1 = require("../mongooseConnectionOptions");
 // ミドルウェア
-const benchmarks_1 = require("./middlewares/benchmarks");
 const errorHandler_1 = require("./middlewares/errorHandler");
 const locals_1 = require("./middlewares/locals");
 const notFoundHandler_1 = require("./middlewares/notFoundHandler");
@@ -38,7 +37,6 @@ const debug = createDebug('ttts-backend:app');
 const app = express();
 app.use(cors()); // enable All CORS Requests
 app.use(helmet());
-app.use(benchmarks_1.default); // ベンチマーク的な
 app.use(session_1.default); // セッション
 app.use(locals_1.default); // テンプレート変数
 if (process.env.NODE_ENV !== 'production') {

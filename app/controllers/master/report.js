@@ -314,7 +314,7 @@ function getConditons(prmConditons, dbType) {
     const isSales = prmConditons.reportType === 'sales';
     // 購入区分
     const purchaserGroup = isSales ?
-        ttts.ReservationUtil.PURCHASER_GROUP_CUSTOMER : ttts.ReservationUtil.PURCHASER_GROUP_STAFF;
+        ttts.factory.person.Group.Customer : ttts.factory.person.Group.Staff;
     // 予約
     if (isReservation) {
         // ステータス
