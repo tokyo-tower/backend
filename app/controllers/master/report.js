@@ -18,8 +18,11 @@ const moment = require("moment");
 const _ = require("underscore");
 // tslint:disable-next-line:no-var-requires no-require-imports
 const jconv = require('jconv');
-// キャンセル行ステータス
+// ステータス
+const STATUS_RESERVED = 'RESERVED';
+const STATUS_CANCELLED = 'CANCELLED';
 const STATUS_CANCELLATION_FEE = 'CANCELLATION_FEE';
+const PURCHASER_GROUP_CODES = { Customer: '01', Staff: '04' };
 // カラム区切り(タブ)
 const csvSeparator = '\t';
 // 改行コード(CR+LF)
@@ -197,6 +200,11 @@ function getSales(req, res) {
                     return 0;
                 });
             }
+            // 購入区分コード取得
+            const getPurchaserGroupCode = ((name) => {
+                return (PURCHASER_GROUP_CODES.hasOwnProperty(name) === true ?
+                    PURCHASER_GROUP_CODES[name] : name);
+            });
             let results = [];
             if (datas.length > 0) {
                 //検索結果編集
@@ -212,7 +220,7 @@ function getSales(req, res) {
                         getCsvData(reservation.screen_name.ja) +
                         getCsvData(reservation.film) +
                         getCsvData(reservation.film_name.ja) +
-                        getCsvData(reservation.purchaser_group) +
+                        getCsvData(getPurchaserGroupCode(reservation.purchaser_group)) +
                         getCsvData(reservation.purchaser_first_name) +
                         getCsvData(reservation.purchaser_last_name) +
                         getCsvData(reservation.purchaser_email) +
@@ -391,6 +399,8 @@ function getReservations(conditions) {
             const eventReservations = returnOrderTransaction.result.eventReservations;
             for (const eventReservation of eventReservations) {
                 if (eventReservation.status === ttts.factory.reservationStatusType.ReservationConfirmed) {
+                    // ステータス
+                    eventReservation.status = STATUS_RESERVED;
                     // ソート情報
                     eventReservation.status_sort = eventReservation.status;
                     // 予約単位料金
@@ -437,6 +447,8 @@ function getCancels(conditions) {
                     eventReservation.cancellationFee = returnOrderTransaction.object._doc.cancellationFee;
                     // 予約単位料金
                     eventReservation.price = getPrice(authorizeActions);
+                    // 取引作成日(キャンセルデータに出力)
+                    eventReservation.transaction_createdAt = returnOrderTransaction.createdAt;
                     cancels.push(eventReservation);
                 }
             }
@@ -444,21 +456,23 @@ function getCancels(conditions) {
         // キャンセルデータは1レコードで3行出力
         const reservations = [];
         for (const cancelReservation of cancels) {
+            const status = cancelReservation.status;
             // 予約データ
             cancelReservation.status_sort = `${cancelReservation.status}_0`;
+            cancelReservation.status = STATUS_RESERVED;
             reservations.push(cancelReservation);
             // キャンセルデータ
             const cancelCan = copyModel(cancelReservation);
-            cancelCan.status_sort = `${cancelCan.status}_1`;
-            cancelCan.status = ttts.factory.reservationStatusType.ReservationCancelled;
-            cancelCan.purchased_at = cancelReservation.created_at;
+            cancelCan.status_sort = `${status}_1`;
+            cancelCan.status = STATUS_CANCELLED;
+            cancelCan.purchased_at = cancelReservation.transaction_createdAt;
             cancelCan.price = cancelReservation.price;
             reservations.push(cancelCan);
             // キャンセル料データ
             const cancelFee = copyModel(cancelReservation);
-            cancelFee.status_sort = `${cancelFee.status}_2`;
+            cancelFee.status_sort = `${status}_2`;
             cancelFee.status = STATUS_CANCELLATION_FEE;
-            cancelFee.purchased_at = cancelReservation.created_at;
+            cancelFee.purchased_at = cancelReservation.transaction_createdAt;
             cancelFee.price = cancelReservation.cancellationFee;
             cancelFee.charge = cancelReservation.cancellationFee;
             cancelFee.ticket_ttts_extension.csv_code = '';
