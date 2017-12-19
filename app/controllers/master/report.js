@@ -457,10 +457,6 @@ function getCancels(conditions) {
         const reservations = [];
         for (const cancelReservation of cancels) {
             const status = cancelReservation.status;
-            // 予約データ
-            cancelReservation.status_sort = `${cancelReservation.status}_0`;
-            cancelReservation.status = STATUS_RESERVED;
-            reservations.push(cancelReservation);
             // キャンセルデータ
             const cancelCan = copyModel(cancelReservation);
             cancelCan.status_sort = `${status}_1`;
