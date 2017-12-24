@@ -17,7 +17,7 @@
     }
   ],
   "dependencies": {
-    "@motionpicture/ttts-domain": "^12.0.0-alpha.27",
+    "@motionpicture/ttts-domain": "^12.0.0-alpha.41",
     "body-parser": "^1.18.2",
     "connect-redis": "^3.3.2",
     "cookie-parser": "^1.4.3",
