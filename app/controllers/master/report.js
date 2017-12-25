@@ -23,6 +23,7 @@ const STATUS_RESERVED = 'RESERVED';
 const STATUS_CANCELLED = 'CANCELLED';
 const STATUS_CANCELLATION_FEE = 'CANCELLATION_FEE';
 const PURCHASER_GROUP_CODES = { Customer: '01', Staff: '04' };
+const PAYMENT_METHOD_CODES = { CreditCard: '0' };
 // カラム区切り(タブ)
 const csvSeparator = '\t';
 // 改行コード(CR+LF)
@@ -205,6 +206,11 @@ function getSales(req, res) {
                 return (PURCHASER_GROUP_CODES.hasOwnProperty(name) === true ?
                     PURCHASER_GROUP_CODES[name] : name);
             });
+            // 購入方法コード取得
+            const getPaymentMethodCode = ((name) => {
+                return (PAYMENT_METHOD_CODES.hasOwnProperty(name) === true ?
+                    PAYMENT_METHOD_CODES[name] : name);
+            });
             let results = [];
             if (datas.length > 0) {
                 //検索結果編集
@@ -226,7 +232,7 @@ function getSales(req, res) {
                         getCsvData(reservation.purchaser_email) +
                         getCsvData(reservation.purchaser_tel) +
                         getCsvData(toString(reservation.purchased_at)) +
-                        getCsvData(reservation.payment_method) +
+                        getCsvData(getPaymentMethodCode(reservation.payment_method)) +
                         getCsvData(reservation.seat_grade_name.ja) +
                         getCsvData(reservation.seat_grade_additional_charge) +
                         getCsvData(reservation.ticket_type_name.ja) +
@@ -396,7 +402,8 @@ function getReservations(conditions) {
         // 取引数分Loop
         for (const returnOrderTransaction of returnOrderTransactions) {
             // 取引から予約情報取得
-            const eventReservations = returnOrderTransaction.result.eventReservations;
+            //const eventReservations = (<any>returnOrderTransaction).result.eventReservations;
+            const eventReservations = returnOrderTransaction.result._doc.eventReservations;
             for (const eventReservation of eventReservations) {
                 if (eventReservation.status === ttts.factory.reservationStatusType.ReservationConfirmed) {
                     // ステータス

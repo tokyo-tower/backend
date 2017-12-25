@@ -23,6 +23,13 @@ interface IPurchaserGroupCodes {
 }
 const PURCHASER_GROUP_CODES: IPurchaserGroupCodes = {Customer: '01', Staff: '04' };
 
+// 購入方法
+interface IPaymentMethodCodes {
+    CreditCard: string;
+    [key: string]: string;
+}
+const PAYMENT_METHOD_CODES: IPaymentMethodCodes = {CreditCard: '0'};
+
 // カラム区切り(タブ)
 const csvSeparator: string = '\t';
 // 改行コード(CR+LF)
@@ -201,6 +208,11 @@ export async function getSales(req: Request, res: Response): Promise<void> {
             return (PURCHASER_GROUP_CODES.hasOwnProperty(name) === true ?
                 PURCHASER_GROUP_CODES[name] : name);
         });
+        // 購入方法コード取得
+        const getPaymentMethodCode = ((name: string) : string => {
+            return (PAYMENT_METHOD_CODES.hasOwnProperty(name) === true ?
+                PAYMENT_METHOD_CODES[name] : name);
+        });
 
         let results: any[] = [];
         if (datas.length > 0) {
@@ -223,7 +235,7 @@ export async function getSales(req: Request, res: Response): Promise<void> {
                     getCsvData(reservation.purchaser_email) +
                     getCsvData(reservation.purchaser_tel) +
                     getCsvData(toString(reservation.purchased_at)) +
-                    getCsvData(reservation.payment_method) +
+                    getCsvData(getPaymentMethodCode(reservation.payment_method)) +
                     getCsvData(reservation.seat_grade_name.ja) +
                     getCsvData(reservation.seat_grade_additional_charge) +
                     getCsvData(reservation.ticket_type_name.ja) +
@@ -391,7 +403,8 @@ async function getReservations(conditions: any): Promise<any> {
     // 取引数分Loop
     for (const returnOrderTransaction of returnOrderTransactions) {
         // 取引から予約情報取得
-        const eventReservations = (<any>returnOrderTransaction).result.eventReservations;
+        //const eventReservations = (<any>returnOrderTransaction).result.eventReservations;
+        const eventReservations = (<any>returnOrderTransaction).result._doc.eventReservations;
         for (const eventReservation of eventReservations) {
             if (eventReservation.status === ttts.factory.reservationStatusType.ReservationConfirmed) {
                 // ステータス
