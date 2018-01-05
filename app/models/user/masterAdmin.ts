@@ -1,24 +1,34 @@
-import BaseUser from './base';
-
 /**
  * マスタ管理者ユーザー
  * @export
  * @class MasterAdminUser
- * @extends {BaseUser}
  */
-export default class MasterAdminUser extends BaseUser {
-    public static AUTH_SESSION_NAME: string = 'TTTSBackendMasterAuth';
+export default class MasterAdminUser {
+    public familyName: string;
+    public givenName: string;
+    public email: string;
+    public telephone: string;
+    public username: string;
 
     public static PARSE(session: Express.Session | undefined): MasterAdminUser {
         const user = new MasterAdminUser();
 
         // セッション値からオブジェクトにセット
-        if (session !== undefined && session[MasterAdminUser.AUTH_SESSION_NAME] !== undefined) {
-            Object.keys(session[MasterAdminUser.AUTH_SESSION_NAME]).forEach((propertyName) => {
-                (<any>user)[propertyName] = session[MasterAdminUser.AUTH_SESSION_NAME][propertyName];
-            });
+        if (session !== undefined && session.masterAdminUser !== undefined) {
+            user.familyName = session.masterAdminUser.familyName;
+            user.givenName = session.masterAdminUser.givenName;
+            user.email = session.masterAdminUser.email;
+            user.telephone = session.masterAdminUser.telephone;
+            user.username = session.masterAdminUser.username;
         }
 
         return user;
+    }
+
+    /**
+     * サインイン中かどうか
+     */
+    public isAuthenticated(): boolean {
+        return (this.username !== undefined);
     }
 }

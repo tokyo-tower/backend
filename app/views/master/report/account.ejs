@@ -8,8 +8,10 @@
         <label for="select_account">アカウント名</label>
         <select id="select_account" class="form-control" name="owner">
             <option value="">指定無し</option>
-            <% owners.forEach((owner) => { %>
-                <option value="<%= owner.username %>"><%= owner.name.ja %></option>
+            <% cognitoUsers.forEach((cognitoUser) => { %>
+                <option value="<%= cognitoUser.Username %>">
+                <%= cognitoUser.Attributes.find((a)=>a.Name === 'family_name').Value %> <%= cognitoUser.Attributes.find((a)=>a.Name === 'given_name').Value %>
+                </option>
             <% }) %>
         </select>
 

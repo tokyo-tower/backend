@@ -1,4 +1,8 @@
 "use strict";
+/**
+ * レポート出力コントローラー
+ * @namespace controllers.report
+ */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -8,12 +12,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * レポート出力コントローラー
- *
- * @namespace controller/report
- */
 const ttts = require("@motionpicture/ttts-domain");
+const AWS = require("aws-sdk");
+const createDebug = require("debug");
 const moment = require("moment");
 const _ = require("underscore");
 // tslint:disable-next-line:no-var-requires no-require-imports
@@ -21,6 +22,8 @@ const jconv = require('jconv');
 // ステータス
 const STATUS_RESERVED = 'RESERVED';
 const STATUS_CANCELLED = 'CANCELLED';
+const debug = createDebug('ttts-backend:controllers:master:report');
+// キャンセル行ステータス
 const STATUS_CANCELLATION_FEE = 'CANCELLATION_FEE';
 const PURCHASER_GROUP_CODES = { Customer: '01', Staff: '04' };
 const PAYMENT_METHOD_CODES = { CreditCard: '0' };
@@ -60,6 +63,35 @@ const arrayHeadSales = [
     '"入場フラグ"',
     '"入場日時"'
 ];
+function getCognitoUsers(groupName) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return new Promise((resolve, reject) => {
+            const cognitoIdentityServiceProvider = new AWS.CognitoIdentityServiceProvider({
+                apiVersion: 'latest',
+                region: 'ap-northeast-1',
+                accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+                secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+            });
+            cognitoIdentityServiceProvider.listUsersInGroup({
+                GroupName: groupName,
+                UserPoolId: process.env.COGNITO_USER_POOL_ID
+            }, (err, data) => {
+                debug('listUsersInGroup result:', err, data);
+                if (err instanceof Error) {
+                    reject(err);
+                }
+                else {
+                    if (data.Users === undefined) {
+                        reject(new Error('Unexpected.'));
+                    }
+                    else {
+                        resolve(data.Users);
+                    }
+                }
+            });
+        });
+    });
+}
 /**
  *
  * レポートindex
@@ -92,33 +124,48 @@ exports.sales = sales;
  *
  * アカウント別レポート出力
  */
-function account(__, res) {
+function account(__, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
-        // アカウント一覧取得
-        const ownerRepo = new ttts.repository.Owner(ttts.mongoose.connection);
-        const owners = yield ownerRepo.ownerModel.find({}, 'username name', { sort: { _id: 1 } }).exec();
-        const hours = [];
-        // tslint:disable-next-line:no-magic-numbers
-        for (let hour = 0; hour < 24; hour += 1) {
+        try {
+            // cognitoから入場ユーザーを検索
+            let cognitoUsers = [];
+            try {
+                cognitoUsers.push(...(yield getCognitoUsers('Staff')));
+            }
+            catch (error) {
+                // no op
+            }
+            cognitoUsers = cognitoUsers.filter((u) => u.UserStatus === 'CONFIRMED');
+            debug('cognitoUsers:', cognitoUsers);
+            if (cognitoUsers.length <= 0) {
+                throw new Error('no staff users.');
+            }
+            const hours = [];
             // tslint:disable-next-line:no-magic-numbers
-            hours.push((`00${hour}`).slice(-2));
-        }
-        //const minutes: string[] = ['00', '15', '30', '45'];
-        const minutes = [];
-        // tslint:disable-next-line:no-magic-numbers
-        for (let minute = 0; minute < 60; minute += 1) {
+            for (let hour = 0; hour < 24; hour += 1) {
+                // tslint:disable-next-line:no-magic-numbers
+                hours.push((`00${hour}`).slice(-2));
+            }
+            //const minutes: string[] = ['00', '15', '30', '45'];
+            const minutes = [];
             // tslint:disable-next-line:no-magic-numbers
-            minutes.push((`00${minute}`).slice(-2));
+            for (let minute = 0; minute < 60; minute += 1) {
+                // tslint:disable-next-line:no-magic-numbers
+                minutes.push((`00${minute}`).slice(-2));
+            }
+            // 画面描画
+            res.render('master/report/account', {
+                cognitoUsers: cognitoUsers,
+                hours: hours,
+                minutes: minutes,
+                title: 'アカウント別レポート出力',
+                routeName: 'master.report.account',
+                layout: 'layouts/master/layout'
+            });
         }
-        // 画面描画
-        res.render('master/report/account', {
-            owners: owners,
-            hours: hours,
-            minutes: minutes,
-            title: 'アカウント別レポート出力',
-            routeName: 'master.report.account',
-            layout: 'layouts/master/layout'
-        });
+        catch (error) {
+            next(error);
+        }
     });
 }
 exports.account = account;
@@ -269,7 +316,7 @@ function validate(req) {
     return __awaiter(this, void 0, void 0, function* () {
         // 検証
         const validatorResult = yield req.getValidationResult();
-        const errors = (!validatorResult.isEmpty()) ? req.validationErrors(true) : {};
+        const errors = (!validatorResult.isEmpty()) ? validatorResult.mapped : {};
         // 片方入力エラーチェック
         if (!isInputEven(req.query.start_hour1, req.query.start_minute1)) {
             errors.start_hour1 = { msg: '集計期間の時分Fromが片方しか指定されていません' };

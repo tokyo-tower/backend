@@ -57,7 +57,7 @@ function search(req, res) {
         try {
             searchValidation(req);
             const validatorResult = yield req.getValidationResult();
-            const validations = req.validationErrors(true);
+            const validations = validatorResult.mapped;
             if (!validatorResult.isEmpty()) {
                 res.json({
                     validation: validations,
@@ -107,7 +107,7 @@ function filmSearch(req, res) {
         try {
             filmSearchValidation(req);
             const validatorResult = yield req.getValidationResult();
-            const validations = req.validationErrors(true);
+            const validations = validatorResult.mapped;
             if (!validatorResult.isEmpty()) {
                 res.json({
                     validation: validations,
@@ -146,7 +146,7 @@ function regist(req, res) {
         try {
             addValidation(req);
             const validatorResult = yield req.getValidationResult();
-            const validations = req.validationErrors(true);
+            const validations = validatorResult.mapped;
             if (!validatorResult.isEmpty()) {
                 res.json({
                     validation: validations,
@@ -198,7 +198,7 @@ function update(req, res) {
         try {
             updateValidation(req);
             const validatorResult = yield req.getValidationResult();
-            const validations = req.validationErrors(true);
+            const validations = validatorResult.mapped;
             if (!validatorResult.isEmpty()) {
                 res.json({
                     validation: validations,

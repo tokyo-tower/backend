@@ -44,7 +44,7 @@ function add(req, res) {
             // バリデーション
             validate(req, 'add');
             const validatorResult = yield req.getValidationResult();
-            errors = req.validationErrors(true);
+            errors = validatorResult.mapped;
             if (validatorResult.isEmpty()) {
                 // 作品DB登録
                 try {
@@ -95,7 +95,7 @@ function update(req, res) {
             // バリデーション
             validate(req, 'update');
             const validatorResult = yield req.getValidationResult();
-            errors = req.validationErrors(true);
+            errors = validatorResult.mapped;
             if (validatorResult.isEmpty()) {
                 // 作品DB登録
                 try {

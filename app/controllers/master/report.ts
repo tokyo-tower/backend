@@ -1,11 +1,13 @@
 
 /**
  * レポート出力コントローラー
- *
- * @namespace controller/report
+ * @namespace controllers.report
  */
+
 import * as ttts from '@motionpicture/ttts-domain';
-import { Request, Response } from 'express';
+import * as AWS from 'aws-sdk';
+import * as createDebug from 'debug';
+import { NextFunction, Request, Response } from 'express';
 import * as moment from 'moment';
 import * as _ from 'underscore';
 // tslint:disable-next-line:no-var-requires no-require-imports
@@ -14,6 +16,9 @@ const jconv = require('jconv');
 // ステータス
 const STATUS_RESERVED = 'RESERVED';
 const STATUS_CANCELLED = 'CANCELLED';
+const debug = createDebug('ttts-backend:controllers:master:report');
+
+// キャンセル行ステータス
 const STATUS_CANCELLATION_FEE = 'CANCELLATION_FEE';
 // 購入区分
 interface IPurchaserGroupCodes {
@@ -21,14 +26,14 @@ interface IPurchaserGroupCodes {
     Staff: string;
     [key: string]: string;
 }
-const PURCHASER_GROUP_CODES: IPurchaserGroupCodes = {Customer: '01', Staff: '04' };
+const PURCHASER_GROUP_CODES: IPurchaserGroupCodes = { Customer: '01', Staff: '04' };
 
 // 購入方法
 interface IPaymentMethodCodes {
     CreditCard: string;
     [key: string]: string;
 }
-const PAYMENT_METHOD_CODES: IPaymentMethodCodes = {CreditCard: '0'};
+const PAYMENT_METHOD_CODES: IPaymentMethodCodes = { CreditCard: '0' };
 
 // カラム区切り(タブ)
 const csvSeparator: string = '\t';
@@ -67,6 +72,35 @@ const arrayHeadSales = [
     '"入場日時"'
 ];
 
+async function getCognitoUsers(groupName: string) {
+    return new Promise<AWS.CognitoIdentityServiceProvider.UsersListType>((resolve, reject) => {
+        const cognitoIdentityServiceProvider = new AWS.CognitoIdentityServiceProvider({
+            apiVersion: 'latest',
+            region: 'ap-northeast-1',
+            accessKeyId: <string>process.env.AWS_ACCESS_KEY_ID,
+            secretAccessKey: <string>process.env.AWS_SECRET_ACCESS_KEY
+        });
+
+        cognitoIdentityServiceProvider.listUsersInGroup(
+            {
+                GroupName: groupName,
+                UserPoolId: <string>process.env.COGNITO_USER_POOL_ID
+            },
+            (err, data) => {
+                debug('listUsersInGroup result:', err, data);
+                if (err instanceof Error) {
+                    reject(err);
+                } else {
+                    if (data.Users === undefined) {
+                        reject(new Error('Unexpected.'));
+                    } else {
+                        resolve(data.Users);
+                    }
+                }
+            });
+    });
+}
+
 /**
  *
  * レポートindex
@@ -93,32 +127,46 @@ export async function sales(__: Request, res: Response): Promise<void> {
  *
  * アカウント別レポート出力
  */
-export async function account(__: Request, res: Response): Promise<void> {
-    // アカウント一覧取得
-    const ownerRepo = new ttts.repository.Owner(ttts.mongoose.connection);
-    const owners = await ownerRepo.ownerModel.find({}, 'username name', { sort: { _id: 1 } }).exec();
-    const hours: string[] = [];
-    // tslint:disable-next-line:no-magic-numbers
-    for (let hour: number = 0; hour < 24; hour += 1) {
+export async function account(__: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+        // cognitoから入場ユーザーを検索
+        let cognitoUsers: AWS.CognitoIdentityServiceProvider.UsersListType = [];
+        try {
+            cognitoUsers.push(...(await getCognitoUsers('Staff')));
+        } catch (error) {
+            // no op
+        }
+        cognitoUsers = cognitoUsers.filter((u) => u.UserStatus === 'CONFIRMED');
+        debug('cognitoUsers:', cognitoUsers);
+        if (cognitoUsers.length <= 0) {
+            throw new Error('no staff users.');
+        }
+
+        const hours: string[] = [];
         // tslint:disable-next-line:no-magic-numbers
-        hours.push((`00${hour}`).slice(-2));
-    }
-    //const minutes: string[] = ['00', '15', '30', '45'];
-    const minutes: string[] = [];
-    // tslint:disable-next-line:no-magic-numbers
-    for (let minute: number = 0; minute < 60; minute += 1) {
+        for (let hour: number = 0; hour < 24; hour += 1) {
+            // tslint:disable-next-line:no-magic-numbers
+            hours.push((`00${hour}`).slice(-2));
+        }
+        //const minutes: string[] = ['00', '15', '30', '45'];
+        const minutes: string[] = [];
         // tslint:disable-next-line:no-magic-numbers
-        minutes.push((`00${minute}`).slice(-2));
+        for (let minute: number = 0; minute < 60; minute += 1) {
+            // tslint:disable-next-line:no-magic-numbers
+            minutes.push((`00${minute}`).slice(-2));
+        }
+        // 画面描画
+        res.render('master/report/account', {
+            cognitoUsers: cognitoUsers,
+            hours: hours,
+            minutes: minutes,
+            title: 'アカウント別レポート出力',
+            routeName: 'master.report.account',
+            layout: 'layouts/master/layout'
+        });
+    } catch (error) {
+        next(error);
     }
-    // 画面描画
-    res.render('master/report/account', {
-        owners: owners,
-        hours: hours,
-        minutes: minutes,
-        title: 'アカウント別レポート出力',
-        routeName: 'master.report.account',
-        layout: 'layouts/master/layout'
-    });
 }
 /**
  * 一覧データ取得API
@@ -204,12 +252,12 @@ export async function getSales(req: Request, res: Response): Promise<void> {
         }
 
         // 購入区分コード取得
-        const getPurchaserGroupCode = ((name: string) : string => {
+        const getPurchaserGroupCode = ((name: string): string => {
             return (PURCHASER_GROUP_CODES.hasOwnProperty(name) === true ?
                 PURCHASER_GROUP_CODES[name] : name);
         });
         // 購入方法コード取得
-        const getPaymentMethodCode = ((name: string) : string => {
+        const getPaymentMethodCode = ((name: string): string => {
             return (PAYMENT_METHOD_CODES.hasOwnProperty(name) === true ?
                 PAYMENT_METHOD_CODES[name] : name);
         });
@@ -268,7 +316,7 @@ export async function getSales(req: Request, res: Response): Promise<void> {
 async function validate(req: Request): Promise<any> {
     // 検証
     const validatorResult = await req.getValidationResult();
-    const errors: any = (!validatorResult.isEmpty()) ? req.validationErrors(true) : {};
+    const errors: any = (!validatorResult.isEmpty()) ? validatorResult.mapped : {};
 
     // 片方入力エラーチェック
     if (!isInputEven(req.query.start_hour1, req.query.start_minute1)) {

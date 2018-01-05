@@ -49,11 +49,11 @@ export async function add(req: Request, res: Response): Promise<void> {
         // バリデーション
         validate(req);
         const validatorResult = await req.getValidationResult();
-        errors = req.validationErrors(true);
+        errors = validatorResult.mapped;
         if (validatorResult.isEmpty()) {
             // 券種グループDB登録
             try {
-                const　id = req.body._id;
+                const id = req.body._id;
                 const docs = {
                     _id: id,
                     name: {
@@ -103,7 +103,7 @@ export async function update(req: Request, res: Response): Promise<void> {
         // バリデーション
         validate(req);
         const validatorResult = await req.getValidationResult();
-        errors = req.validationErrors(true);
+        errors = validatorResult.mapped;
         if (validatorResult.isEmpty()) {
             // 券種グループDB登録
             try {

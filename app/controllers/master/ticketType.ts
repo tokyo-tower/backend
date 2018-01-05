@@ -36,7 +36,7 @@ export async function add(req: Request, res: Response): Promise<void> {
         // 検証
         validateFormAdd(req);
         const validatorResult = await req.getValidationResult();
-        errors = req.validationErrors(true);
+        errors = validatorResult.mapped;
         // 検証
         if (validatorResult.isEmpty()) {
             // 券種DB登録プロセス
@@ -93,7 +93,7 @@ export async function update(req: Request, res: Response): Promise<void> {
         // 検証
         validateFormAdd(req);
         const validatorResult = await req.getValidationResult();
-        errors = req.validationErrors(true);
+        errors = validatorResult.mapped;
         // 検証
         if (validatorResult.isEmpty()) {
             // 券種DB更新プロセス

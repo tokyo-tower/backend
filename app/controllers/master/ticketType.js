@@ -43,7 +43,7 @@ function add(req, res) {
             // 検証
             validateFormAdd(req);
             const validatorResult = yield req.getValidationResult();
-            errors = req.validationErrors(true);
+            errors = validatorResult.mapped;
             // 検証
             if (validatorResult.isEmpty()) {
                 // 券種DB登録プロセス
@@ -102,7 +102,7 @@ function update(req, res) {
             // 検証
             validateFormAdd(req);
             const validatorResult = yield req.getValidationResult();
-            errors = req.validationErrors(true);
+            errors = validatorResult.mapped;
             // 検証
             if (validatorResult.isEmpty()) {
                 // 券種DB更新プロセス

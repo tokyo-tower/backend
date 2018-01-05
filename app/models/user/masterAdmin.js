@@ -1,23 +1,28 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const base_1 = require("./base");
 /**
  * マスタ管理者ユーザー
  * @export
  * @class MasterAdminUser
- * @extends {BaseUser}
  */
-class MasterAdminUser extends base_1.default {
+class MasterAdminUser {
     static PARSE(session) {
         const user = new MasterAdminUser();
         // セッション値からオブジェクトにセット
-        if (session !== undefined && session[MasterAdminUser.AUTH_SESSION_NAME] !== undefined) {
-            Object.keys(session[MasterAdminUser.AUTH_SESSION_NAME]).forEach((propertyName) => {
-                user[propertyName] = session[MasterAdminUser.AUTH_SESSION_NAME][propertyName];
-            });
+        if (session !== undefined && session.masterAdminUser !== undefined) {
+            user.familyName = session.masterAdminUser.familyName;
+            user.givenName = session.masterAdminUser.givenName;
+            user.email = session.masterAdminUser.email;
+            user.telephone = session.masterAdminUser.telephone;
+            user.username = session.masterAdminUser.username;
         }
         return user;
     }
+    /**
+     * サインイン中かどうか
+     */
+    isAuthenticated() {
+        return (this.username !== undefined);
+    }
 }
-MasterAdminUser.AUTH_SESSION_NAME = 'TTTSBackendMasterAuth';
 exports.default = MasterAdminUser;
