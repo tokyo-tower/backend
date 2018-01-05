@@ -1,13 +1,24 @@
-declare namespace Express {
-    export interface Request {
-        staffUser?: StaffUser;
-    }
+import * as ttts from '@motionpicture/ttts-domain';
+import * as express from 'express';
+import MasterAdminUser from '../app/models/user/masterAdmin';
 
-    export class BaseUser {
-        public isAuthenticated(): boolean;
-        public get(key: string): any;
-    }
+declare global {
+    namespace Express {
+        export interface Request {
+            masterAdminUser?: MasterAdminUser;
+        }
 
-    export class StaffUser extends BaseUser {
+        interface IUser {
+            familyName: string;
+            givenName: string;
+            email: string;
+            telephone: string;
+            username: string;
+        }
+
+        // tslint:disable-next-line:interface-name
+        export interface Session {
+            masterAdminUser?: IUser;
+        }
     }
 }

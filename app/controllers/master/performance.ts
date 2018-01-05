@@ -46,7 +46,7 @@ export async function search(req: Request, res: Response): Promise<void> {
     try {
         searchValidation(req);
         const validatorResult = await req.getValidationResult();
-        const validations = req.validationErrors(true);
+        const validations = validatorResult.mapped;
         if (!validatorResult.isEmpty()) {
             res.json({
                 validation: validations,
@@ -95,7 +95,7 @@ export async function filmSearch(req: Request, res: Response): Promise<void> {
     try {
         filmSearchValidation(req);
         const validatorResult = await req.getValidationResult();
-        const validations = req.validationErrors(true);
+        const validations = validatorResult.mapped;
         if (!validatorResult.isEmpty()) {
             res.json({
                 validation: validations,
@@ -132,7 +132,7 @@ export async function regist(req: Request, res: Response): Promise<void> {
     try {
         addValidation(req);
         const validatorResult = await req.getValidationResult();
-        const validations = req.validationErrors(true);
+        const validations = validatorResult.mapped;
         if (!validatorResult.isEmpty()) {
             res.json({
                 validation: validations,
@@ -182,7 +182,7 @@ export async function update(req: Request, res: Response): Promise<void> {
     try {
         updateValidation(req);
         const validatorResult = await req.getValidationResult();
-        const validations = req.validationErrors(true);
+        const validations = validatorResult.mapped;
         if (!validatorResult.isEmpty()) {
             res.json({
                 validation: validations,

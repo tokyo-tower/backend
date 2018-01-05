@@ -57,7 +57,7 @@ function add(req, res) {
             // バリデーション
             validate(req);
             const validatorResult = yield req.getValidationResult();
-            errors = req.validationErrors(true);
+            errors = validatorResult.mapped;
             if (validatorResult.isEmpty()) {
                 // 券種グループDB登録
                 try {
@@ -113,7 +113,7 @@ function update(req, res) {
             // バリデーション
             validate(req);
             const validatorResult = yield req.getValidationResult();
-            errors = req.validationErrors(true);
+            errors = validatorResult.mapped;
             if (validatorResult.isEmpty()) {
                 // 券種グループDB登録
                 try {

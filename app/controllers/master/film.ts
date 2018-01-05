@@ -40,7 +40,7 @@ export async function add(req: Request, res: Response): Promise<void> {
         // バリデーション
         validate(req, 'add');
         const validatorResult = await req.getValidationResult();
-        errors = req.validationErrors(true);
+        errors = validatorResult.mapped;
         if (validatorResult.isEmpty()) {
             // 作品DB登録
             try {
@@ -91,7 +91,7 @@ export async function update(req: Request, res: Response): Promise<void> {
         // バリデーション
         validate(req, 'update');
         const validatorResult = await req.getValidationResult();
-        errors = req.validationErrors(true);
+        errors = validatorResult.mapped;
         if (validatorResult.isEmpty()) {
             // 作品DB登録
             try {
