@@ -1,8 +1,7 @@
 "use strict";
 /**
  * セッションミドルウェア
- *
- * @module sessionMiddleware
+ * @namespace middlewares.session
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 const connectRedis = require("connect-redis");
@@ -18,10 +17,11 @@ exports.default = session({
     rolling: true,
     saveUninitialized: false,
     store: new redisStore({
-        client: redis.createClient(Number(process.env.REDIS_PORT), process.env.REDIS_HOST, {
+        client: redis.createClient({
+            host: process.env.REDIS_HOST,
+            port: Number(process.env.REDIS_PORT),
             password: process.env.REDIS_KEY,
-            tls: { servername: process.env.REDIS_HOST },
-            return_buffers: true
+            tls: { servername: process.env.REDIS_HOST }
         })
     }),
     cookie: {

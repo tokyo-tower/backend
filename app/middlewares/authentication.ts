@@ -1,14 +1,14 @@
 /**
  * ユーザー認証ミドルウェア
- * @namespace middlewares.userAuthentication
+ * @namespace middlewares.authentication
  */
 
 import * as createDebug from 'debug';
 import { NextFunction, Request, Response } from 'express';
 
-import MasterAdminUser from '../models/user/masterAdmin';
+import MasterAdminUser from '../user';
 
-const debug = createDebug('ttts-backend:middlewares:userAuthentication');
+const debug = createDebug('ttts-backend:middlewares:authentication');
 
 export default async (req: Request, res: Response, next: NextFunction) => {
     res.locals.req = req;
@@ -32,6 +32,7 @@ export default async (req: Request, res: Response, next: NextFunction) => {
             message: 'login required'
         });
     } else {
-        res.redirect(`/master/login?cb=${req.originalUrl}`);
+        debug('req.originalUrl', req.originalUrl);
+        res.redirect(`/login?cb=${req.originalUrl}`);
     }
 };

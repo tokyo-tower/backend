@@ -19,19 +19,19 @@ const favicon = require("serve-favicon");
 const expressLayouts = require('express-ejs-layouts');
 const mongooseConnectionOptions_1 = require("../mongooseConnectionOptions");
 // ミドルウェア
+const authentication_1 = require("./middlewares/authentication");
 const errorHandler_1 = require("./middlewares/errorHandler");
 const locals_1 = require("./middlewares/locals");
 const notFoundHandler_1 = require("./middlewares/notFoundHandler");
 const session_1 = require("./middlewares/session");
-const userAuthentication_1 = require("./middlewares/userAuthentication");
 // ルーター
+const auth_1 = require("./routes/auth");
 const dev_1 = require("./routes/dev");
-const auth_1 = require("./routes/master/auth");
 const film_1 = require("./routes/master/film");
 const performance_1 = require("./routes/master/performance");
-const report_1 = require("./routes/master/report");
 const ticketType_1 = require("./routes/master/ticketType");
 const ticketTypeGroup_1 = require("./routes/master/ticketTypeGroup");
+const reports_1 = require("./routes/reports");
 const router_1 = require("./routes/router");
 const debug = createDebug('ttts-backend:app');
 const app = express();
@@ -66,23 +66,18 @@ app.use(multer({ storage: storage }).any());
 app.use(cookieParser());
 app.use(express.static(`${__dirname}/../public`));
 app.use(expressValidator()); // バリデーション
-// // Use native promises
-// (<any>mongoose).Promise = global.Promise;
-// // 2017/07/06
-// //mongoose.connect(process.env.MONGOLAB_URI, mongooseConnectionOptions);
-// mongoose.connect((<any>process.env).MONGOLAB_URI, mongooseConnectionOptions);
 // ルーティング登録の順序に注意！
 if (process.env.NODE_ENV !== 'production') {
     app.use('/dev', dev_1.default);
 }
 app.use(auth_1.default); // ログイン・ログアウト
-app.use(userAuthentication_1.default); // ユーザー認証
+app.use(authentication_1.default); // ユーザー認証
 app.use(router_1.default);
 app.use('/master/films', film_1.default); //作品
 app.use('/master/performances', performance_1.default); //パフォーマンス
 app.use('/master/ticketTypes', ticketType_1.default); //券種
 app.use('/master/ticketTypeGroups', ticketTypeGroup_1.default); //券種グループ
-app.use('/master/report', report_1.default); //レポート出力
+app.use('/reports', reports_1.default); //レポート出力
 // 404
 app.use(notFoundHandler_1.default);
 // error handlers

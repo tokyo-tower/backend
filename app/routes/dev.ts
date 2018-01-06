@@ -1,7 +1,6 @@
 /**
  * devルーター
- *
- * @ignore
+ * @namespace routes.dev
  */
 
 import * as ttts from '@motionpicture/ttts-domain';

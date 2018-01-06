@@ -13,7 +13,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const ttts = require("@motionpicture/ttts-domain");
-const AWS = require("aws-sdk");
 const createDebug = require("debug");
 const moment = require("moment");
 const _ = require("underscore");
@@ -63,42 +62,13 @@ const arrayHeadSales = [
     '"入場フラグ"',
     '"入場日時"'
 ];
-function getCognitoUsers(groupName) {
-    return __awaiter(this, void 0, void 0, function* () {
-        return new Promise((resolve, reject) => {
-            const cognitoIdentityServiceProvider = new AWS.CognitoIdentityServiceProvider({
-                apiVersion: 'latest',
-                region: 'ap-northeast-1',
-                accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-                secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-            });
-            cognitoIdentityServiceProvider.listUsersInGroup({
-                GroupName: groupName,
-                UserPoolId: process.env.COGNITO_USER_POOL_ID
-            }, (err, data) => {
-                debug('listUsersInGroup result:', err, data);
-                if (err instanceof Error) {
-                    reject(err);
-                }
-                else {
-                    if (data.Users === undefined) {
-                        reject(new Error('Unexpected.'));
-                    }
-                    else {
-                        resolve(data.Users);
-                    }
-                }
-            });
-        });
-    });
-}
 /**
  *
  * レポートindex
  */
 function index(__, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        res.render('master/report/index', {
+        res.render('reports/index', {
             title: 'レポート',
             routeName: 'master.report.index',
             layout: 'layouts/master/layout'
@@ -112,7 +82,7 @@ exports.index = index;
  */
 function sales(__, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        res.render('master/report/sales', {
+        res.render('reports/sales', {
             title: '売り上げレポート出力',
             routeName: 'master.report.sales',
             layout: 'layouts/master/layout'
@@ -128,14 +98,13 @@ function account(__, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             // cognitoから入場ユーザーを検索
-            let cognitoUsers = [];
+            const cognitoUsers = [];
             try {
-                cognitoUsers.push(...(yield getCognitoUsers('Staff')));
+                cognitoUsers.push(...(yield ttts.service.admin.findAllByGroup(process.env.AWS_ACCESS_KEY_ID, process.env.AWS_SECRET_ACCESS_KEY, process.env.COGNITO_USER_POOL_ID, 'Staff')()));
             }
             catch (error) {
                 // no op
             }
-            cognitoUsers = cognitoUsers.filter((u) => u.UserStatus === 'CONFIRMED');
             debug('cognitoUsers:', cognitoUsers);
             if (cognitoUsers.length <= 0) {
                 throw new Error('no staff users.');
@@ -154,7 +123,7 @@ function account(__, res, next) {
                 minutes.push((`00${minute}`).slice(-2));
             }
             // 画面描画
-            res.render('master/report/account', {
+            res.render('reports/account', {
                 cognitoUsers: cognitoUsers,
                 hours: hours,
                 minutes: minutes,

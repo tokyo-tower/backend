@@ -5,7 +5,6 @@
  */
 
 import * as ttts from '@motionpicture/ttts-domain';
-import * as AWS from 'aws-sdk';
 import * as createDebug from 'debug';
 import { NextFunction, Request, Response } from 'express';
 import * as moment from 'moment';
@@ -72,41 +71,12 @@ const arrayHeadSales = [
     '"入場日時"'
 ];
 
-async function getCognitoUsers(groupName: string) {
-    return new Promise<AWS.CognitoIdentityServiceProvider.UsersListType>((resolve, reject) => {
-        const cognitoIdentityServiceProvider = new AWS.CognitoIdentityServiceProvider({
-            apiVersion: 'latest',
-            region: 'ap-northeast-1',
-            accessKeyId: <string>process.env.AWS_ACCESS_KEY_ID,
-            secretAccessKey: <string>process.env.AWS_SECRET_ACCESS_KEY
-        });
-
-        cognitoIdentityServiceProvider.listUsersInGroup(
-            {
-                GroupName: groupName,
-                UserPoolId: <string>process.env.COGNITO_USER_POOL_ID
-            },
-            (err, data) => {
-                debug('listUsersInGroup result:', err, data);
-                if (err instanceof Error) {
-                    reject(err);
-                } else {
-                    if (data.Users === undefined) {
-                        reject(new Error('Unexpected.'));
-                    } else {
-                        resolve(data.Users);
-                    }
-                }
-            });
-    });
-}
-
 /**
  *
  * レポートindex
  */
 export async function index(__: Request, res: Response): Promise<void> {
-    res.render('master/report/index', {
+    res.render('reports/index', {
         title: 'レポート',
         routeName: 'master.report.index',
         layout: 'layouts/master/layout'
@@ -117,7 +87,7 @@ export async function index(__: Request, res: Response): Promise<void> {
  * 売り上げレポート出力
  */
 export async function sales(__: Request, res: Response): Promise<void> {
-    res.render('master/report/sales', {
+    res.render('reports/sales', {
         title: '売り上げレポート出力',
         routeName: 'master.report.sales',
         layout: 'layouts/master/layout'
@@ -130,14 +100,19 @@ export async function sales(__: Request, res: Response): Promise<void> {
 export async function account(__: Request, res: Response, next: NextFunction): Promise<void> {
     try {
         // cognitoから入場ユーザーを検索
-        let cognitoUsers: AWS.CognitoIdentityServiceProvider.UsersListType = [];
+        const cognitoUsers: ttts.service.admin.IAdmin[] = [];
         try {
-            cognitoUsers.push(...(await getCognitoUsers('Staff')));
+            cognitoUsers.push(...(await ttts.service.admin.findAllByGroup(
+                <string>process.env.AWS_ACCESS_KEY_ID,
+                <string>process.env.AWS_SECRET_ACCESS_KEY,
+                <string>process.env.COGNITO_USER_POOL_ID,
+                'Staff'
+            )()));
         } catch (error) {
             // no op
         }
-        cognitoUsers = cognitoUsers.filter((u) => u.UserStatus === 'CONFIRMED');
         debug('cognitoUsers:', cognitoUsers);
+
         if (cognitoUsers.length <= 0) {
             throw new Error('no staff users.');
         }
@@ -156,7 +131,7 @@ export async function account(__: Request, res: Response, next: NextFunction): P
             minutes.push((`00${minute}`).slice(-2));
         }
         // 画面描画
-        res.render('master/report/account', {
+        res.render('reports/account', {
             cognitoUsers: cognitoUsers,
             hours: hours,
             minutes: minutes,

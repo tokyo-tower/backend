@@ -21,20 +21,20 @@ const expressLayouts = require('express-ejs-layouts');
 import mongooseConnectionOptions from '../mongooseConnectionOptions';
 
 // ミドルウェア
+import authentication from './middlewares/authentication';
 import errorHandler from './middlewares/errorHandler';
 import locals from './middlewares/locals';
 import notFoundHandler from './middlewares/notFoundHandler';
 import session from './middlewares/session';
-import userAuthentication from './middlewares/userAuthentication';
 
 // ルーター
+import authRouter from './routes/auth';
 import devRouter from './routes/dev';
-import authMasterRouter from './routes/master/auth';
 import filmMasterRouter from './routes/master/film';
 import performanceMasterRouter from './routes/master/performance';
-import reportMasterRouter from './routes/master/report';
 import ticketTypeMasterRouter from './routes/master/ticketType';
 import ticketTypeGroupMasterRouter from './routes/master/ticketTypeGroup';
+import reportsRouter from './routes/reports';
 import router from './routes/router';
 
 const debug = createDebug('ttts-backend:app');
@@ -80,27 +80,21 @@ app.use(express.static(`${__dirname}/../public`));
 
 app.use(expressValidator()); // バリデーション
 
-// // Use native promises
-// (<any>mongoose).Promise = global.Promise;
-// // 2017/07/06
-// //mongoose.connect(process.env.MONGOLAB_URI, mongooseConnectionOptions);
-// mongoose.connect((<any>process.env).MONGOLAB_URI, mongooseConnectionOptions);
-
 // ルーティング登録の順序に注意！
 if (process.env.NODE_ENV !== 'production') {
     app.use('/dev', devRouter);
 }
 
-app.use(authMasterRouter); // ログイン・ログアウト
+app.use(authRouter); // ログイン・ログアウト
 
-app.use(userAuthentication); // ユーザー認証
+app.use(authentication); // ユーザー認証
 
 app.use(router);
 app.use('/master/films', filmMasterRouter); //作品
 app.use('/master/performances', performanceMasterRouter); //パフォーマンス
 app.use('/master/ticketTypes', ticketTypeMasterRouter); //券種
 app.use('/master/ticketTypeGroups', ticketTypeGroupMasterRouter); //券種グループ
-app.use('/master/report', reportMasterRouter); //レポート出力
+app.use('/reports', reportsRouter); //レポート出力
 
 // 404
 app.use(notFoundHandler);

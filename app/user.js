@@ -9,12 +9,12 @@ class MasterAdminUser {
     static PARSE(session) {
         const user = new MasterAdminUser();
         // セッション値からオブジェクトにセット
-        if (session !== undefined && session.masterAdminUser !== undefined) {
-            user.familyName = session.masterAdminUser.familyName;
-            user.givenName = session.masterAdminUser.givenName;
-            user.email = session.masterAdminUser.email;
-            user.telephone = session.masterAdminUser.telephone;
-            user.username = session.masterAdminUser.username;
+        if (session !== undefined && session.user !== undefined) {
+            user.familyName = session.user.familyName;
+            user.givenName = session.user.givenName;
+            user.email = session.user.email;
+            user.telephone = session.user.telephone;
+            user.username = session.user.username;
         }
         return user;
     }

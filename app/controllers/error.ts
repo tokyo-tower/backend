@@ -1,7 +1,6 @@
 /**
  * エラーコントローラー
- *
- * @namespace controller/error
+ * @namespace controllers.error
  */
 
 import { Request, Response } from 'express';

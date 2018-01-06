@@ -1,5 +1,5 @@
 
-<script src="/js/master/reportSales.js"></script>
+<script src="/js/reportSales.js"></script>
 <section>
     <h1>アカウント別レポート出力</h1>
     <hr>
@@ -9,8 +9,8 @@
         <select id="select_account" class="form-control" name="owner">
             <option value="">指定無し</option>
             <% cognitoUsers.forEach((cognitoUser) => { %>
-                <option value="<%= cognitoUser.Username %>">
-                <%= cognitoUser.Attributes.find((a)=>a.Name === 'family_name').Value %> <%= cognitoUser.Attributes.find((a)=>a.Name === 'given_name').Value %>
+                <option value="<%= cognitoUser.username %>">
+                <%= cognitoUser.familyName %> <%= cognitoUser.givenName %>
                 </option>
             <% }) %>
         </select>
@@ -26,5 +26,5 @@
             <p id="btn_download_accountreport" class="btn btn-download btn-disabled"><span>レポートダウンロード</span></p>
         </p>
     </form>
-    <%- include('../../common/master/_loading') %>
+    <%- include('../common/master/_loading') %>
 </section>

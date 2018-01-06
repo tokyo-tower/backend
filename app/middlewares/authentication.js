@@ -1,7 +1,7 @@
 "use strict";
 /**
  * ユーザー認証ミドルウェア
- * @namespace middlewares.userAuthentication
+ * @namespace middlewares.authentication
  */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -13,11 +13,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const createDebug = require("debug");
-const masterAdmin_1 = require("../models/user/masterAdmin");
-const debug = createDebug('ttts-backend:middlewares:userAuthentication');
+const user_1 = require("../user");
+const debug = createDebug('ttts-backend:middlewares:authentication');
 exports.default = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
     res.locals.req = req;
-    req.masterAdminUser = masterAdmin_1.default.PARSE(req.session);
+    req.masterAdminUser = user_1.default.PARSE(req.session);
     debug('req.masterAdminUser:', req.masterAdminUser);
     res.locals.loginName = (req.masterAdminUser.isAuthenticated())
         ? `${req.masterAdminUser.familyName} ${req.masterAdminUser.givenName}`
@@ -34,6 +34,7 @@ exports.default = (req, res, next) => __awaiter(this, void 0, void 0, function* 
         });
     }
     else {
-        res.redirect(`/master/login?cb=${req.originalUrl}`);
+        debug('req.originalUrl', req.originalUrl);
+        res.redirect(`/login?cb=${req.originalUrl}`);
     }
 });

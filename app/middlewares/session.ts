@@ -1,7 +1,6 @@
 /**
  * セッションミドルウェア
- *
- * @module sessionMiddleware
+ * @namespace middlewares.session
  */
 
 import * as connectRedis from 'connect-redis';
@@ -18,15 +17,12 @@ export default session({
     rolling: true,
     saveUninitialized: false,
     store: new redisStore({
-        client: redis.createClient(
-            Number(process.env.REDIS_PORT),
-            process.env.REDIS_HOST,
-            {
-                password: process.env.REDIS_KEY,
-                tls: { servername: process.env.REDIS_HOST },
-                return_buffers: true
-            }
-        )
+        client: redis.createClient({
+            host: <string>process.env.REDIS_HOST,
+            port: Number(<string>process.env.REDIS_PORT),
+            password: <string>process.env.REDIS_KEY,
+            tls: { servername: <string>process.env.REDIS_HOST }
+        })
     }),
     cookie: {
         maxAge: COOKIE_MAX_AGE

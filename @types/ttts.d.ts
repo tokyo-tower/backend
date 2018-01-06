@@ -1,6 +1,6 @@
 import * as ttts from '@motionpicture/ttts-domain';
 import * as express from 'express';
-import MasterAdminUser from '../app/models/user/masterAdmin';
+import MasterAdminUser from '../app/user';
 
 declare global {
     namespace Express {
@@ -8,17 +8,14 @@ declare global {
             masterAdminUser?: MasterAdminUser;
         }
 
-        interface IUser {
-            familyName: string;
-            givenName: string;
-            email: string;
-            telephone: string;
-            username: string;
-        }
-
+        /**
+         * セッションインターフェース
+         * セッション管理する値についてはここで型定義すること
+         */
         // tslint:disable-next-line:interface-name
         export interface Session {
-            masterAdminUser?: IUser;
+            user?: ttts.service.admin.IAdmin;
+            cognitoCredentials?: ttts.service.admin.ICredentials;
         }
     }
 }

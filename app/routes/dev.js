@@ -1,8 +1,7 @@
 "use strict";
 /**
  * devルーター
- *
- * @ignore
+ * @namespace routes.dev
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 const ttts = require("@motionpicture/ttts-domain");
