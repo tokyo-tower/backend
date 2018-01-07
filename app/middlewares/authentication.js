@@ -18,7 +18,7 @@ const debug = createDebug('ttts-backend:middlewares:authentication');
 exports.default = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
     res.locals.req = req;
     req.masterAdminUser = user_1.default.PARSE(req.session);
-    debug('req.masterAdminUser:', req.masterAdminUser);
+    debug('req.masterAdminUser is authenticated?', req.masterAdminUser.isAuthenticated());
     res.locals.loginName = (req.masterAdminUser.isAuthenticated())
         ? `${req.masterAdminUser.familyName} ${req.masterAdminUser.givenName}`
         : '';

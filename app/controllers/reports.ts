@@ -12,27 +12,37 @@ import * as _ from 'underscore';
 // tslint:disable-next-line:no-var-requires no-require-imports
 const jconv = require('jconv');
 
-// ステータス
-const STATUS_RESERVED = 'RESERVED';
-const STATUS_CANCELLED = 'CANCELLED';
-const debug = createDebug('ttts-backend:controllers:master:report');
+const debug = createDebug('ttts-backend:controllers:report');
 
-// キャンセル行ステータス
-const STATUS_CANCELLATION_FEE = 'CANCELLATION_FEE';
-// 購入区分
-interface IPurchaserGroupCodes {
-    Customer: string;
-    Staff: string;
-    [key: string]: string;
+// CSV用のステータスコード
+enum Status4csv {
+    Reserved = 'RESERVED',
+    Cancelled = 'CANCELLED',
+    // キャンセル行ステータス
+    CancellationFee = 'CANCELLATION_FEE'
 }
-const PURCHASER_GROUP_CODES: IPurchaserGroupCodes = { Customer: '01', Staff: '04' };
 
-// 購入方法
-interface IPaymentMethodCodes {
-    CreditCard: string;
-    [key: string]: string;
-}
-const PAYMENT_METHOD_CODES: IPaymentMethodCodes = { CreditCard: '0' };
+const purchaserGroupStrings: any = {
+    Customer: '01',
+    Staff: '04'
+};
+const paymentMethodStrings: any = {
+    CreditCard: '0'
+};
+
+/**
+ * CSVデータインターフェース
+ * @type
+ */
+type IData = ttts.factory.reservation.event.IReservation & {
+    status_sort: string;
+    cancellationFee: number
+    // 予約単位料金
+    price: number
+    status4csv: Status4csv;
+    // 取引作成日(キャンセルデータに出力)
+    transaction_createdAt: Date;
+};
 
 // カラム区切り(タブ)
 const csvSeparator: string = '\t';
@@ -66,7 +76,7 @@ const arrayHeadSales = [
     '"客層"',
     '"payment_seat_index"',
     '"予約単位料金"',
-    '"窓口ユーザーID"',
+    '"ユーザーネーム"',
     '"入場フラグ"',
     '"入場日時"'
 ];
@@ -163,12 +173,6 @@ export async function getSales(req: Request, res: Response): Promise<void> {
     prmConditons.performanceStartHour2 = getValue(req.query.start_hour2);
     prmConditons.performanceStartMinute2 = getValue(req.query.start_minute2);
 
-    // Responseヘッダセット
-    const filename = getValue(req.query.reportType) === 'sales' ?
-        '売上げレポート' : 'アカウント別レポート';
-    res.setHeader('Content-disposition', `attachment; filename*=UTF-8\'\'${encodeURIComponent(`${filename}.tsv`)}`);
-    res.setHeader('Content-Type', 'text/csv; charset=Shift_JIS');
-
     try {
         // バリデーション(時分が片方のみ指定されていたらエラー)
         const errorMessage = await validate(req);
@@ -176,16 +180,18 @@ export async function getSales(req: Request, res: Response): Promise<void> {
             throw new Error(errorMessage);
         }
         // 予約情報・キャンセル予約情報取得
-        const reservations: any[] = await getReservations(getConditons(prmConditons, 'reservation'));
-        let cancels: any[] = [];
+        const reservations = await getReservations(getConditons(prmConditons, 'reservation'));
+
+        let cancels: IData[] = [];
         if (prmConditons.reportType === 'sales') {
             cancels = await getCancels(getConditons(prmConditons, 'cancel'));
         }
-        const datas: any[] = Array.prototype.concat(reservations, cancels);
+
+        const datas = [...reservations, ...cancels];
 
         // ソート
         if (datas.length > 0) {
-            datas.sort((a: any, b: any) => {
+            datas.sort((a, b) => {
                 // 入塔日
                 if (a.performance_day > b.performance_day) {
                     return 1;
@@ -226,52 +232,46 @@ export async function getSales(req: Request, res: Response): Promise<void> {
             });
         }
 
-        // 購入区分コード取得
-        const getPurchaserGroupCode = ((name: string): string => {
-            return (PURCHASER_GROUP_CODES.hasOwnProperty(name) === true ?
-                PURCHASER_GROUP_CODES[name] : name);
+        const results = datas.map((reservation) => {
+            return getCsvData(reservation.payment_no) +
+                getCsvData(reservation.performance) +
+                getCsvData(reservation.seat_code) +
+                getCsvData(reservation.status4csv) +
+                getCsvData(toYMDDB(reservation.performance_day)) +
+                getCsvData(reservation.performance_start_time) +
+                getCsvData(reservation.theater_name.ja) +
+                getCsvData(reservation.screen) +
+                getCsvData(reservation.screen_name.ja) +
+                getCsvData(reservation.film) +
+                getCsvData(reservation.film_name.ja) +
+                // tslint:disable-next-line:max-line-length
+                getCsvData((purchaserGroupStrings[reservation.purchaser_group] !== undefined) ? purchaserGroupStrings[reservation.purchaser_group] : reservation.purchaser_group) +
+                getCsvData(reservation.purchaser_first_name) +
+                getCsvData(reservation.purchaser_last_name) +
+                getCsvData(reservation.purchaser_email) +
+                getCsvData(reservation.purchaser_tel) +
+                getCsvData(toString(reservation.purchased_at)) +
+                // tslint:disable-next-line:max-line-length
+                getCsvData((paymentMethodStrings[reservation.payment_method] !== undefined) ? paymentMethodStrings[reservation.payment_method] : reservation.payment_method) +
+                getCsvData(reservation.seat_grade_name.ja) +
+                getCsvData(reservation.seat_grade_additional_charge.toString()) +
+                getCsvData(reservation.ticket_type_name.ja) +
+                getCsvData(reservation.ticket_ttts_extension.csv_code) +
+                getCsvData(reservation.charge.toString()) +
+                getCsvData(getCustomerGroup(reservation)) +
+                getCsvData(reservation.payment_seat_index.toString()) +
+                getCsvData(reservation.price.toString()) +
+                getCsvData((reservation.owner_username !== undefined) ? reservation.owner_username : '') +
+                getCsvData(reservation.checkins.length > 0 ? 'TRUE' : 'FALSE') +
+                getCsvData(reservation.checkins.length > 0 ? toString(reservation.checkins[0].when) : '', false);
         });
-        // 購入方法コード取得
-        const getPaymentMethodCode = ((name: string): string => {
-            return (PAYMENT_METHOD_CODES.hasOwnProperty(name) === true ?
-                PAYMENT_METHOD_CODES[name] : name);
-        });
+        debug('writing results to response...', results);
 
-        let results: any[] = [];
-        if (datas.length > 0) {
-            //検索結果編集
-            results = datas.map((reservation) => {
-                return getCsvData(reservation.payment_no) +
-                    getCsvData(reservation.performance) +
-                    getCsvData(reservation.seat_code) +
-                    getCsvData(reservation.status) +
-                    getCsvData(toYMDDB(reservation.performance_day)) +
-                    getCsvData(reservation.performance_start_time) +
-                    getCsvData(reservation.theater_name.ja) +
-                    getCsvData(reservation.screen) +
-                    getCsvData(reservation.screen_name.ja) +
-                    getCsvData(reservation.film) +
-                    getCsvData(reservation.film_name.ja) +
-                    getCsvData(getPurchaserGroupCode(reservation.purchaser_group)) +
-                    getCsvData(reservation.purchaser_first_name) +
-                    getCsvData(reservation.purchaser_last_name) +
-                    getCsvData(reservation.purchaser_email) +
-                    getCsvData(reservation.purchaser_tel) +
-                    getCsvData(toString(reservation.purchased_at)) +
-                    getCsvData(getPaymentMethodCode(reservation.payment_method)) +
-                    getCsvData(reservation.seat_grade_name.ja) +
-                    getCsvData(reservation.seat_grade_additional_charge) +
-                    getCsvData(reservation.ticket_type_name.ja) +
-                    getCsvData(reservation.ticket_ttts_extension.csv_code) +
-                    getCsvData(reservation.charge) +
-                    getCsvData(getCustomerGroup(reservation)) +
-                    getCsvData(reservation.payment_seat_index) +
-                    getCsvData(reservation.price) +
-                    getCsvData(reservation.window_user_id) +
-                    getCsvData(reservation.checkins.length > 0 ? 'TRUE' : 'FALSE') +
-                    getCsvData(reservation.checkins.length > 0 ? toString(reservation.checkins[0].when) : '', false);
-            });
-        }
+        // Responseヘッダセット
+        const filename = getValue(req.query.reportType) === 'sales' ? '売上げレポート' : 'アカウント別レポート';
+        res.setHeader('Content-disposition', `attachment; filename*=UTF-8\'\'${encodeURIComponent(`${filename}.tsv`)}`);
+        res.setHeader('Content-Type', 'text/csv; charset=Shift_JIS');
+
         const head = arrayHeadSales.join(csvSeparator) + csvLineFeed;
         res.write(jconv.convert(head, 'UTF8', 'SJIS'));
         res.write(jconv.convert(results.join(csvLineFeed), 'UTF8', 'SJIS'));
@@ -284,8 +284,7 @@ export async function getSales(req: Request, res: Response): Promise<void> {
 }
 /**
  * レポート出力検証
- *
- * @param {any} req
+ * @param {Request} req
  * @return {any}
  */
 async function validate(req: Request): Promise<any> {
@@ -349,8 +348,7 @@ function getConditons(prmConditons: any, dbType: string): any {
     // レポートタイプが売上げか否か
     const isSales: boolean = prmConditons.reportType === 'sales';
     // 購入区分
-    const purchaserGroup: string = isSales ?
-        ttts.factory.person.Group.Customer : ttts.factory.person.Group.Staff;
+    const purchaserGroup: string = isSales ? ttts.factory.person.Group.Customer : ttts.factory.person.Group.Staff;
 
     // 予約
     if (isReservation) {
@@ -408,150 +406,119 @@ function getConditons(prmConditons: any, dbType: string): any {
 
     return conditions;
 }
+
 /**
  * 予約情報取得
- *
  * @param {any} conditions
- * @returns {Promise<any>}
+ * @returns {Promise<IData[]>}
  */
-async function getReservations(conditions: any): Promise<any> {
+async function getReservations(conditions: any): Promise<IData[]> {
     // 取引取得
     const transactionRepo = new ttts.repository.Transaction(ttts.mongoose.connection);
-    const returnOrderTransactions = await transactionRepo.transactionModel.find(
+    const transactions = await transactionRepo.transactionModel.find(
         conditions
-    ).exec();
+    ).exec().then((docs) => docs.map((doc) => <ttts.factory.transaction.placeOrder.ITransaction>doc.toObject()));
 
     // 予約情報をセット
-    const reservations: any[] = [];
+    const reservations: IData[] = [];
     // 取引数分Loop
-    for (const returnOrderTransaction of returnOrderTransactions) {
+    for (const transaction of transactions) {
         // 取引から予約情報取得
-        //const eventReservations = (<any>returnOrderTransaction).result.eventReservations;
-        const eventReservations = (<any>returnOrderTransaction).result._doc.eventReservations;
+        const eventReservations = (<ttts.factory.transaction.placeOrder.IResult>transaction.result).eventReservations;
         for (const eventReservation of eventReservations) {
             if (eventReservation.status === ttts.factory.reservationStatusType.ReservationConfirmed) {
-                // ステータス
-                eventReservation.status = STATUS_RESERVED;
-                // ソート情報
-                eventReservation.status_sort = eventReservation.status;
-                // 予約単位料金
-                eventReservation.price = (<any>returnOrderTransaction).result._doc.order.price;
-                reservations.push(eventReservation);
+                reservations.push({
+                    ...eventReservation,
+                    status4csv: Status4csv.Reserved,
+                    status_sort: eventReservation.status,
+                    price: (<ttts.factory.transaction.placeOrder.IResult>transaction.result).order.price,
+                    cancellationFee: 0,
+                    transaction_createdAt: <Date>transaction.endDate
+                });
             }
         }
     }
 
     return reservations;
 }
+
 /**
  * キャンセル予約情報取得
  *
  * @param {any} conditions
- * @returns {Promise<any>}
+ * @returns {Promise<IData[]>}
  */
-async function getCancels(conditions: any): Promise<any> {
+async function getCancels(conditions: any): Promise<IData[]> {
     // 取引に対する返品リクエスト取得
     const transactionRepo = new ttts.repository.Transaction(ttts.mongoose.connection);
     const returnOrderTransactions = await transactionRepo.transactionModel.find(
         conditions
-    ).exec();
-
-    // キャンセル取引から予約単位料金取得
-    const getPrice = ((authorizeActions: any[]) => {
-        for (const authorizeAction of authorizeActions) {
-            const result = authorizeAction.result;
-            if (result.hasOwnProperty('tmpReservations')) {
-
-                return result.price;
-            }
-        }
-
-        return 0;
-    });
+    ).exec().then((docs) => docs.map((doc) => <ttts.factory.transaction.returnOrder.ITransaction>doc.toObject()));
 
     // 予約情報をセット
-    const cancels: any[] = [];
+    const cancels: IData[] = [];
     // 取引数分Loop
     for (const returnOrderTransaction of returnOrderTransactions) {
         // 取引からキャンセル予約情報取得
-        const transaction = (<any>returnOrderTransaction).object._doc.transaction;
-        const eventReservations = transaction.result.eventReservations;
-        const authorizeActions = transaction.object.authorizeActions;
+        const transaction = <ttts.factory.transaction.placeOrder.ITransaction>returnOrderTransaction.object.transaction;
+        const eventReservations = (<ttts.factory.transaction.placeOrder.IResult>transaction.result).eventReservations;
         for (const eventReservation of eventReservations) {
             if (eventReservation.status === ttts.factory.reservationStatusType.ReservationConfirmed) {
-                // キャンセル料
-                eventReservation.cancellationFee = (<any>returnOrderTransaction).object._doc.cancellationFee;
-                // 予約単位料金
-                eventReservation.price = getPrice(authorizeActions);
-                // 取引作成日(キャンセルデータに出力)
-                eventReservation.transaction_createdAt = (<any>returnOrderTransaction).createdAt;
-                cancels.push(eventReservation);
+                cancels.push({
+                    ...eventReservation,
+                    status4csv: Status4csv.Cancelled,
+                    status_sort: '',
+                    cancellationFee: returnOrderTransaction.object.cancellationFee,
+                    price: (<ttts.factory.transaction.placeOrder.IResult>transaction.result).order.price,
+                    transaction_createdAt: <Date>returnOrderTransaction.endDate
+                });
             }
         }
     }
 
     // キャンセルデータは1レコードで3行出力
-    const reservations: any[] = [];
+    const reservations: IData[] = [];
     for (const cancelReservation of cancels) {
-        const status: string = cancelReservation.status;
         // キャンセルデータ
-        const cancelCan = copyModel(cancelReservation);
-        cancelCan.status_sort = `${status}_1`;
-        cancelCan.status = STATUS_CANCELLED;
-        cancelCan.purchased_at = cancelReservation.transaction_createdAt;
-        cancelCan.price = cancelReservation.price;
-        reservations.push(cancelCan);
+        reservations.push({
+            ...cancelReservation,
+            status_sort: `${cancelReservation.status}_1`,
+            status4csv: Status4csv.Cancelled,
+            purchased_at: cancelReservation.transaction_createdAt
+        });
+
         // キャンセル料データ
-        const cancelFee = copyModel(cancelReservation);
-        cancelFee.status_sort = `${status}_2`;
-        cancelFee.status = STATUS_CANCELLATION_FEE;
-        cancelFee.purchased_at = cancelReservation.transaction_createdAt;
-        cancelFee.price = cancelReservation.cancellationFee;
-        cancelFee.charge = cancelReservation.cancellationFee;
-        cancelFee.ticket_ttts_extension.csv_code = '';
-        reservations.push(cancelFee);
+        reservations.push({
+            ...cancelReservation,
+            status_sort: `${cancelReservation.status}_2`,
+            status4csv: Status4csv.CancellationFee,
+            purchased_at: cancelReservation.transaction_createdAt,
+            price: cancelReservation.cancellationFee,
+            charge: cancelReservation.cancellationFee,
+            ticket_ttts_extension: {
+                ...cancelReservation.ticket_ttts_extension,
+                csv_code: ''
+            }
+        });
     }
 
     return reservations;
 }
-/**
- * モデルコピー
- *
- * @param {any} model
- * @returns {any}
- */
-function copyModel(model: any): any {
-    const copiedModel: any = {};
-    // オブジェクト判定
-    const isObject = ((obj: any) => {
-        return (obj !== null && typeof obj === 'object');
-    });
-    // プロパティコピー
-    Object.getOwnPropertyNames(model).forEach((propertyName) => {
-        copiedModel[propertyName] = isObject(model[propertyName]) ?
-            copyModel(model[propertyName]) :
-            copiedModel[propertyName] = model[propertyName];
-    });
 
-    return copiedModel;
-}
 /**
  * CSV出力用データ取得
- *
- * @param {any} value
+ * @param {string} value
  * @param {boolean} addSeparator
  * @returns {string}
  */
 function getCsvData(value: string, addSeparator: boolean = true): string {
-    // tslint:disable-next-line:no-console
-    console.debug(value);
     value = convertToString(value);
 
     return `"${(!_.isEmpty(value) ? value : '')}"${(addSeparator ? csvSeparator : '')}`;
 }
+
 /**
  * 文字列変換
- *
  * @param {any} value
  * @returns {string}
  */
@@ -561,6 +528,7 @@ function convertToString(value: any): string {
 
     return value.toString();
 }
+
 /**
  * YYYYMMDD日付取得
  *
@@ -613,13 +581,13 @@ function toString(date: Date): string {
 
     return moment(date).format('YYYY/MM/DD HH:mm:ss');
 }
+
 /**
  * 客層取得 (購入者居住国：2桁、年代：2桁、性別：1桁)
- *
- * @param {any} reservation
+ * @param {ttts.factory.reservation.event.IReservation} reservation
  * @returns {string}
  */
-function getCustomerGroup(reservation: any): string {
+function getCustomerGroup(reservation: ttts.factory.reservation.event.IReservation): string {
     const locale = convertToString(reservation.purchaser_address);
     const age = convertToString(reservation.purchaser_age);
     const gender = convertToString(reservation.purchaser_gender);
