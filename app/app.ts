@@ -1,10 +1,9 @@
 /**
  * expressアプリケーション
- *
  * @ignore
  */
 
-// 依存パッケージ
+import * as middlewares from '@motionpicture/express-middleware';
 import * as ttts from '@motionpicture/ttts-domain';
 import * as bodyParser from 'body-parser';
 import * as cookieParser from 'cookie-parser';
@@ -40,6 +39,11 @@ import router from './routes/router';
 const debug = createDebug('ttts-backend:app');
 
 const app = express();
+
+app.use(middlewares.basicAuth({ // ベーシック認証
+    name: process.env.BASIC_AUTH_NAME,
+    pass: process.env.BASIC_AUTH_PASS
+}));
 
 app.use(cors()); // enable All CORS Requests
 app.use(helmet());

@@ -1,10 +1,9 @@
 "use strict";
 /**
  * expressアプリケーション
- *
  * @ignore
  */
-// 依存パッケージ
+const middlewares = require("@motionpicture/express-middleware");
 const ttts = require("@motionpicture/ttts-domain");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
@@ -35,6 +34,10 @@ const reports_1 = require("./routes/reports");
 const router_1 = require("./routes/router");
 const debug = createDebug('ttts-backend:app');
 const app = express();
+app.use(middlewares.basicAuth({
+    name: process.env.BASIC_AUTH_NAME,
+    pass: process.env.BASIC_AUTH_PASS
+}));
 app.use(cors()); // enable All CORS Requests
 app.use(helmet());
 app.use(session_1.default); // セッション
