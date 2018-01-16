@@ -463,8 +463,8 @@ function getCancels(conditions) {
  * @returns {string}
  */
 function getCsvData(value, addSeparator = true) {
-    value = convertToString(value);
-    return `"${(!_.isEmpty(value) ? value : '')}"${(addSeparator ? csvSeparator : '')}`;
+    const converted = convertToString(value);
+    return `"${(!_.isEmpty(converted) ? converted : '')}"${(addSeparator ? csvSeparator : '')}`;
 }
 /**
  * 文字列変換

@@ -36,9 +36,9 @@ const paymentMethodStrings: any = {
  */
 type IData = ttts.factory.reservation.event.IReservation & {
     status_sort: string;
-    cancellationFee: number
+    cancellationFee: number;
     // 予約単位料金
-    price: number
+    price: number;
     status4csv: Status4csv;
     // 取引作成日(キャンセルデータに出力)
     transaction_createdAt: Date;
@@ -294,10 +294,10 @@ async function validate(req: Request): Promise<any> {
 
     // 片方入力エラーチェック
     if (!isInputEven(req.query.start_hour1, req.query.start_minute1)) {
-        (<any>errors).start_hour1 = { msg: '集計期間の時分Fromが片方しか指定されていません' };
+        errors.start_hour1 = { msg: '集計期間の時分Fromが片方しか指定されていません' };
     }
     if (!isInputEven(req.query.start_hour2, req.query.start_minute2)) {
-        (<any>errors).start_hour2 = { msg: '集計期間の時分Toが片方しか指定されていません' };
+        errors.start_hour2 = { msg: '集計期間の時分Toが片方しか指定されていません' };
     }
     let errorMessage: string = '';
     Object.keys(errors).forEach((key) => {
@@ -460,7 +460,7 @@ async function getCancels(conditions: any): Promise<IData[]> {
     // 取引数分Loop
     for (const returnOrderTransaction of returnOrderTransactions) {
         // 取引からキャンセル予約情報取得
-        const transaction = <ttts.factory.transaction.placeOrder.ITransaction>returnOrderTransaction.object.transaction;
+        const transaction = returnOrderTransaction.object.transaction;
         const eventReservations = (<ttts.factory.transaction.placeOrder.IResult>transaction.result).eventReservations;
         for (const eventReservation of eventReservations) {
             if (eventReservation.status === ttts.factory.reservationStatusType.ReservationConfirmed) {
@@ -512,9 +512,9 @@ async function getCancels(conditions: any): Promise<IData[]> {
  * @returns {string}
  */
 function getCsvData(value: string, addSeparator: boolean = true): string {
-    value = convertToString(value);
+    const converted = convertToString(value);
 
-    return `"${(!_.isEmpty(value) ? value : '')}"${(addSeparator ? csvSeparator : '')}`;
+    return `"${(!_.isEmpty(converted) ? converted : '')}"${(addSeparator ? csvSeparator : '')}`;
 }
 
 /**
