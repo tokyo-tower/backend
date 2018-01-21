@@ -1,90 +1,40 @@
+<img src="https://motionpicture.jp/images/common/logo_01.svg" alt="motionpicture" title="motionpicture" align="right" height="56" width="98"/>
+
 # TTTSマスター管理ウェブアプリケーション
 
-# Features
-
-# Getting Started
-
-## インフラ
-基本的にnode.jsのウェブアプリケーションです。
-ウェブサーバーとしては、AzureのWebAppsあるいはGCPのAppEngineを想定しており、両方で動くように開発していくことが望ましい。
-
-## 言語
-実態としては、linuxあるいはwindows上でnode.jsは動くわけですが、プログラミング言語としては、alternative javascriptのひとつであるTypeScriptを採用しています。
-
-* TypeScript(https://www.typescriptlang.org/)
-
-## 開発方法
-npmでパッケージをインストールします。npmはnode.jsでスタンダードなパッケージ管理ツールです。パッケージ管理にとどまらず、開発やサーバー起動においても活躍します。
-
-```shell
-npm install
-```
-* npm(https://www.npmjs.com/)
-
-typescriptをjavascriptにコンパイルします。wオプションでファイル変更監視できます。
-
-```shell
-npm run build -- -w
-```
-
-npmでローカルサーバーを立ち上げることができます。
-
-```shell
-npm start
-```
-(http://localhost:8081)にアクセスすると、ローカルでウェブアプリを確認できます。
-
-ビルドファイルクリーン
-
-```shell
-npm run clean
-```
-
-scssビルド
-
-```shell
-npm run css
-```
+[![CircleCI](https://circleci.com/gh/motionpicture/ttts-backend.svg?style=svg&circle-token=bf5763849fc394f581d0a8eaf4c841bbdfc1cd93)](https://circleci.com/gh/motionpicture/ttts-backend)
 
 
-## Required environment variables
-```shell
-set NODE_ENV=**********環境名(development,test,production)**********
-set REDIS_HOST=**********session保管先redis host**********
-set REDIS_PORT=**********session保管先redis port**********
-set REDIS_KEY=**********session保管先redis key**********
-set MONGOLAB_URI=**********mongodb接続URI**********
-```
+## Table of contents
 
-only on Aure WebApps
+* [Usage](#usage)
+* [Jsdoc](#jsdoc)
+* [License](#license)
 
-```shell
-set WEBSITE_NODE_DEFAULT_VERSION=**********node.jsバージョン**********
-set WEBSITE_TIME_ZONE=Tokyo Standard Time
-```
+## Usage
 
-デバッグしたい場合
+### Environment variables
 
-```shell
-set DEBUG=ttts-backend*
-```
-
-ベーシック認証をかけたい場合
-
-```shell
-set TTTS_BACKEND_BASIC_AUTH_NAME=**********認証ユーザー名**********
-set TTTS_BACKEND_BASIC_AUTH_PASS=**********認証パスワード**********
-```
+| Name                              | Required | Value          | Purpose                               |
+| --------------------------------- | -------- | -------------- | ------------------------------------- |
+| `DEBUG`                           | false    | ttts-backend:* | Debug                                 |
+| `NPM_TOKEN`                       | true     |                | NPM auth token                        |
+| `NODE_ENV`                        | true     |                | 環境名(development,test,productionなど) |
+| `API_ENDPOINT`                    | true     |                | APIエンドポイント                            |
+| `API_CLIENT_ID`                   | true     |                | APIクライアントID                           |
+| `API_CLIENT_SECRET`               | true     |                | APIクライアントシークレット                       |
+| `API_AUTHORIZE_SERVER_DOMAIN`     | true     |                | API認可サーバードメイン                       |
+| `API_RESOURECE_SERVER_IDENTIFIER` | true     |                | APIリソースサーバー識別子                     |
+| `REDIS_HOST`                      | true     |                | redis host                            |
+| `REDIS_PORT`                      | true     |                | redis port                            |
+| `REDIS_KEY`                       | true     |                | redis key                             |
+| `MONGOLAB_URI`                    | true     |                | mongodb接続URI                        |
 
 
-# tslint
+## Jsdoc
 
-コード品質チェックをtslintで行っています。lintパッケージとして以下を仕様。
-* [tslint](https://github.com/palantir/tslint)
-* [tslint-microsoft-contrib](https://github.com/Microsoft/tslint-microsoft-contrib)
-`npm run check`でチェック実行。改修の際には、必ずチェックすること。
+`npm run doc` emits jsdoc to ./doc.
 
-# test
-mochaフレームワークでテスト実行。
-* [mocha](https://www.npmjs.com/package/mocha)
-`npm test`でテスト実行
+## License
+
+UNLICENSED

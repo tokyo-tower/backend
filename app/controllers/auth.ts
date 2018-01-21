@@ -3,16 +3,15 @@
  * @namespace controllers.auth
  */
 
-import * as ttts from '@motionpicture/ttts-domain';
+import * as tttsapi from '@motionpicture/ttts-api-nodejs-client';
 import * as createDebug from 'debug';
 import { NextFunction, Request, Response } from 'express';
+import * as request from 'request-promise-native';
 import * as _ from 'underscore';
 
 import * as Message from '../../common/Const/Message';
 
 const debug = createDebug('ttts-backend:controllers:master:auth');
-
-const cookieName = 'remember_master_admin';
 
 /**
  * マスタ管理ログイン
@@ -35,16 +34,20 @@ export async function login(req: Request, res: Response): Promise<void> {
         if (validatorResult.isEmpty()) {
             try {
                 // ログイン情報が有効であれば、Cognitoでもログイン
-                (<Express.Session>req.session).cognitoCredentials =
-                    await ttts.service.admin.login(
-                        <string>process.env.AWS_ACCESS_KEY_ID,
-                        <string>process.env.AWS_SECRET_ACCESS_KEY,
-                        <string>process.env.API_CLIENT_ID,
-                        <string>process.env.API_CLIENT_SECRET,
-                        <string>process.env.COGNITO_USER_POOL_ID,
-                        req.body.username,
-                        req.body.password
-                    )();
+                (<Express.Session>req.session).cognitoCredentials = await request.post(
+                    `${process.env.API_ENDPOINT}/oauth/token`,
+                    {
+                        auth: {
+                            user: <string>process.env.API_CLIENT_ID,
+                            pass: <string>process.env.API_CLIENT_SECRET
+                        },
+                        json: true,
+                        body: {
+                            username: req.body.username,
+                            password: req.body.password
+                        }
+                    }
+                ).then((body) => body);
                 debug('cognito credentials published.', (<Express.Session>req.session).cognitoCredentials);
             } catch (error) {
                 errors = { username: { msg: 'IDもしくはパスワードの入力に誤りがあります' } };
@@ -52,7 +55,23 @@ export async function login(req: Request, res: Response): Promise<void> {
 
             const cognitoCredentials = (<Express.Session>req.session).cognitoCredentials;
             if (cognitoCredentials !== undefined) {
-                const cognitoUser = await ttts.service.admin.getUserByAccessToken(cognitoCredentials.accessToken)();
+                // ログイン
+                const authClient = new tttsapi.auth.OAuth2({
+                    domain: <string>process.env.API_AUTHORIZE_SERVER_DOMAIN,
+                    clientId: <string>process.env.API_CLIENT_ID,
+                    clientSecret: <string>process.env.API_CLIENT_SECRET
+                });
+                authClient.setCredentials({
+                    refresh_token: cognitoCredentials.refreshToken,
+                    // expiry_date: number;
+                    access_token: cognitoCredentials.accessToken,
+                    token_type: cognitoCredentials.tokenType
+                });
+                const adminService = new tttsapi.service.Admin({
+                    endpoint: <string>process.env.API_ENDPOINT,
+                    auth: authClient
+                });
+                const cognitoUser = await adminService.getProfile();
 
                 // ログイン
                 (<Express.Session>req.session).user = cognitoUser;
@@ -90,9 +109,6 @@ export async function logout(req: Request, res: Response, next: NextFunction): P
             delete req.session.cognitoCredentials;
         }
 
-        // await ttts.Models.Authentication.remove({ token: req.cookies[cookieName] }).exec();
-
-        res.clearCookie(cookieName);
         res.redirect('/login');
     } catch (error) {
         next(error);

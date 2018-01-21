@@ -12,12 +12,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const ttts = require("@motionpicture/ttts-domain");
+const tttsapi = require("@motionpicture/ttts-api-nodejs-client");
 const createDebug = require("debug");
+const request = require("request-promise-native");
 const _ = require("underscore");
 const Message = require("../../common/Const/Message");
 const debug = createDebug('ttts-backend:controllers:master:auth');
-const cookieName = 'remember_master_admin';
 /**
  * マスタ管理ログイン
  */
@@ -36,8 +36,17 @@ function login(req, res) {
             if (validatorResult.isEmpty()) {
                 try {
                     // ログイン情報が有効であれば、Cognitoでもログイン
-                    req.session.cognitoCredentials =
-                        yield ttts.service.admin.login(process.env.AWS_ACCESS_KEY_ID, process.env.AWS_SECRET_ACCESS_KEY, process.env.API_CLIENT_ID, process.env.API_CLIENT_SECRET, process.env.COGNITO_USER_POOL_ID, req.body.username, req.body.password)();
+                    req.session.cognitoCredentials = yield request.post(`${process.env.API_ENDPOINT}/oauth/token`, {
+                        auth: {
+                            user: process.env.API_CLIENT_ID,
+                            pass: process.env.API_CLIENT_SECRET
+                        },
+                        json: true,
+                        body: {
+                            username: req.body.username,
+                            password: req.body.password
+                        }
+                    }).then((body) => body);
                     debug('cognito credentials published.', req.session.cognitoCredentials);
                 }
                 catch (error) {
@@ -45,7 +54,23 @@ function login(req, res) {
                 }
                 const cognitoCredentials = req.session.cognitoCredentials;
                 if (cognitoCredentials !== undefined) {
-                    const cognitoUser = yield ttts.service.admin.getUserByAccessToken(cognitoCredentials.accessToken)();
+                    // ログイン
+                    const authClient = new tttsapi.auth.OAuth2({
+                        domain: process.env.API_AUTHORIZE_SERVER_DOMAIN,
+                        clientId: process.env.API_CLIENT_ID,
+                        clientSecret: process.env.API_CLIENT_SECRET
+                    });
+                    authClient.setCredentials({
+                        refresh_token: cognitoCredentials.refreshToken,
+                        // expiry_date: number;
+                        access_token: cognitoCredentials.accessToken,
+                        token_type: cognitoCredentials.tokenType
+                    });
+                    const adminService = new tttsapi.service.Admin({
+                        endpoint: process.env.API_ENDPOINT,
+                        auth: authClient
+                    });
+                    const cognitoUser = yield adminService.getProfile();
                     // ログイン
                     req.session.user = cognitoUser;
                     const cb = (!_.isEmpty(req.query.cb)) ? req.query.cb : '/';
@@ -79,8 +104,6 @@ function logout(req, res, next) {
                 delete req.session.user;
                 delete req.session.cognitoCredentials;
             }
-            // await ttts.Models.Authentication.remove({ token: req.cookies[cookieName] }).exec();
-            res.clearCookie(cookieName);
             res.redirect('/login');
         }
         catch (error) {

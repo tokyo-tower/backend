@@ -12,6 +12,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const tttsapi = require("@motionpicture/ttts-api-nodejs-client");
 const ttts = require("@motionpicture/ttts-domain");
 const createDebug = require("debug");
 const moment = require("moment");
@@ -19,6 +20,11 @@ const _ = require("underscore");
 // tslint:disable-next-line:no-var-requires no-require-imports
 const jconv = require('jconv');
 const debug = createDebug('ttts-backend:controllers:report');
+const authClient = new tttsapi.auth.OAuth2({
+    domain: process.env.API_AUTHORIZE_SERVER_DOMAIN,
+    clientId: process.env.API_CLIENT_ID,
+    clientSecret: process.env.API_CLIENT_SECRET
+});
 // CSV用のステータスコード
 var Status4csv;
 (function (Status4csv) {
@@ -102,20 +108,24 @@ exports.sales = sales;
  *
  * アカウント別レポート出力
  */
-function account(__, res, next) {
+function account(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            // cognitoから入場ユーザーを検索
-            const cognitoUsers = [];
-            try {
-                cognitoUsers.push(...(yield ttts.service.admin.findAllByGroup(process.env.AWS_ACCESS_KEY_ID, process.env.AWS_SECRET_ACCESS_KEY, process.env.COGNITO_USER_POOL_ID, 'Staff')()));
-            }
-            catch (error) {
-                // no op
-            }
+            const cognitoCredentials = req.session.cognitoCredentials;
+            authClient.setCredentials({
+                refresh_token: cognitoCredentials.refreshToken,
+                // expiry_date: number;
+                access_token: cognitoCredentials.accessToken,
+                token_type: cognitoCredentials.tokenType
+            });
+            const adminService = new tttsapi.service.Admin({
+                endpoint: process.env.API_ENDPOINT,
+                auth: authClient
+            });
+            const cognitoUsers = yield adminService.search({ group: 'Staff' });
             debug('cognitoUsers:', cognitoUsers);
             if (cognitoUsers.length <= 0) {
-                throw new Error('no staff users.');
+                throw new Error('Staff admin users not found.');
             }
             const hours = [];
             // tslint:disable-next-line:no-magic-numbers
