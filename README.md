@@ -1,50 +1,17 @@
+<img src="https://motionpicture.jp/images/common/logo_01.svg" alt="motionpicture" title="motionpicture" align="right" height="56" width="98"/>
+
 # TTTSマスター管理ウェブアプリケーション
 
-# Features
+[![CircleCI](https://circleci.com/gh/motionpicture/ttts-backend.svg?style=svg&circle-token=bf5763849fc394f581d0a8eaf4c841bbdfc1cd93)](https://circleci.com/gh/motionpicture/ttts-backend)
 
-# Getting Started
 
-## インフラ
-基本的にnode.jsのウェブアプリケーションです。
-ウェブサーバーとしては、AzureのWebAppsあるいはGCPのAppEngineを想定しており、両方で動くように開発していくことが望ましい。
+## Table of contents
 
-## 言語
-実態としては、linuxあるいはwindows上でnode.jsは動くわけですが、プログラミング言語としては、alternative javascriptのひとつであるTypeScriptを採用しています。
+* [Usage](#usage)
+* [Jsdoc](#jsdoc)
+* [License](#license)
 
-* TypeScript(https://www.typescriptlang.org/)
-
-## 開発方法
-npmでパッケージをインストールします。npmはnode.jsでスタンダードなパッケージ管理ツールです。パッケージ管理にとどまらず、開発やサーバー起動においても活躍します。
-
-```shell
-npm install
-```
-* npm(https://www.npmjs.com/)
-
-typescriptをjavascriptにコンパイルします。wオプションでファイル変更監視できます。
-
-```shell
-npm run build -- -w
-```
-
-npmでローカルサーバーを立ち上げることができます。
-
-```shell
-npm start
-```
-(http://localhost:8081)にアクセスすると、ローカルでウェブアプリを確認できます。
-
-ビルドファイルクリーン
-
-```shell
-npm run clean
-```
-
-scssビルド
-
-```shell
-npm run css
-```
+## Usage
 
 ### Environment variables
 
@@ -53,7 +20,7 @@ npm run css
 | `DEBUG`                           | false    | ttts-backend:* | Debug                                 |
 | `NPM_TOKEN`                       | true     |                | NPM auth token                        |
 | `NODE_ENV`                        | true     |                | 環境名(development,test,productionなど) |
-| `API_ENDPOINT`                    | true     |                | frontと連携するttts apiのエンドポイント          |
+| `API_ENDPOINT`                    | true     |                | APIエンドポイント                            |
 | `API_CLIENT_ID`                   | true     |                | APIクライアントID                           |
 | `API_CLIENT_SECRET`               | true     |                | APIクライアントシークレット                       |
 | `API_AUTHORIZE_SERVER_DOMAIN`     | true     |                | API認可サーバードメイン                       |
@@ -64,14 +31,10 @@ npm run css
 | `MONGOLAB_URI`                    | true     |                | mongodb接続URI                        |
 
 
-# tslint
+## Jsdoc
 
-コード品質チェックをtslintで行っています。lintパッケージとして以下を仕様。
-* [tslint](https://github.com/palantir/tslint)
-* [tslint-microsoft-contrib](https://github.com/Microsoft/tslint-microsoft-contrib)
-`npm run check`でチェック実行。改修の際には、必ずチェックすること。
+`npm run doc` emits jsdoc to ./doc.
 
-# test
-mochaフレームワークでテスト実行。
-* [mocha](https://www.npmjs.com/package/mocha)
-`npm test`でテスト実行
+## License
+
+UNLICENSED
