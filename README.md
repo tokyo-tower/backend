@@ -46,35 +46,22 @@ scssビルド
 npm run css
 ```
 
+### Environment variables
 
-## Required environment variables
-```shell
-set NODE_ENV=**********環境名(development,test,production)**********
-set REDIS_HOST=**********session保管先redis host**********
-set REDIS_PORT=**********session保管先redis port**********
-set REDIS_KEY=**********session保管先redis key**********
-set MONGOLAB_URI=**********mongodb接続URI**********
-```
-
-only on Aure WebApps
-
-```shell
-set WEBSITE_NODE_DEFAULT_VERSION=**********node.jsバージョン**********
-set WEBSITE_TIME_ZONE=Tokyo Standard Time
-```
-
-デバッグしたい場合
-
-```shell
-set DEBUG=ttts-backend*
-```
-
-ベーシック認証をかけたい場合
-
-```shell
-set TTTS_BACKEND_BASIC_AUTH_NAME=**********認証ユーザー名**********
-set TTTS_BACKEND_BASIC_AUTH_PASS=**********認証パスワード**********
-```
+| Name                              | Required | Value          | Purpose                               |
+| --------------------------------- | -------- | -------------- | ------------------------------------- |
+| `DEBUG`                           | false    | ttts-backend:* | Debug                                 |
+| `NPM_TOKEN`                       | true     |                | NPM auth token                        |
+| `NODE_ENV`                        | true     |                | 環境名(development,test,productionなど) |
+| `API_ENDPOINT`                    | true     |                | frontと連携するttts apiのエンドポイント          |
+| `API_CLIENT_ID`                   | true     |                | APIクライアントID                           |
+| `API_CLIENT_SECRET`               | true     |                | APIクライアントシークレット                       |
+| `API_AUTHORIZE_SERVER_DOMAIN`     | true     |                | API認可サーバードメイン                       |
+| `API_RESOURECE_SERVER_IDENTIFIER` | true     |                | APIリソースサーバー識別子                     |
+| `REDIS_HOST`                      | true     |                | redis host                            |
+| `REDIS_PORT`                      | true     |                | redis port                            |
+| `REDIS_KEY`                       | true     |                | redis key                             |
+| `MONGOLAB_URI`                    | true     |                | mongodb接続URI                        |
 
 
 # tslint

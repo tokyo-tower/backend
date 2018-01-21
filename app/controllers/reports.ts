@@ -4,6 +4,7 @@
  * @namespace controllers.report
  */
 
+import * as tttsapi from '@motionpicture/ttts-api-nodejs-client';
 import * as ttts from '@motionpicture/ttts-domain';
 import * as createDebug from 'debug';
 import { NextFunction, Request, Response } from 'express';
@@ -13,6 +14,12 @@ import * as _ from 'underscore';
 const jconv = require('jconv');
 
 const debug = createDebug('ttts-backend:controllers:report');
+
+const authClient = new tttsapi.auth.OAuth2({
+    domain: <string>process.env.API_AUTHORIZE_SERVER_DOMAIN,
+    clientId: <string>process.env.API_CLIENT_ID,
+    clientSecret: <string>process.env.API_CLIENT_SECRET
+});
 
 // CSV用のステータスコード
 enum Status4csv {
@@ -107,24 +114,24 @@ export async function sales(__: Request, res: Response): Promise<void> {
  *
  * アカウント別レポート出力
  */
-export async function account(__: Request, res: Response, next: NextFunction): Promise<void> {
+export async function account(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-        // cognitoから入場ユーザーを検索
-        const cognitoUsers: ttts.service.admin.IAdmin[] = [];
-        try {
-            cognitoUsers.push(...(await ttts.service.admin.findAllByGroup(
-                <string>process.env.AWS_ACCESS_KEY_ID,
-                <string>process.env.AWS_SECRET_ACCESS_KEY,
-                <string>process.env.COGNITO_USER_POOL_ID,
-                'Staff'
-            )()));
-        } catch (error) {
-            // no op
-        }
+        const cognitoCredentials = (<Express.ICredentials>(<Express.Session>req.session).cognitoCredentials);
+        authClient.setCredentials({
+            refresh_token: cognitoCredentials.refreshToken,
+            // expiry_date: number;
+            access_token: cognitoCredentials.accessToken,
+            token_type: cognitoCredentials.tokenType
+        });
+        const adminService = new tttsapi.service.Admin({
+            endpoint: <string>process.env.API_ENDPOINT,
+            auth: authClient
+        });
+        const cognitoUsers = await adminService.search({ group: 'Staff' });
         debug('cognitoUsers:', cognitoUsers);
 
         if (cognitoUsers.length <= 0) {
-            throw new Error('no staff users.');
+            throw new Error('Staff admin users not found.');
         }
 
         const hours: string[] = [];
