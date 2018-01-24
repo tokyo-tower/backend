@@ -213,7 +213,13 @@ function getSales(req, res) {
                     if (a.payment_no < b.payment_no) {
                         return -1;
                     }
-                    // 座席番号
+                    // CANCELLATION_FEEは購入の最後の行
+                    if (a.status4csv === Status4csv.CancellationFee) {
+                        return 1;
+                    }
+                    if (b.status4csv === Status4csv.CancellationFee) {
+                        return -1;
+                    }
                     if (a.seat_code > b.seat_code) {
                         return 1;
                     }
@@ -424,7 +430,7 @@ function getReservations(conditions) {
             const eventReservations = transaction.result.eventReservations;
             for (const eventReservation of eventReservations) {
                 if (eventReservation.status === ttts.factory.reservationStatusType.ReservationConfirmed) {
-                    reservations.push(Object.assign({}, eventReservation, { status4csv: Status4csv.Reserved, status_sort: eventReservation.status, price: transaction.result.order.price, cancellationFee: 0, transaction_createdAt: transaction.endDate }));
+                    reservations.push(Object.assign({}, eventReservation, { status4csv: Status4csv.Reserved, status_sort: eventReservation.status, price: transaction.result.order.price, cancellationFee: 0 }));
                 }
             }
         }
@@ -433,7 +439,6 @@ function getReservations(conditions) {
 }
 /**
  * キャンセル予約情報取得
- *
  * @param {any} conditions
  * @returns {Promise<IData[]>}
  */
@@ -442,28 +447,21 @@ function getCancels(conditions) {
         // 取引に対する返品リクエスト取得
         const transactionRepo = new ttts.repository.Transaction(ttts.mongoose.connection);
         const returnOrderTransactions = yield transactionRepo.transactionModel.find(conditions).exec().then((docs) => docs.map((doc) => doc.toObject()));
-        // 予約情報をセット
-        const cancels = [];
-        // 取引数分Loop
-        for (const returnOrderTransaction of returnOrderTransactions) {
+        const datas = [];
+        returnOrderTransactions.forEach((returnOrderTransaction) => {
             // 取引からキャンセル予約情報取得
             const transaction = returnOrderTransaction.object.transaction;
             const eventReservations = transaction.result.eventReservations;
             for (const eventReservation of eventReservations) {
-                if (eventReservation.status === ttts.factory.reservationStatusType.ReservationConfirmed) {
-                    cancels.push(Object.assign({}, eventReservation, { status4csv: Status4csv.Cancelled, status_sort: '', cancellationFee: returnOrderTransaction.object.cancellationFee, price: transaction.result.order.price, transaction_createdAt: returnOrderTransaction.endDate }));
+                // 座席分のキャンセルデータ
+                datas.push(Object.assign({}, eventReservation, { status4csv: Status4csv.Cancelled, status_sort: `${eventReservation.status}_1`, cancellationFee: returnOrderTransaction.object.cancellationFee, price: transaction.result.order.price, purchased_at: returnOrderTransaction.endDate }));
+                // 購入分のキャンセル料データ
+                if (eventReservation.payment_seat_index === 0) {
+                    datas.push(Object.assign({}, eventReservation, { seat_code: '', seat_grade_name: Object.assign({}, eventReservation.seat_grade_name, { ja: '' }), seat_grade_additional_charge: '', ticket_type_name: Object.assign({}, eventReservation.ticket_type_name, { ja: '' }), ticket_type: '', ticket_type_charge: '', payment_seat_index: '', status4csv: Status4csv.CancellationFee, status_sort: `${eventReservation.status}_2`, cancellationFee: returnOrderTransaction.object.cancellationFee, price: returnOrderTransaction.object.cancellationFee, charge: returnOrderTransaction.object.cancellationFee, purchased_at: returnOrderTransaction.endDate, ticket_ttts_extension: Object.assign({}, eventReservation.ticket_ttts_extension, { csv_code: '' }) }));
                 }
             }
-        }
-        // キャンセルデータは1レコードで3行出力
-        const reservations = [];
-        for (const cancelReservation of cancels) {
-            // キャンセルデータ
-            reservations.push(Object.assign({}, cancelReservation, { status_sort: `${cancelReservation.status}_1`, status4csv: Status4csv.Cancelled, purchased_at: cancelReservation.transaction_createdAt }));
-            // キャンセル料データ
-            reservations.push(Object.assign({}, cancelReservation, { status_sort: `${cancelReservation.status}_2`, status4csv: Status4csv.CancellationFee, purchased_at: cancelReservation.transaction_createdAt, price: cancelReservation.cancellationFee, charge: cancelReservation.cancellationFee, ticket_ttts_extension: Object.assign({}, cancelReservation.ticket_ttts_extension, { csv_code: '' }) }));
-        }
-        return reservations;
+        });
+        return datas;
     });
 }
 /**
