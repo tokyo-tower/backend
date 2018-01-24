@@ -13,10 +13,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Removed
 
 ### Fixed
-- csvのキャンセル手数料を購入単位で出力するように修正。
 
 ### Security
 
+
+## v2.0.1 - 2018-01-24
+### Fixed
+- csvのキャンセル手数料を購入単位で出力するように修正。
 
 ## v2.0.0 - 2018-01-21
 ### Changed
