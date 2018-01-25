@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Removed
 
 ### Fixed
+- csv_codeマスターデータの設定ミスをカバリングするようにcsvデータを調整。
 
 ### Security
 

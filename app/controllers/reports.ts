@@ -8,6 +8,7 @@ import * as tttsapi from '@motionpicture/ttts-api-nodejs-client';
 import * as ttts from '@motionpicture/ttts-domain';
 import * as createDebug from 'debug';
 import { NextFunction, Request, Response } from 'express';
+import * as json2csv from 'json2csv';
 import * as moment from 'moment';
 import * as _ from 'underscore';
 // tslint:disable-next-line:no-var-requires no-require-imports
@@ -28,7 +29,6 @@ enum Status4csv {
     // キャンセル行ステータス
     CancellationFee = 'CANCELLATION_FEE'
 }
-
 const purchaserGroupStrings: any = {
     Customer: '01',
     Staff: '04'
@@ -39,55 +39,90 @@ const paymentMethodStrings: any = {
 
 /**
  * CSVデータインターフェース
- * @type
+ * @interface
  */
-type IData = ttts.factory.reservation.event.IReservation & {
+interface IData {
+    // 購入番号
+    paymentNo: string;
+    paymentSeatIndex: string;
+    performance: {
+        // パフォーマンスID
+        id: string;
+        // 入塔予約年月日
+        startDay: string;
+        // 入塔予約時刻
+        startTime: string;
+    };
+    theater: {
+        // 劇場名称
+        name: string;
+    };
+    screen: {
+        // スクリーンID
+        id: string;
+        // スクリーン名
+        name: string;
+    };
+    film: {
+        // 作品ID
+        id: string;
+        // 作品名称
+        name: string;
+    };
+    customer: {
+        // 購入者（名）
+        givenName: string;
+        // 購入者（姓）
+        familyName: string;
+        // 購入者メール
+        email: string;
+        // 購入者電話
+        telephone: string;
+        // 購入者区分
+        group: string;
+        // ユーザーネーム
+        username: string;
+        // 客層
+        segment: string;
+    };
+    // 購入日時
+    orderDate: string;
+    // 決済方法
+    paymentMethod: string;
+    seat: {
+        // 座席コード
+        code: string;
+        // 座席グレード名称
+        gradeName: string;
+        // 座席グレード追加料金
+        gradeAdditionalCharge: string;
+    };
+    ticketType: {
+        // 券種名称
+        name: string;
+        // チケットコード
+        csvCode: string;
+        // 券種料金
+        charge: string;
+    };
+    // 入場フラグ
+    checkedin: 'TRUE' | 'FALSE';
+    // 入場日時
+    checkinDate: string;
     status_sort: string;
     cancellationFee: number;
     // 予約単位料金
-    price: number;
-    status4csv: Status4csv;
-};
+    price: string;
+    // 予約ステータス
+    reservationStatus: Status4csv;
+}
 
 // カラム区切り(タブ)
-const csvSeparator: string = '\t';
+const CSV_DELIMITER: string = '\t';
 // 改行コード(CR+LF)
-const csvLineFeed: string = '\r\n';
-// 売り上げレポートヘッダ
-const arrayHeadSales = [
-    '"購入番号"',
-    '"パフォーマンスID"',
-    '"座席コード"',
-    '"予約ステータス"',
-    '"入塔予約年月日"',
-    '"入塔予約時刻"',
-    '"劇場名称"',
-    '"スクリーンID"',
-    '"スクリーン名"',
-    '"作品ID"',
-    '"作品名称"',
-    '"購入者区分"',
-    '"購入者（名）"',
-    '"購入者（姓）"',
-    '"購入者メール"',
-    '"購入者電話"',
-    '"購入日時"',
-    '"決済方法"',
-    '"座席グレード名称"',
-    '"座席グレード追加料金"',
-    '"券種名称"',
-    '"チケットコード"',
-    '"券種料金"',
-    '"客層"',
-    '"payment_seat_index"',
-    '"予約単位料金"',
-    '"ユーザーネーム"',
-    '"入場フラグ"',
-    '"入場日時"'
-];
+const CSV_LINE_ENDING: string = '\r\n';
 
 /**
- *
  * レポートindex
  */
 export async function index(__: Request, res: Response): Promise<void> {
@@ -97,8 +132,8 @@ export async function index(__: Request, res: Response): Promise<void> {
         layout: 'layouts/master/layout'
     });
 }
+
 /**
- *
  * 売り上げレポート出力
  */
 export async function sales(__: Request, res: Response): Promise<void> {
@@ -108,8 +143,8 @@ export async function sales(__: Request, res: Response): Promise<void> {
         layout: 'layouts/master/layout'
     });
 }
+
 /**
- *
  * アカウント別レポート出力
  */
 export async function account(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -158,6 +193,7 @@ export async function account(req: Request, res: Response, next: NextFunction): 
         next(error);
     }
 }
+
 /**
  * 一覧データ取得API
  */
@@ -198,38 +234,38 @@ export async function getSales(req: Request, res: Response): Promise<void> {
         if (datas.length > 0) {
             datas.sort((a, b) => {
                 // 入塔日
-                if (a.performance_day > b.performance_day) {
+                if (a.performance.startDay > b.performance.startDay) {
                     return 1;
                 }
-                if (a.performance_day < b.performance_day) {
+                if (a.performance.startDay < b.performance.startDay) {
                     return -1;
                 }
                 // 開始時間
-                if (a.performance_start_time > b.performance_start_time) {
+                if (a.performance.startTime > b.performance.startTime) {
                     return 1;
                 }
-                if (a.performance_start_time < b.performance_start_time) {
+                if (a.performance.startTime < b.performance.startTime) {
                     return -1;
                 }
                 // 購入番号
-                if (a.payment_no > b.payment_no) {
+                if (a.paymentNo > b.paymentNo) {
                     return 1;
                 }
-                if (a.payment_no < b.payment_no) {
+                if (a.paymentNo < b.paymentNo) {
                     return -1;
                 }
 
                 // CANCELLATION_FEEは購入の最後の行
-                if (a.status4csv === Status4csv.CancellationFee) {
+                if (a.reservationStatus === Status4csv.CancellationFee) {
                     return 1;
                 }
-                if (b.status4csv === Status4csv.CancellationFee) {
+                if (b.reservationStatus === Status4csv.CancellationFee) {
                     return -1;
                 }
-                if (a.seat_code > b.seat_code) {
+                if (a.seat.code > b.seat.code) {
                     return 1;
                 }
-                if (a.seat_code < b.seat_code) {
+                if (a.seat.code < b.seat.code) {
                     return -1;
                 }
                 // 3レコード用:confirmed->cencelled->CANCELLATION_FEE
@@ -244,56 +280,48 @@ export async function getSales(req: Request, res: Response): Promise<void> {
             });
         }
 
-        const results = datas.map((reservation) => {
-            return getCsvData(reservation.payment_no) +
-                getCsvData(reservation.performance) +
-                getCsvData(reservation.seat_code) +
-                getCsvData(reservation.status4csv) +
-                getCsvData(toYMDDB(reservation.performance_day)) +
-                getCsvData(reservation.performance_start_time) +
-                getCsvData(reservation.theater_name.ja) +
-                getCsvData(reservation.screen) +
-                getCsvData(reservation.screen_name.ja) +
-                getCsvData(reservation.film) +
-                getCsvData(reservation.film_name.ja) +
-                // tslint:disable-next-line:max-line-length
-                getCsvData((purchaserGroupStrings[reservation.purchaser_group] !== undefined) ? purchaserGroupStrings[reservation.purchaser_group] : reservation.purchaser_group) +
-                getCsvData(reservation.purchaser_first_name) +
-                getCsvData(reservation.purchaser_last_name) +
-                getCsvData(reservation.purchaser_email) +
-                getCsvData(reservation.purchaser_tel) +
-                getCsvData(toString(reservation.purchased_at)) +
-                // tslint:disable-next-line:max-line-length
-                getCsvData((paymentMethodStrings[reservation.payment_method] !== undefined) ? paymentMethodStrings[reservation.payment_method] : reservation.payment_method) +
-                getCsvData(reservation.seat_grade_name.ja) +
-                getCsvData(reservation.seat_grade_additional_charge.toString()) +
-                getCsvData(reservation.ticket_type_name.ja) +
-                getCsvData(reservation.ticket_ttts_extension.csv_code) +
-                getCsvData(reservation.charge.toString()) +
-                getCsvData(getCustomerGroup(reservation)) +
-                getCsvData(reservation.payment_seat_index.toString()) +
-                getCsvData(reservation.price.toString()) +
-                getCsvData((reservation.owner_username !== undefined) ? reservation.owner_username : '') +
-                getCsvData(reservation.checkins.length > 0 ? 'TRUE' : 'FALSE') +
-                getCsvData(reservation.checkins.length > 0 ? toString(reservation.checkins[0].when) : '', false);
+        const fields = [
+            'paymentNo', 'performance.id', 'seat.code', 'reservationStatus',
+            'performance.startDay', 'performance.startTime', 'theater.name', 'screen.id', 'screen.name', 'film.id', 'film.name',
+            'customer.group', 'customer.givenName', 'customer.familyName', 'customer.email', 'customer.telephone',
+            'orderDate', 'paymentMethod',
+            'seat.gradeName', 'seat.gradeAdditionalCharge', 'ticketType.name', 'ticketType.csvCode', 'ticketType.charge',
+            'customer.segment', 'paymentSeatIndex', 'price', 'customer.username', 'checkedin', 'checkinDate'
+        ];
+        const fieldNames = [
+            '購入番号', 'パフォーマンスID', '座席コード', '予約ステータス',
+            '入塔予約年月日', '入塔予約時刻', '劇場名称', 'スクリーンID', 'スクリーン名', '作品ID', '作品名称',
+            '購入者区分', '購入者（名）', '購入者（姓）', '購入者メール', '購入者電話',
+            '購入日時', '決済方法',
+            '座席グレード名称', '座席グレード追加料金', '券種名称', 'チケットコード', '券種料金',
+            '客層', 'payment_seat_index', '予約単位料金', 'ユーザーネーム', '入場フラグ', '入場日時'
+        ];
+        const output = json2csv({
+            data: datas,
+            fields: fields,
+            fieldNames: fieldNames,
+            del: CSV_DELIMITER,
+            newLine: CSV_LINE_ENDING,
+            quotes: '"',
+            defaultValue: '',
+            flatten: true,
+            preserveNewLinesInValues: true
         });
-        debug('writing results to response...', results);
+        debug(`writing ${output.length} character(s) to response...`);
 
         // Responseヘッダセット
-        const filename = getValue(req.query.reportType) === 'sales' ? '売上げレポート' : 'アカウント別レポート';
+        const filename = (req.query.reportType === 'sales') ? '売上げレポート' : 'アカウント別レポート';
         res.setHeader('Content-disposition', `attachment; filename*=UTF-8\'\'${encodeURIComponent(`${filename}.tsv`)}`);
         res.setHeader('Content-Type', 'text/csv; charset=Shift_JIS');
 
-        const head = arrayHeadSales.join(csvSeparator) + csvLineFeed;
-        res.write(jconv.convert(head, 'UTF8', 'SJIS'));
-        res.write(jconv.convert(results.join(csvLineFeed), 'UTF8', 'SJIS'));
+        res.write(jconv.convert(output, 'UTF8', 'SJIS'));
         res.end();
     } catch (error) {
         const message: string = error.message;
-        res.write(message);
-        res.end();
+        res.send(message);
     }
 }
+
 /**
  * レポート出力検証
  * @param {Request} req
@@ -313,12 +341,13 @@ async function validate(req: Request): Promise<any> {
     }
     let errorMessage: string = '';
     Object.keys(errors).forEach((key) => {
-        if (errorMessage !== '') { errorMessage += csvLineFeed; }
+        if (errorMessage !== '') { errorMessage += CSV_LINE_ENDING; }
         errorMessage += errors[key].msg;
     });
 
     return errorMessage;
 }
+
 /**
  * 両方入力チェック(両方入力、または両方未入力の時true)
  *
@@ -336,6 +365,7 @@ function isInputEven(value1: string, value2: string): boolean {
 
     return false;
 }
+
 /**
  * 入力値取得(空文字はnullに変換)
  *
@@ -437,17 +467,9 @@ async function getReservations(conditions: any): Promise<IData[]> {
     for (const transaction of transactions) {
         // 取引から予約情報取得
         const eventReservations = (<ttts.factory.transaction.placeOrder.IResult>transaction.result).eventReservations;
-        for (const eventReservation of eventReservations) {
-            if (eventReservation.status === ttts.factory.reservationStatusType.ReservationConfirmed) {
-                reservations.push({
-                    ...eventReservation,
-                    status4csv: Status4csv.Reserved,
-                    status_sort: eventReservation.status,
-                    price: (<ttts.factory.transaction.placeOrder.IResult>transaction.result).order.price,
-                    cancellationFee: 0
-                });
-            }
-        }
+        eventReservations.forEach((r) => {
+            reservations.push(reservation2data(r, (<ttts.factory.transaction.placeOrder.IResult>transaction.result).order.price));
+        });
     }
 
     return reservations;
@@ -471,38 +493,36 @@ async function getCancels(conditions: any): Promise<IData[]> {
         // 取引からキャンセル予約情報取得
         const transaction = returnOrderTransaction.object.transaction;
         const eventReservations = (<ttts.factory.transaction.placeOrder.IResult>transaction.result).eventReservations;
-        for (const eventReservation of eventReservations) {
+        for (const r of eventReservations) {
             // 座席分のキャンセルデータ
             datas.push({
-                ...eventReservation,
-                status4csv: Status4csv.Cancelled,
-                status_sort: `${eventReservation.status}_1`,
+                ...reservation2data(r, (<ttts.factory.transaction.placeOrder.IResult>transaction.result).order.price),
+                reservationStatus: Status4csv.Cancelled,
+                status_sort: `${r.status}_1`,
                 cancellationFee: returnOrderTransaction.object.cancellationFee,
-                price: (<ttts.factory.transaction.placeOrder.IResult>transaction.result).order.price,
-                purchased_at: <Date>returnOrderTransaction.endDate
+                orderDate: moment(<Date>returnOrderTransaction.endDate).format('YYYY/MM/DD HH:mm:ss')
             });
 
             // 購入分のキャンセル料データ
-            if (eventReservation.payment_seat_index === 0) {
+            if (r.payment_seat_index === 0) {
                 datas.push({
-                    ...eventReservation,
-                    seat_code: '',
-                    seat_grade_name: { ...eventReservation.seat_grade_name, ja: '' },
-                    seat_grade_additional_charge: <any>'',
-                    ticket_type_name: { ...eventReservation.ticket_type_name, ja: '' },
-                    ticket_type: '',
-                    ticket_type_charge: <any>'',
-                    payment_seat_index: <any>'',
-                    status4csv: Status4csv.CancellationFee,
-                    status_sort: `${eventReservation.status}_2`,
+                    ...reservation2data(r, (<ttts.factory.transaction.placeOrder.IResult>transaction.result).order.price),
+                    seat: {
+                        code: '',
+                        gradeName: '',
+                        gradeAdditionalCharge: ''
+                    },
+                    ticketType: {
+                        name: '',
+                        charge: returnOrderTransaction.object.cancellationFee.toString(),
+                        csvCode: ''
+                    },
+                    paymentSeatIndex: '',
+                    reservationStatus: Status4csv.CancellationFee,
+                    status_sort: `${r.status}_2`,
                     cancellationFee: returnOrderTransaction.object.cancellationFee,
-                    price: returnOrderTransaction.object.cancellationFee,
-                    charge: returnOrderTransaction.object.cancellationFee,
-                    purchased_at: <Date>returnOrderTransaction.endDate,
-                    ticket_ttts_extension: {
-                        ...eventReservation.ticket_ttts_extension,
-                        csv_code: ''
-                    }
+                    price: returnOrderTransaction.object.cancellationFee.toString(),
+                    orderDate: moment(<Date>returnOrderTransaction.endDate).format('YYYY/MM/DD HH:mm:ss')
                 });
             }
         }
@@ -511,39 +531,6 @@ async function getCancels(conditions: any): Promise<IData[]> {
     return datas;
 }
 
-/**
- * CSV出力用データ取得
- * @param {string} value
- * @param {boolean} addSeparator
- * @returns {string}
- */
-function getCsvData(value: string, addSeparator: boolean = true): string {
-    const converted = convertToString(value);
-
-    return `"${(!_.isEmpty(converted) ? converted : '')}"${(addSeparator ? csvSeparator : '')}`;
-}
-
-/**
- * 文字列変換
- * @param {any} value
- * @returns {string}
- */
-function convertToString(value: any): string {
-    if (value === undefined) { return ''; }
-    if (value === null) { return ''; }
-
-    return value.toString();
-}
-
-/**
- * YYYYMMDD日付取得
- *
- * @param {string} dateStr('YYYY/MM/DD')
- * @returns {string} ('YYYYMMDD')
- */
-function toYMDDB(dateStr: string): string {
-    return moment(dateStr, 'YYYY/MM/DD').format('YYYYMMDD');
-}
 /**
  * DB検索用ISO日付取得
  *
@@ -556,6 +543,7 @@ function toISOStringJapan(dateStr: string, addDay: number = 0): string {
 
     return `${dateWk}T00:00:00+09:00`;
 }
+
 /**
  * DB検索用ISO日付+時分取得
  *
@@ -574,29 +562,69 @@ function toISOStringUTC(dateStr: string, addMinute: number = 0): string {
 
     return `${dateWk}T${timeWk}Z`;
 }
-/**
- * YYYY/MM/DD HH:mm:ss 日時取得
- *
- * @param {Date} date
- * @returns {string} ('YYYY/MM/DD HH:mm:ss')
- */
-function toString(date: Date): string {
-    if (convertToString(date) === '') {
-        return '';
-    }
-
-    return moment(date).format('YYYY/MM/DD HH:mm:ss');
-}
 
 /**
- * 客層取得 (購入者居住国：2桁、年代：2桁、性別：1桁)
- * @param {ttts.factory.reservation.event.IReservation} reservation
- * @returns {string}
+ * 予約データをcsvデータ型に変換する
+ * @param {ttts.factory.reservation.event.IReservation} r 予約データ
+ * @param {number} orderPrice 注文金額
  */
-function getCustomerGroup(reservation: ttts.factory.reservation.event.IReservation): string {
-    const locale = convertToString(reservation.purchaser_address);
-    const age = convertToString(reservation.purchaser_age);
-    const gender = convertToString(reservation.purchaser_gender);
+function reservation2data(r: ttts.factory.reservation.event.IReservation, orderPrice: number): IData {
+    // 客層取得 (購入者居住国：2桁、年代：2桁、性別：1桁)
+    const locale = (r.purchaser_address !== undefined) ? r.purchaser_address : '';
+    const age = (r.purchaser_age !== undefined) ? r.purchaser_age : '';
+    const gender = (r.purchaser_gender !== undefined) ? r.purchaser_gender : '';
+    const customerSegment = (locale !== '' ? locale : '__') + (age !== '' ? age : '__') + (gender !== '' ? gender : '_');
 
-    return (locale !== '' ? locale : '__') + (age !== '' ? age : '__') + (gender !== '' ? gender : '_');
+    return {
+        paymentNo: r.payment_no,
+        paymentSeatIndex: r.payment_seat_index.toString(),
+        performance: {
+            id: r.performance,
+            startDay: r.performance_day,
+            startTime: r.performance_start_time
+        },
+        theater: {
+            name: r.theater_name.ja
+        },
+        screen: {
+            id: r.screen,
+            name: r.screen_name.ja
+        },
+        film: {
+            id: r.film,
+            name: r.film_name.ja
+        },
+        seat: {
+            code: r.seat_code,
+            gradeName: r.seat_grade_name.ja,
+            gradeAdditionalCharge: r.seat_grade_additional_charge.toString()
+        },
+        ticketType: {
+            name: r.ticket_type_name.ja,
+            // リリース当初の間違ったマスターデータをカバーするため
+            csvCode: (r.ticket_ttts_extension.csv_code === '0000000000231') ? '10031' : r.ticket_ttts_extension.csv_code,
+            charge: r.charge.toString()
+        },
+        customer: {
+            group: (purchaserGroupStrings[r.purchaser_group] !== undefined)
+                ? purchaserGroupStrings[r.purchaser_group]
+                : r.purchaser_group,
+            givenName: r.purchaser_first_name,
+            familyName: r.purchaser_last_name,
+            email: r.purchaser_email,
+            telephone: r.purchaser_tel,
+            segment: customerSegment,
+            username: (r.owner_username !== undefined) ? r.owner_username : ''
+        },
+        orderDate: moment(r.purchased_at).format('YYYY/MM/DD HH:mm:ss'),
+        paymentMethod: (paymentMethodStrings[r.payment_method] !== undefined)
+            ? paymentMethodStrings[r.payment_method]
+            : r.payment_method,
+        checkedin: r.checkins.length > 0 ? 'TRUE' : 'FALSE',
+        checkinDate: r.checkins.length > 0 ? moment(r.checkins[0].when).format('YYYY/MM/DD HH:mm:ss') : '',
+        reservationStatus: Status4csv.Reserved,
+        status_sort: r.status,
+        price: orderPrice.toString(),
+        cancellationFee: 0
+    };
 }
