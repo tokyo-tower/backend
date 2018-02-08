@@ -29,6 +29,7 @@
 | `REDIS_PORT`                      | true     |                | redis port                            |
 | `REDIS_KEY`                       | true     |                | redis key                             |
 | `MONGOLAB_URI`                    | true     |                | mongodb接続URI                        |
+| `POS_CLIENT_ID`                   | true     |                | POSクライアントID                           |
 
 
 ## Jsdoc

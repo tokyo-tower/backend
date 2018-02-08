@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Added
 
 ### Changed
+- POSでの注文取引をレポートから除外。
 
 ### Deprecated
 

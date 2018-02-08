@@ -304,6 +304,7 @@ function getValue(inputValue) {
  * @returns {any}
  */
 function getConditons(prmConditons, dbType) {
+    const POS_CLIENT_ID = process.env.POS_CLIENT_ID;
     // 検索条件を作成
     const conditions = {};
     // 予約か否か
@@ -319,6 +320,9 @@ function getConditons(prmConditons, dbType) {
         conditions.status = ttts.factory.transactionStatusType.Confirmed;
         // 購入区分
         conditions['object.purchaser_group'] = purchaserGroup;
+        if (POS_CLIENT_ID !== undefined) {
+            conditions['agent.id'] = { $ne: POS_CLIENT_ID }; // POS購入除外
+        }
         // アカウント
         if (prmConditons.owner_username !== null) {
             conditions['result.eventReservations.owner_username'] = prmConditons.owner_username;
@@ -330,6 +334,9 @@ function getConditons(prmConditons, dbType) {
         conditions.typeOf = ttts.factory.transactionType.ReturnOrder;
         // 購入区分
         conditions['object.transaction.object.purchaser_group'] = purchaserGroup;
+        if (POS_CLIENT_ID !== undefined) {
+            conditions['object.transaction.agent.id'] = { $ne: POS_CLIENT_ID }; // POS購入除外
+        }
     }
     // 集計期間
     if (prmConditons.performanceDayFrom !== null || prmConditons.performanceDayTo !== null) {
