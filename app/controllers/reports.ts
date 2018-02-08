@@ -460,19 +460,29 @@ async function getReservations(conditions: any): Promise<IData[]> {
     const transactions = await transactionRepo.transactionModel.find(
         conditions
     ).exec().then((docs) => docs.map((doc) => <ttts.factory.transaction.placeOrder.ITransaction>doc.toObject()));
+    debug(`${transactions.length} transactions found.`);
+
+    // 取引で作成された予約データを取得
+    const orderNumbers = transactions.map((t) => (<ttts.factory.transaction.placeOrder.IResult>t.result).order.orderNumber);
+    const reservationRepo = new ttts.repository.Reservation(ttts.mongoose.connection);
+    const reservations = await reservationRepo.reservationModel.find(
+        { order_number: { $in: orderNumbers } }
+    ).exec().then((docs) => docs.map((doc) => <ttts.factory.reservation.event.IReservation>doc.toObject()));
+    debug(`${reservations.length} reservations found.`);
 
     // 予約情報をセット
-    const reservations: IData[] = [];
+    const datas: IData[] = [];
     // 取引数分Loop
     for (const transaction of transactions) {
+        const transactionResult = <ttts.factory.transaction.placeOrder.IResult>transaction.result;
         // 取引から予約情報取得
-        const eventReservations = (<ttts.factory.transaction.placeOrder.IResult>transaction.result).eventReservations;
+        const eventReservations = reservations.filter((r) => r.order_number === transactionResult.order.orderNumber);
         eventReservations.forEach((r) => {
-            reservations.push(reservation2data(r, (<ttts.factory.transaction.placeOrder.IResult>transaction.result).order.price));
+            datas.push(reservation2data(r, transactionResult.order.price));
         });
     }
 
-    return reservations;
+    return datas;
 }
 
 /**
@@ -486,17 +496,28 @@ async function getCancels(conditions: any): Promise<IData[]> {
     const returnOrderTransactions = await transactionRepo.transactionModel.find(
         conditions
     ).exec().then((docs) => docs.map((doc) => <ttts.factory.transaction.returnOrder.ITransaction>doc.toObject()));
+    debug(`${returnOrderTransactions.length} returnOrderTransactions found.`);
+
+    // 取引で作成された予約データを取得
+    const placeOrderTransactions = returnOrderTransactions.map((t) => t.object.transaction);
+    const orderNumbers = placeOrderTransactions.map((t) => (<ttts.factory.transaction.placeOrder.IResult>t.result).order.orderNumber);
+    const reservationRepo = new ttts.repository.Reservation(ttts.mongoose.connection);
+    const reservations = await reservationRepo.reservationModel.find(
+        { order_number: { $in: orderNumbers } }
+    ).exec().then((docs) => docs.map((doc) => <ttts.factory.reservation.event.IReservation>doc.toObject()));
+    debug(`${reservations.length} reservations found.`);
 
     const datas: IData[] = [];
 
     returnOrderTransactions.forEach((returnOrderTransaction) => {
         // 取引からキャンセル予約情報取得
-        const transaction = returnOrderTransaction.object.transaction;
-        const eventReservations = (<ttts.factory.transaction.placeOrder.IResult>transaction.result).eventReservations;
+        const placeOrderTransaction = returnOrderTransaction.object.transaction;
+        const placeOrderTransactionResult = <ttts.factory.transaction.placeOrder.IResult>placeOrderTransaction.result;
+        const eventReservations = reservations.filter((r) => r.order_number === placeOrderTransactionResult.order.orderNumber);
         for (const r of eventReservations) {
             // 座席分のキャンセルデータ
             datas.push({
-                ...reservation2data(r, (<ttts.factory.transaction.placeOrder.IResult>transaction.result).order.price),
+                ...reservation2data(r, placeOrderTransactionResult.order.price),
                 reservationStatus: Status4csv.Cancelled,
                 status_sort: `${r.status}_1`,
                 cancellationFee: returnOrderTransaction.object.cancellationFee,
@@ -506,7 +527,7 @@ async function getCancels(conditions: any): Promise<IData[]> {
             // 購入分のキャンセル料データ
             if (r.payment_seat_index === 0) {
                 datas.push({
-                    ...reservation2data(r, (<ttts.factory.transaction.placeOrder.IResult>transaction.result).order.price),
+                    ...reservation2data(r, placeOrderTransactionResult.order.price),
                     seat: {
                         code: '',
                         gradeName: '',

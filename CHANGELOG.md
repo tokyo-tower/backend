@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Removed
 
 ### Fixed
+- 取引データに予約の入場情報は同期できていないので、レポート作成に予約データを使用するように変更。
 
 ### Security
 

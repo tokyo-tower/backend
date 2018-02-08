@@ -379,17 +379,24 @@ function getReservations(conditions) {
         // 取引取得
         const transactionRepo = new ttts.repository.Transaction(ttts.mongoose.connection);
         const transactions = yield transactionRepo.transactionModel.find(conditions).exec().then((docs) => docs.map((doc) => doc.toObject()));
+        debug(`${transactions.length} transactions found.`);
+        // 取引で作成された予約データを取得
+        const orderNumbers = transactions.map((t) => t.result.order.orderNumber);
+        const reservationRepo = new ttts.repository.Reservation(ttts.mongoose.connection);
+        const reservations = yield reservationRepo.reservationModel.find({ order_number: { $in: orderNumbers } }).exec().then((docs) => docs.map((doc) => doc.toObject()));
+        debug(`${reservations.length} reservations found.`);
         // 予約情報をセット
-        const reservations = [];
+        const datas = [];
         // 取引数分Loop
         for (const transaction of transactions) {
+            const transactionResult = transaction.result;
             // 取引から予約情報取得
-            const eventReservations = transaction.result.eventReservations;
+            const eventReservations = reservations.filter((r) => r.order_number === transactionResult.order.orderNumber);
             eventReservations.forEach((r) => {
-                reservations.push(reservation2data(r, transaction.result.order.price));
+                datas.push(reservation2data(r, transactionResult.order.price));
             });
         }
-        return reservations;
+        return datas;
     });
 }
 /**
@@ -402,17 +409,25 @@ function getCancels(conditions) {
         // 取引に対する返品リクエスト取得
         const transactionRepo = new ttts.repository.Transaction(ttts.mongoose.connection);
         const returnOrderTransactions = yield transactionRepo.transactionModel.find(conditions).exec().then((docs) => docs.map((doc) => doc.toObject()));
+        debug(`${returnOrderTransactions.length} returnOrderTransactions found.`);
+        // 取引で作成された予約データを取得
+        const placeOrderTransactions = returnOrderTransactions.map((t) => t.object.transaction);
+        const orderNumbers = placeOrderTransactions.map((t) => t.result.order.orderNumber);
+        const reservationRepo = new ttts.repository.Reservation(ttts.mongoose.connection);
+        const reservations = yield reservationRepo.reservationModel.find({ order_number: { $in: orderNumbers } }).exec().then((docs) => docs.map((doc) => doc.toObject()));
+        debug(`${reservations.length} reservations found.`);
         const datas = [];
         returnOrderTransactions.forEach((returnOrderTransaction) => {
             // 取引からキャンセル予約情報取得
-            const transaction = returnOrderTransaction.object.transaction;
-            const eventReservations = transaction.result.eventReservations;
+            const placeOrderTransaction = returnOrderTransaction.object.transaction;
+            const placeOrderTransactionResult = placeOrderTransaction.result;
+            const eventReservations = reservations.filter((r) => r.order_number === placeOrderTransactionResult.order.orderNumber);
             for (const r of eventReservations) {
                 // 座席分のキャンセルデータ
-                datas.push(Object.assign({}, reservation2data(r, transaction.result.order.price), { reservationStatus: Status4csv.Cancelled, status_sort: `${r.status}_1`, cancellationFee: returnOrderTransaction.object.cancellationFee, orderDate: moment(returnOrderTransaction.endDate).format('YYYY/MM/DD HH:mm:ss') }));
+                datas.push(Object.assign({}, reservation2data(r, placeOrderTransactionResult.order.price), { reservationStatus: Status4csv.Cancelled, status_sort: `${r.status}_1`, cancellationFee: returnOrderTransaction.object.cancellationFee, orderDate: moment(returnOrderTransaction.endDate).format('YYYY/MM/DD HH:mm:ss') }));
                 // 購入分のキャンセル料データ
                 if (r.payment_seat_index === 0) {
-                    datas.push(Object.assign({}, reservation2data(r, transaction.result.order.price), { seat: {
+                    datas.push(Object.assign({}, reservation2data(r, placeOrderTransactionResult.order.price), { seat: {
                             code: '',
                             gradeName: '',
                             gradeAdditionalCharge: ''
