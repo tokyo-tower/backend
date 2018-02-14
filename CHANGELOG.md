@@ -17,6 +17,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Security
 
 
+## v2.0.3 - 2018-02-14
+### Changed
+- POSでの注文取引をレポートから除外。
+
+### Fixed
+- 取引データに予約の入場情報は同期できていないので、レポート作成に予約データを使用するように変更。
+
 ## v2.0.2 - 2018-01-25
 ### Fixed
 - csv_codeマスターデータの設定ミスをカバリングするようにcsvデータを調整。
