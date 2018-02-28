@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Added
 
 ### Changed
+- POS購入除外機能をオフにする対応。
 
 ### Deprecated
 
