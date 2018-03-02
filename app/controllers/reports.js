@@ -321,7 +321,8 @@ function getConditons(prmConditons, dbType) {
         // 購入区分
         conditions['object.purchaser_group'] = purchaserGroup;
         if (POS_CLIENT_ID !== undefined) {
-            conditions['agent.id'] = { $ne: POS_CLIENT_ID }; // POS購入除外
+            // POS購入除外(一時的に除外機能オフ)
+            // conditions['agent.id'] = { $ne: POS_CLIENT_ID };
         }
         // アカウント
         if (prmConditons.owner_username !== null) {
@@ -335,7 +336,8 @@ function getConditons(prmConditons, dbType) {
         // 購入区分
         conditions['object.transaction.object.purchaser_group'] = purchaserGroup;
         if (POS_CLIENT_ID !== undefined) {
-            conditions['object.transaction.agent.id'] = { $ne: POS_CLIENT_ID }; // POS購入除外
+            // POS購入除外(一時的に除外機能オフ)
+            // conditions['object.transaction.agent.id'] = { $ne: POS_CLIENT_ID };
         }
     }
     // 集計期間
