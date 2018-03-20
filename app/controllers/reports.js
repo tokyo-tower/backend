@@ -28,6 +28,7 @@ const authClient = new tttsapi.auth.OAuth2({
 });
 const POS_CLIENT_ID = process.env.POS_CLIENT_ID;
 const TOP_DECK_OPEN_DATE = process.env.TOP_DECK_OPEN_DATE;
+const RESERVATION_START_DATE = process.env.RESERVATION_START_DATE;
 // CSV用のステータスコード
 var Status4csv;
 (function (Status4csv) {
@@ -345,40 +346,43 @@ function getConditons(prmConditons, dbType) {
         }
     }
     // 集計期間
+    // 予約開始日時の設定があれば、それ以前は除外
+    const minEndFrom = (RESERVATION_START_DATE !== undefined) ? moment(RESERVATION_START_DATE) : moment('2017-01-01T00:00:00Z');
+    const conditionsDate = {
+        $exists: true,
+        $gte: minEndFrom.toDate()
+    };
     if (prmConditons.performanceDayFrom !== null || prmConditons.performanceDayTo !== null) {
-        const conditionsDate = {
-            $exists: true
-        };
         // 登録日From
         if (prmConditons.performanceDayFrom !== null) {
             if (isSales) {
                 // 売上げ
-                conditionsDate.$gte = toISOStringJapan(prmConditons.performanceDayFrom);
+                const endFrom = moment(toISOStringJapan(prmConditons.performanceDayFrom));
+                conditionsDate.$gte = moment.max(endFrom, minEndFrom).toDate();
             }
             else {
                 // アカウント別
-                const timeWk = `${prmConditons.performanceDayFrom} ` +
-                    `${prmConditons.performanceStartHour1}` +
-                    `${prmConditons.performanceStartMinute1}`;
-                conditionsDate.$gte = toISOStringUTC(timeWk);
+                const timeWk = `${prmConditons.performanceDayFrom} ${prmConditons.performanceStartHour1}${prmConditons.performanceStartMinute1}`;
+                const endFrom = moment(toISOStringUTC(timeWk));
+                conditionsDate.$gte = moment.max(endFrom, minEndFrom).toDate();
             }
         }
         // 登録日To
         if (prmConditons.performanceDayTo !== null) {
             if (isSales) {
                 // 売上げ
-                conditionsDate.$lt = toISOStringJapan(prmConditons.performanceDayTo, 1);
+                conditionsDate.$lt = moment(toISOStringJapan(prmConditons.performanceDayTo, 1)).toDate();
             }
             else {
                 // アカウント別
                 const timeWk = `${prmConditons.performanceDayTo} ` +
                     `${prmConditons.performanceStartHour2}` +
                     `${prmConditons.performanceStartMinute2}`;
-                conditionsDate.$lt = toISOStringUTC(timeWk, 1);
+                conditionsDate.$lt = moment(toISOStringUTC(timeWk, 1)).toDate();
             }
         }
-        conditions.endDate = conditionsDate;
     }
+    conditions.endDate = conditionsDate;
     return conditions;
 }
 /**

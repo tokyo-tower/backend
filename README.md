@@ -31,6 +31,7 @@
 | `MONGOLAB_URI`                    | true     |                | mongodb接続URI                       |
 | `POS_CLIENT_ID`                   | true     |                | POSクライアントID                        |
 | `TOP_DECK_OPEN_DATE`              | true     |                | トップデッキオープン日時(ISO8601フォーマット)        |
+| `RESERVATION_START_DATE`          | true     |                | 予約開始日時(ISO8601フォーマット)              |
 
 ## Jsdoc
 
