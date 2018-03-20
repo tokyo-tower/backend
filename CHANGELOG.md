@@ -1,13 +1,17 @@
 # Changelog
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
+
 ### Added
 
 ### Changed
+
 - POS購入除外機能をオフにする対応。
+- トップデッキオープン前のPOS購入をレポートから除外する対応。
 
 ### Deprecated
 
@@ -16,7 +20,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Fixed
 
 ### Security
-
 
 ## v2.0.3 - 2018-02-14
 ### Changed
