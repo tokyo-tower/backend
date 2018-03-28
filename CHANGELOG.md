@@ -10,10 +10,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
-- POS購入除外機能をオフにする対応。
-- トップデッキオープン前のPOS購入をレポートから除外する対応。
-- 予約開始前の取引をレポートから除外する対応。
-
 ### Deprecated
 
 ### Removed
@@ -21,6 +17,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Fixed
 
 ### Security
+
+## v2.0.4 - 2018-03-28
+
+### Changed
+
+- POS購入除外機能をオフにする対応。
+- トップデッキオープン前のPOS購入をレポートから除外する対応。
+- 予約開始前の取引をレポートから除外する対応。
 
 ## v2.0.3 - 2018-02-14
 ### Changed
