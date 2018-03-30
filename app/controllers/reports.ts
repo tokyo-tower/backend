@@ -4,10 +4,9 @@
  * @namespace controllers.report
  */
 
-import * as tttsapi from '@motionpicture/ttts-api-nodejs-client';
 import * as ttts from '@motionpicture/ttts-domain';
 import * as createDebug from 'debug';
-import { NextFunction, Request, Response } from 'express';
+import { Request, Response } from 'express';
 import * as json2csv from 'json2csv';
 import * as moment from 'moment';
 import * as _ from 'underscore';
@@ -15,12 +14,6 @@ import * as _ from 'underscore';
 const jconv = require('jconv');
 
 const debug = createDebug('ttts-backend:controllers:report');
-
-const authClient = new tttsapi.auth.OAuth2({
-    domain: <string>process.env.API_AUTHORIZE_SERVER_DOMAIN,
-    clientId: <string>process.env.API_CLIENT_ID,
-    clientSecret: <string>process.env.API_CLIENT_SECRET
-});
 
 const POS_CLIENT_ID = process.env.POS_CLIENT_ID;
 const TOP_DECK_OPEN_DATE = process.env.TOP_DECK_OPEN_DATE;
@@ -126,76 +119,23 @@ const CSV_DELIMITER: string = '\t';
 // 改行コード(CR+LF)
 const CSV_LINE_ENDING: string = '\r\n';
 
-/**
- * レポートindex
- */
-export async function index(__: Request, res: Response): Promise<void> {
-    res.render('reports/index', {
-        title: 'レポート',
-        routeName: 'master.report.index',
-        layout: 'layouts/master/layout'
-    });
-}
+export type ReportType = 'sales' | 'salesByEventStartDate' | 'salesByAccount';
 
-/**
- * 売り上げレポート出力
- */
-export async function sales(__: Request, res: Response): Promise<void> {
-    res.render('reports/sales', {
-        title: '売り上げレポート出力',
-        routeName: 'master.report.sales',
-        layout: 'layouts/master/layout'
-    });
-}
-
-/**
- * アカウント別レポート出力
- */
-export async function account(req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-        const cognitoCredentials = (<Express.ICredentials>(<Express.Session>req.session).cognitoCredentials);
-        authClient.setCredentials({
-            refresh_token: cognitoCredentials.refreshToken,
-            // expiry_date: number;
-            access_token: cognitoCredentials.accessToken,
-            token_type: cognitoCredentials.tokenType
-        });
-        const adminService = new tttsapi.service.Admin({
-            endpoint: <string>process.env.API_ENDPOINT,
-            auth: authClient
-        });
-        const cognitoUsers = await adminService.search({ group: 'Staff' });
-        debug('cognitoUsers:', cognitoUsers);
-
-        if (cognitoUsers.length <= 0) {
-            throw new Error('Staff admin users not found.');
-        }
-
-        const hours: string[] = [];
-        // tslint:disable-next-line:no-magic-numbers
-        for (let hour: number = 0; hour < 24; hour += 1) {
-            // tslint:disable-next-line:no-magic-numbers
-            hours.push((`00${hour}`).slice(-2));
-        }
-        //const minutes: string[] = ['00', '15', '30', '45'];
-        const minutes: string[] = [];
-        // tslint:disable-next-line:no-magic-numbers
-        for (let minute: number = 0; minute < 60; minute += 1) {
-            // tslint:disable-next-line:no-magic-numbers
-            minutes.push((`00${minute}`).slice(-2));
-        }
-        // 画面描画
-        res.render('reports/account', {
-            cognitoUsers: cognitoUsers,
-            hours: hours,
-            minutes: minutes,
-            title: 'アカウント別レポート出力',
-            routeName: 'master.report.account',
-            layout: 'layouts/master/layout'
-        });
-    } catch (error) {
-        next(error);
-    }
+export interface ISearchSalesConditions {
+    reportType: ReportType | null;
+    performanceDayFrom: string | null;
+    performanceDayTo: string | null;
+    // 登録日
+    eventStartFrom: string | null;
+    eventStartThrough: string | null;
+    // アカウント
+    owner_username: string | null;
+    // 時刻From
+    performanceStartHour1: string | null;
+    performanceStartMinute1: string | null;
+    // 時刻To
+    performanceStartHour2: string | null;
+    performanceStartMinute2: string | null;
 }
 
 /**
@@ -204,19 +144,20 @@ export async function account(req: Request, res: Response, next: NextFunction): 
 // tslint:disable-next-line:max-func-body-length
 export async function getSales(req: Request, res: Response): Promise<void> {
     // 引数セット
-    const prmConditons: any = {};
-    prmConditons.reportType = getValue(req.query.reportType);
-    // 登録日
-    prmConditons.performanceDayFrom = getValue(req.query.dateFrom);
-    prmConditons.performanceDayTo = getValue(req.query.dateTo);
-    // アカウント
-    prmConditons.owner_username = getValue(req.query.owner_username);
-    // 時刻From
-    prmConditons.performanceStartHour1 = getValue(req.query.start_hour1);
-    prmConditons.performanceStartMinute1 = getValue(req.query.start_minute1);
-    // 時刻To
-    prmConditons.performanceStartHour2 = getValue(req.query.start_hour2);
-    prmConditons.performanceStartMinute2 = getValue(req.query.start_minute2);
+    const prmConditons: ISearchSalesConditions = {
+        reportType: <ReportType>getValue(req.query.reportType),
+        performanceDayFrom: getValue(req.query.dateFrom),
+        performanceDayTo: getValue(req.query.dateTo),
+        eventStartFrom: getValue(req.query.eventStartFrom),
+        eventStartThrough: getValue(req.query.eventStartThrough),
+        owner_username: getValue(req.query.owner_username),
+        performanceStartHour1: getValue(req.query.start_hour1),
+        performanceStartMinute1: getValue(req.query.start_minute1),
+        performanceStartHour2: getValue(req.query.start_hour2),
+        performanceStartMinute2: getValue(req.query.start_minute2)
+    };
+
+    let filename = 'DeaultReport';
 
     try {
         // バリデーション(時分が片方のみ指定されていたらエラー)
@@ -224,12 +165,39 @@ export async function getSales(req: Request, res: Response): Promise<void> {
         if (errorMessage !== '') {
             throw new Error(errorMessage);
         }
-        // 予約情報・キャンセル予約情報取得
-        const reservations = await getReservations(getConditons(prmConditons, 'reservation'));
 
+        // 予約情報・キャンセル予約情報取得
+        let placeOrderTransactions: ttts.factory.transaction.placeOrder.ITransaction[];
+        let returnOrderTransactions: ttts.factory.transaction.returnOrder.ITransaction[];
+        let reservations: IData[] = [];
         let cancels: IData[] = [];
-        if (prmConditons.reportType === 'sales') {
-            cancels = await getCancels(getConditons(prmConditons, 'cancel'));
+
+        switch (prmConditons.reportType) {
+            case 'sales':
+                filename = '売上げレポート';
+                placeOrderTransactions = await searchPlaceOrderTransactions4reportByEndDate(prmConditons);
+                reservations = await placeOrderTransactions2reservationDatas(placeOrderTransactions);
+
+                returnOrderTransactions = await searchReturnOrderTransactions4reportByEndDate(prmConditons);
+                cancels = await returnOrderTransactions2cancelDatas(returnOrderTransactions);
+                break;
+
+            case 'salesByEventStartDate':
+                filename = '売上げレポート';
+                placeOrderTransactions = await searchPlaceOrderTransactions4reportByEventStartDate(prmConditons);
+                reservations = await placeOrderTransactions2reservationDatas(placeOrderTransactions);
+
+                returnOrderTransactions = await searchReturnOrderTransactions4reportByEventStartDate(prmConditons);
+                cancels = await returnOrderTransactions2cancelDatas(returnOrderTransactions);
+                break;
+
+            case 'salesByAccount':
+                filename = 'アカウント別レポート';
+                placeOrderTransactions = await searchPlaceOrderTransactions4reportByAccount(prmConditons);
+                reservations = await placeOrderTransactions2reservationDatas(placeOrderTransactions);
+                break;
+
+            default:
         }
 
         const datas = [...reservations, ...cancels];
@@ -314,7 +282,6 @@ export async function getSales(req: Request, res: Response): Promise<void> {
         debug(`writing ${output.length} character(s) to response...`);
 
         // Responseヘッダセット
-        const filename = (req.query.reportType === 'sales') ? '売上げレポート' : 'アカウント別レポート';
         res.setHeader('Content-disposition', `attachment; filename*=UTF-8\'\'${encodeURIComponent(`${filename}.tsv`)}`);
         res.setHeader('Content-Type', 'text/csv; charset=Shift_JIS');
 
@@ -379,54 +346,25 @@ function isInputEven(value1: string, value2: string): boolean {
 function getValue(inputValue: string | null): string | null {
     return (!_.isEmpty(inputValue)) ? inputValue : null;
 }
-/**
- * 検索条件取得
- *
- * @param {any} prmConditons
- * @param {string} dbType
- * @returns {any}
- */
-function getConditons(prmConditons: any, dbType: string): any {
+
+export type TransactionType = 'reservation' | 'cancel';
+
+async function searchPlaceOrderTransactions4reportByEndDate(
+    searchConditions: ISearchSalesConditions
+): Promise<ttts.factory.transaction.placeOrder.ITransaction[]> {
     // 検索条件を作成
-    const conditions: any = {};
-    // 予約か否か
-    const isReservation: boolean = (dbType === 'reservation');
-    // レポートタイプが売上げか否か
-    const isSales: boolean = prmConditons.reportType === 'sales';
-    // 購入区分
-    const purchaserGroup: string = isSales ? ttts.factory.person.Group.Customer : ttts.factory.person.Group.Staff;
-
-    // 予約
-    if (isReservation) {
-        // ステータス
-        conditions.typeOf = ttts.factory.transactionType.PlaceOrder;
-        conditions.status = ttts.factory.transactionStatusType.Confirmed;
-        // 購入区分
-        conditions['object.purchaser_group'] = purchaserGroup;
-
-        if (POS_CLIENT_ID !== undefined) {
-            // POS購入除外(一時的に除外機能オフ)
-            // conditions['agent.id'] = { $ne: POS_CLIENT_ID };
+    const conditions: any = {
+        typeOf: ttts.factory.transactionType.PlaceOrder,
+        status: ttts.factory.transactionStatusType.Confirmed,
+        'object.purchaser_group': {
+            $exists: true,
+            $eq: ttts.factory.person.Group.Customer
         }
+    };
 
-        // アカウント
-        if (prmConditons.owner_username !== null) {
-            conditions['result.eventReservations.owner_username'] = {
-                $exists: true,
-                $eq: prmConditons.owner_username
-            };
-        }
-    } else {
-        // キャンセルはsalesのみアカウント別はなし。
-        // ステータス
-        conditions.typeOf = ttts.factory.transactionType.ReturnOrder;
-        // 購入区分
-        conditions['object.transaction.object.purchaser_group'] = purchaserGroup;
-
-        if (POS_CLIENT_ID !== undefined) {
-            // POS購入除外(一時的に除外機能オフ)
-            // conditions['object.transaction.agent.id'] = { $ne: POS_CLIENT_ID };
-        }
+    if (POS_CLIENT_ID !== undefined) {
+        // POS購入除外(一時的に除外機能オフ)
+        // conditions['agent.id'] = { $ne: POS_CLIENT_ID };
     }
 
     // 集計期間
@@ -437,54 +375,232 @@ function getConditons(prmConditons: any, dbType: string): any {
         $exists: true,
         $gte: minEndFrom.toDate()
     };
-    if (prmConditons.performanceDayFrom !== null || prmConditons.performanceDayTo !== null) {
+    if (searchConditions.performanceDayFrom !== null || searchConditions.performanceDayTo !== null) {
         // 登録日From
-        if (prmConditons.performanceDayFrom !== null) {
-            if (isSales) {
-                // 売上げ
-                const endFrom = moment(toISOStringJapan(prmConditons.performanceDayFrom));
-                conditionsDate.$gte = moment.max(endFrom, minEndFrom).toDate();
-            } else {
-                // アカウント別
-                const timeWk =
-                    `${prmConditons.performanceDayFrom} ${prmConditons.performanceStartHour1}${prmConditons.performanceStartMinute1}`;
-                const endFrom = moment(toISOStringUTC(timeWk));
-                conditionsDate.$gte = moment.max(endFrom, minEndFrom).toDate();
-            }
+        if (searchConditions.performanceDayFrom !== null) {
+            // 売上げ
+            const endFrom = moment(`${searchConditions.performanceDayFrom}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ');
+            conditionsDate.$gte = moment.max(endFrom, minEndFrom).toDate();
         }
         // 登録日To
-        if (prmConditons.performanceDayTo !== null) {
-            if (isSales) {
-                // 売上げ
-                conditionsDate.$lt = moment(toISOStringJapan(prmConditons.performanceDayTo, 1)).toDate();
-            } else {
-                // アカウント別
-                const timeWk: string = `${prmConditons.performanceDayTo} ` +
-                    `${prmConditons.performanceStartHour2}` +
-                    `${prmConditons.performanceStartMinute2}`;
-                conditionsDate.$lt = moment(toISOStringUTC(timeWk, 1)).toDate();
-            }
+        if (searchConditions.performanceDayTo !== null) {
+            // 売上げ
+            conditionsDate.$lt =
+                moment(`${searchConditions.performanceDayTo}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ').add(1, 'days').toDate();
         }
     }
     conditions.endDate = conditionsDate;
 
-    return conditions;
-}
-
-/**
- * 予約情報取得
- * @param {any} conditions
- * @returns {Promise<IData[]>}
- */
-async function getReservations(conditions: any): Promise<IData[]> {
-    // 取引取得
     debug('finding transactions...', conditions);
-    // 取引が数千件、数万件になるとjavascriptのメモリーレベルでプロセスが落ちてしまう
-    // ので、1000件ずつ地道に検索する
     const transactionRepo = new ttts.repository.Transaction(ttts.mongoose.connection);
-    let transactions = await transactionRepo.transactionModel.find(conditions).exec()
+    const transactions = await transactionRepo.transactionModel.find(conditions).exec()
         .then((docs) => docs.map((doc) => <ttts.factory.transaction.placeOrder.ITransaction>doc.toObject()));
     debug(`${transactions.length} transactions found.`);
+
+    return transactions;
+}
+
+async function searchReturnOrderTransactions4reportByEndDate(
+    searchConditions: ISearchSalesConditions
+): Promise<ttts.factory.transaction.returnOrder.ITransaction[]> {
+    // 検索条件を作成
+    const conditions: any = {
+        typeOf: ttts.factory.transactionType.ReturnOrder,
+        status: ttts.factory.transactionStatusType.Confirmed,
+        'object.transaction.object.purchaser_group': {
+            $exists: true,
+            $eq: ttts.factory.person.Group.Customer
+        }
+    };
+
+    if (POS_CLIENT_ID !== undefined) {
+        // POS購入除外(一時的に除外機能オフ)
+        // conditions['object.transaction.agent.id'] = { $ne: POS_CLIENT_ID };
+    }
+
+    // 集計期間
+    // 予約開始日時の設定があれば、それ以前は除外
+    const minEndFrom =
+        (RESERVATION_START_DATE !== undefined) ? moment(RESERVATION_START_DATE) : moment('2017-01-01T00:00:00Z');
+    const conditionsDate: any = {
+        $exists: true,
+        $gte: minEndFrom.toDate()
+    };
+    if (searchConditions.performanceDayFrom !== null || searchConditions.performanceDayTo !== null) {
+        // 登録日From
+        if (searchConditions.performanceDayFrom !== null) {
+            // 売上げ
+            const endFrom = moment(`${searchConditions.performanceDayFrom}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ');
+            conditionsDate.$gte = moment.max(endFrom, minEndFrom).toDate();
+        }
+        // 登録日To
+        if (searchConditions.performanceDayTo !== null) {
+            // 売上げ
+            conditionsDate.$lt =
+                moment(`${searchConditions.performanceDayTo}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ').add(1, 'days').toDate();
+        }
+    }
+    conditions.endDate = conditionsDate;
+
+    debug('finding transactions...', conditions);
+    const transactionRepo = new ttts.repository.Transaction(ttts.mongoose.connection);
+    const transactions = await transactionRepo.transactionModel.find(conditions).exec()
+        .then((docs) => docs.map((doc) => <ttts.factory.transaction.returnOrder.ITransaction>doc.toObject()));
+    debug(`${transactions.length} transactions found.`);
+
+    return transactions;
+}
+
+async function searchPlaceOrderTransactions4reportByAccount(
+    searchConditions: ISearchSalesConditions
+): Promise<ttts.factory.transaction.placeOrder.ITransaction[]> {
+    // 検索条件を作成
+    const conditions: any = {
+        typeOf: ttts.factory.transactionType.PlaceOrder,
+        status: ttts.factory.transactionStatusType.Confirmed,
+        'object.purchaser_group': {
+            $exists: true,
+            $eq: ttts.factory.person.Group.Staff
+        }
+    };
+
+    if (POS_CLIENT_ID !== undefined) {
+        // POS購入除外(一時的に除外機能オフ)
+        // conditions['agent.id'] = { $ne: POS_CLIENT_ID };
+    }
+
+    // アカウント
+    if (searchConditions.owner_username !== null) {
+        conditions['result.eventReservations.owner_username'] = {
+            $exists: true,
+            $eq: searchConditions.owner_username
+        };
+    }
+
+    // 集計期間
+    // 予約開始日時の設定があれば、それ以前は除外
+    const minEndFrom =
+        (RESERVATION_START_DATE !== undefined) ? moment(RESERVATION_START_DATE) : moment('2017-01-01T00:00:00Z');
+    const conditionsDate: any = {
+        $exists: true,
+        $gte: minEndFrom.toDate()
+    };
+    if (searchConditions.performanceDayFrom !== null || searchConditions.performanceDayTo !== null) {
+        // 登録日From
+        if (searchConditions.performanceDayFrom !== null) {
+            // アカウント別
+            const endFrom = moment(
+                // tslint:disable-next-line:max-line-length
+                `${searchConditions.performanceDayFrom}T${searchConditions.performanceStartHour1}:${searchConditions.performanceStartMinute1}:00+09:00`,
+                'YYYY/MM/DDTHH:mm:ssZ'
+            );
+            conditionsDate.$gte = moment.max(endFrom, minEndFrom).toDate();
+        }
+        // 登録日To
+        if (searchConditions.performanceDayTo !== null) {
+            // アカウント別
+            conditionsDate.$lt = moment(
+                // tslint:disable-next-line:max-line-length
+                `${searchConditions.performanceDayTo}T${searchConditions.performanceStartHour2}:${searchConditions.performanceStartMinute2}:00+09:00`,
+                'YYYY/MM/DDTHH:mm:ssZ'
+            ).toDate();
+        }
+    }
+    conditions.endDate = conditionsDate;
+
+    debug('finding transactions...', conditions);
+    const transactionRepo = new ttts.repository.Transaction(ttts.mongoose.connection);
+    const transactions = await transactionRepo.transactionModel.find(conditions).exec()
+        .then((docs) => docs.map((doc) => <ttts.factory.transaction.placeOrder.ITransaction>doc.toObject()));
+    debug(`${transactions.length} transactions found.`);
+
+    return transactions;
+}
+
+async function searchPlaceOrderTransactions4reportByEventStartDate(
+    searchConditions: ISearchSalesConditions
+): Promise<ttts.factory.transaction.placeOrder.ITransaction[]> {
+    // 検索条件を作成
+    const conditions: any = {
+        typeOf: ttts.factory.transactionType.PlaceOrder,
+        status: ttts.factory.transactionStatusType.Confirmed,
+        'object.purchaser_group': {
+            $exists: true,
+            $eq: ttts.factory.person.Group.Customer
+        }
+    };
+
+    if (POS_CLIENT_ID !== undefined) {
+        // POS購入除外(一時的に除外機能オフ)
+        // conditions['agent.id'] = { $ne: POS_CLIENT_ID };
+    }
+
+    // イベント開始日時条件を追加
+    conditions['result.eventReservations.performance_start_date'] = {
+        $exists: true
+    };
+    if (searchConditions.eventStartFrom !== null) {
+        conditions['result.eventReservations.performance_start_date'].$gte =
+            moment(`${searchConditions.eventStartFrom}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ').toDate();
+    }
+    if (searchConditions.eventStartThrough !== null) {
+        conditions['result.eventReservations.performance_start_date'].$lt =
+            moment(`${searchConditions.eventStartThrough}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ').add(1, 'day').toDate();
+    }
+
+    debug('finding transactions...', conditions);
+    const transactionRepo = new ttts.repository.Transaction(ttts.mongoose.connection);
+    const transactions = await transactionRepo.transactionModel.find(conditions).exec()
+        .then((docs) => docs.map((doc) => <ttts.factory.transaction.placeOrder.ITransaction>doc.toObject()));
+    debug(`${transactions.length} transactions found.`);
+
+    return transactions;
+}
+
+async function searchReturnOrderTransactions4reportByEventStartDate(
+    searchConditions: ISearchSalesConditions
+): Promise<ttts.factory.transaction.returnOrder.ITransaction[]> {
+    // 検索条件を作成
+    const conditions: any = {
+        typeOf: ttts.factory.transactionType.ReturnOrder,
+        status: ttts.factory.transactionStatusType.Confirmed,
+        'object.transaction.object.purchaser_group': {
+            $exists: true,
+            $eq: ttts.factory.person.Group.Customer
+        }
+    };
+
+    if (POS_CLIENT_ID !== undefined) {
+        // POS購入除外(一時的に除外機能オフ)
+        // conditions['object.transaction.agent.id'] = { $ne: POS_CLIENT_ID };
+    }
+
+    // イベント開始日時条件を追加
+    conditions['object.transaction.result.eventReservations.performance_start_date'] = {
+        $type: 'date'
+    };
+    if (searchConditions.eventStartFrom !== null) {
+        conditions['object.transaction.result.eventReservations.performance_start_date'].$gte =
+            moment(`${searchConditions.eventStartFrom}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ').toDate();
+    }
+    if (searchConditions.eventStartThrough !== null) {
+        conditions['object.transaction.result.eventReservations.performance_start_date'].$lt =
+            moment(`${searchConditions.eventStartThrough}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ').add(1, 'day').toDate();
+    }
+
+    debug('finding transactions...', conditions);
+    const transactionRepo = new ttts.repository.Transaction(ttts.mongoose.connection);
+    const transactions = await transactionRepo.transactionModel.find(conditions).exec()
+        .then((docs) => docs.map((doc) => <ttts.factory.transaction.returnOrder.ITransaction>doc.toObject()));
+    debug(`${transactions.length} transactions found.`);
+
+    return transactions;
+}
+
+async function placeOrderTransactions2reservationDatas(
+    placeOrderTransactions: ttts.factory.transaction.placeOrder.ITransaction[]
+): Promise<IData[]> {
+    let transactions = placeOrderTransactions;
 
     // オープン前のPOS購入を除外
     if (POS_CLIENT_ID !== undefined && TOP_DECK_OPEN_DATE !== undefined) {
@@ -520,29 +636,22 @@ async function getReservations(conditions: any): Promise<IData[]> {
     return datas;
 }
 
-/**
- * キャンセル予約情報取得
- * @param {any} conditions
- * @returns {Promise<IData[]>}
- */
-async function getCancels(conditions: any): Promise<IData[]> {
-    // 取引に対する返品リクエスト取得
-    const transactionRepo = new ttts.repository.Transaction(ttts.mongoose.connection);
-    let returnOrderTransactions = await transactionRepo.transactionModel.find(conditions)
-        .exec().then((docs) => docs.map((doc) => <ttts.factory.transaction.returnOrder.ITransaction>doc.toObject()));
-    debug(`${returnOrderTransactions.length} returnOrderTransactions found.`);
+async function returnOrderTransactions2cancelDatas(
+    returnOrderTransactions: ttts.factory.transaction.returnOrder.ITransaction[]
+): Promise<IData[]> {
+    let transactions = returnOrderTransactions;
 
     // オープン前のPOS購入を除外
     if (POS_CLIENT_ID !== undefined && TOP_DECK_OPEN_DATE !== undefined) {
         const topDeckOpenDate = moment(TOP_DECK_OPEN_DATE).toDate();
-        returnOrderTransactions = returnOrderTransactions.filter((t) => {
+        transactions = transactions.filter((t) => {
             // エージェントがPOSでない、あるいは、オープン日時以降の取引であればOK
             return (t.object.transaction.agent.id !== POS_CLIENT_ID || moment(t.object.transaction.endDate).toDate() >= topDeckOpenDate);
         });
     }
 
     // 取引で作成された予約データを取得
-    const placeOrderTransactions = returnOrderTransactions.map((t) => t.object.transaction);
+    const placeOrderTransactions = transactions.map((t) => t.object.transaction);
     const orderNumbers = placeOrderTransactions.map((t) => (<ttts.factory.transaction.placeOrder.IResult>t.result).order.orderNumber);
     const reservationRepo = new ttts.repository.Reservation(ttts.mongoose.connection);
     const reservations = await reservationRepo.reservationModel.find(
@@ -552,7 +661,7 @@ async function getCancels(conditions: any): Promise<IData[]> {
 
     const datas: IData[] = [];
 
-    returnOrderTransactions.forEach((returnOrderTransaction) => {
+    transactions.forEach((returnOrderTransaction) => {
         // 取引からキャンセル予約情報取得
         const placeOrderTransaction = returnOrderTransaction.object.transaction;
         const placeOrderTransactionResult = <ttts.factory.transaction.placeOrder.IResult>placeOrderTransaction.result;
@@ -593,38 +702,6 @@ async function getCancels(conditions: any): Promise<IData[]> {
     });
 
     return datas;
-}
-
-/**
- * DB検索用ISO日付取得
- *
- * @param {string} dateStr
- * @param {number} addDay
- * @returns {string}
- */
-function toISOStringJapan(dateStr: string, addDay: number = 0): string {
-    const dateWk: string = moment(dateStr, 'YYYY/MM/DD').add(addDay, 'days').format('YYYY-MM-DD');
-
-    return `${dateWk}T00:00:00+09:00`;
-}
-
-/**
- * DB検索用ISO日付+時分取得
- *
- * @param {string} dateStr
- * @param {number} addMinute
- * @returns {string}
- */
-function toISOStringUTC(dateStr: string, addMinute: number = 0): string {
-    // tslint:disable-next-line:no-magic-numbers
-    const gtc: moment.Moment = moment(dateStr, 'YYYY/MM/DD HHmm').add(-9, 'hours').add(addMinute, 'minutes');
-    const dateWk: string = gtc.format('YYYY-MM-DD');
-    const timeWk: string = gtc.format('HH:mm:ss');
-
-    // tslint:disable-next-line:no-console
-    console.log(`${dateWk}T${timeWk}Z`);
-
-    return `${dateWk}T${timeWk}Z`;
 }
 
 /**
