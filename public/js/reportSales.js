@@ -79,13 +79,17 @@ $(function () {
         if (!acCondition.dateFrom || !acCondition.dateTo || !acCondition.start_hour1 || !acCondition.start_hour2) {
             return false;
         }
+
+        var form = $('.form-accountreport');
+        var reportType = $('input[name="reportType"]', form).val();
         var url = '/reports/getSales/' +
             '?dateFrom=' + acCondition.dateFrom +
             '&dateTo=' + acCondition.dateTo +
             '&owner_username=' + (select_account.value || '') +
             '&start_hour1=' + acCondition.start_hour1 +
             '&start_hour2=' + acCondition.start_hour2 +
-            '&reportType=account&dummy=' + Date.now();
+            '&reportType=' + reportType +
+            '&dummy=' + Date.now();
         console.log('[donwload] account report', url);
         window.open(url);
     };
