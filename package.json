@@ -19,7 +19,7 @@
   "dependencies": {
     "@motionpicture/express-middleware": "0.0.0",
     "@motionpicture/ttts-api-nodejs-client": "0.0.1",
-    "@motionpicture/ttts-domain": "^13.1.0",
+    "@motionpicture/ttts-domain": "^13.1.1",
     "body-parser": "^1.18.2",
     "connect-redis": "^3.3.3",
     "cookie-parser": "^1.4.3",
@@ -110,5 +110,5 @@
     "scss": "node-sass public/scss/scheduler.scss public/css/scheduler.css",
     "public-ts": "webpack --progress --colors --config ./public/webpack.config.js --watch"
   },
-  "version": "2.0.4"
+  "version": "2.1.0"
 }
