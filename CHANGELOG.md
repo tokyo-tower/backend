@@ -8,8 +8,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Added
 
-- 来塔予定日による売り上げレポート出力機能を追加。
-
 ### Changed
 
 ### Deprecated
@@ -19,6 +17,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Fixed
 
 ### Security
+
+## v2.1.0 - 2018-04-17
+
+### Added
+
+- 来塔予定日による売り上げレポート出力機能を追加。
 
 ## v2.0.4 - 2018-03-28
 
