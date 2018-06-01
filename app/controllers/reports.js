@@ -222,35 +222,35 @@ function getAggregateSales(req, res) {
             // Return an object with all fields you need in the CSV
             // For example ...
             return {
-                "購入番号": doc.payment_no,
-                "パフォーマンスID": doc.performance.id,
-                "座席コード": doc.seat.code,
-                "予約ステータス": doc.reservationStatus,
-                "入塔予約年月日": doc.performance.startDay,
-                "入塔予約時刻": doc.performance.startTime,
-                "劇場名称": doc.theater.name,
-                "スクリーンID": doc.screen.id,
-                "スクリーン名": doc.screen.name,
-                "作品ID": doc.film.id,
-                "作品名称": doc.film.name,
-                "購入者区分": doc.customer.group,
-                "購入者（名）": doc.customer.givenName,
-                "購入者（姓）": doc.customer.familyName,
-                "購入者メール": doc.customer.email,
-                "購入者電話": doc.customer.telephone,
-                "購入日時": doc.orderDate,
-                "決済方法": doc.paymentMethod,
-                "座席グレード名称": doc.seat.gradeName,
-                "座席グレード追加料金": doc.seat.gradeAdditionalCharge,
-                "券種名称": doc.ticketType.name,
-                "チケットコード": doc.ticketType.csvCode,
-                "券種料金": doc.ticketType.charge,
-                "客層": doc.customer.segment,
-                "payment_seat_index": doc.payment_seat_index,
-                "予約単位料金": doc.price,
-                "ユーザーネーム": doc.customer.username,
-                "入場フラグ": doc.checkedin,
-                "入場日時": doc.checkinDate
+                購入番号: doc.payment_no,
+                パフォーマンスID: doc.performance.id,
+                座席コード: doc.seat.code,
+                予約ステータス: doc.reservationStatus,
+                入塔予約年月日: doc.performance.startDay,
+                入塔予約時刻: doc.performance.startTime,
+                劇場名称: doc.theater.name,
+                スクリーンID: doc.screen.id,
+                スクリーン名: doc.screen.name,
+                作品ID: doc.film.id,
+                作品名称: doc.film.name,
+                購入者区分: doc.customer.group,
+                '購入者（名）': doc.customer.givenName,
+                '購入者（姓）': doc.customer.familyName,
+                購入者メール: doc.customer.email,
+                購入者電話: doc.customer.telephone,
+                購入日時: doc.orderDate,
+                決済方法: doc.paymentMethod,
+                座席グレード名称: doc.seat.gradeName,
+                座席グレード追加料金: doc.seat.gradeAdditionalCharge,
+                券種名称: doc.ticketType.name,
+                チケットコード: doc.ticketType.csvCode,
+                券種料金: doc.ticketType.charge,
+                客層: doc.customer.segment,
+                payment_seat_index: doc.payment_seat_index,
+                予約単位料金: doc.price,
+                ユーザーネーム: doc.customer.username,
+                入場フラグ: doc.checkedin,
+                入場日時: doc.checkinDate
             };
         };
         // const fields = [
@@ -275,18 +275,18 @@ function getAggregateSales(req, res) {
         // res.setHeader('Content-disposition', `attachment; filename=${filename}`);
         res.setHeader('Content-disposition', `attachment; filename*=UTF-8\'\'${encodeURIComponent(`${filename}.tsv`)}`);
         res.setHeader('Content-Type', 'text/csv; charset=Shift_JIS');
-        res.writeHead(200, { 'Content-Type': 'text/csv; charset=Shift_JIS' });
+        res.writeHead(httpStatus.OK, { 'Content-Type': 'text/csv; charset=Shift_JIS' });
         // Flush the headers before we start pushing the CSV content
         res.flushHeaders();
         // Create a Fast CSV stream which transforms documents to objects
-        var csvStream = yield fastCsv
+        const csvStream = fastCsv
             .createWriteStream({ headers: true })
             .transform(transformer);
         // .setEncoding("utf8")
         // res.setHeader('Content-disposition', `attachment; filename*=UTF-8\'\'${encodeURIComponent(`${filename}.tsv`)}`);
         // res.setHeader('Content-Type', 'text/csv; charset=Shift_JIS');
-        // Pipe/stream the query result to the response via the CSV transformer stream 
-        yield cursor.pipe(csvStream).pipe(res);
+        // Pipe/stream the query result to the response via the CSV transformer stream
+        cursor.pipe(csvStream).pipe(res);
     });
 }
 exports.getAggregateSales = getAggregateSales;
