@@ -49,6 +49,30 @@ $(function () {
         window.open(url);
     });
 
+    // レポート出力ボタンイベント
+    $(document).on('click', '.form-salesReportByAggregateSales .btn-download', function () {
+        var form = $('.form-salesReportByAggregateSales');
+        var dateFrom = $('input[name="dateFrom"]', form).val();
+        var dateTo = $('input[name="dateTo"]', form).val();
+        // for account report
+        // var start_hour1 = getValue('select[name="start_hour1"]');
+        // var start_minute1 = getValue('select[name="start_minute1"]');
+        // var start_hour2 = getValue('select[name="start_hour2"]');
+        // var start_minute2 = getValue('select[name="start_minute2"]');
+        // レポート区分
+        var reportType = $('input[name="reportType"]', form).val();
+        // now:キャッシュ避け
+        var now = (new Date()).getTime();
+        var url = '/reports/getAggregateSales/' +
+            '?dateFrom=' + dateFrom + '&dateTo=' + dateTo +
+            // '&start_hour1=' + start_hour1 + '&start_minute1=' + start_minute1 +
+            // '&start_hour2=' + start_hour2 + '&start_minute2=' + start_minute2 +
+            '&reportType=' + reportType +
+            '&dummy=' + now;
+        console.log('[donwload] sales report', url);
+        window.open(url);
+    });    
+
     // アカウント別レポートダウンロード
     var btn_download_accountreport = document.getElementById('btn_download_accountreport');
     var select_account = document.getElementById('select_account');

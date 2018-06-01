@@ -14,6 +14,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const ttts = require("@motionpicture/ttts-domain");
 const createDebug = require("debug");
+const fastCsv = require("fast-csv");
 const json2csv = require("json2csv");
 const moment = require("moment");
 const _ = require("underscore");
@@ -184,6 +185,111 @@ function getSales(req, res) {
     });
 }
 exports.getSales = getSales;
+/**
+ * 一覧データ取得API
+ */
+// tslint:disable-next-line:max-func-body-length
+function getAggregateSales(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const dateFrom = getValue(req.query.dateFrom);
+        const dateTo = getValue(req.query.dateTo);
+        const conditions = {};
+        if (dateFrom !== null || dateTo !== null) {
+            conditions.transaction_endDate_bucket = {};
+            const minEndFrom = (RESERVATION_START_DATE !== undefined) ? moment(RESERVATION_START_DATE) : moment('2017-01-01T00:00:00Z');
+            // 登録日From
+            if (dateFrom !== null) {
+                // 売上げ
+                const endFrom = moment(`${getValue(req.query.dateFrom)}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ');
+                conditions.transaction_endDate_bucket.$gte =
+                    conditions.transaction_endDate_bucket.$gte = moment.max(endFrom, minEndFrom).toDate();
+            }
+            // 登録日To
+            if (dateTo !== null) {
+                // 売上げ
+                conditions.transaction_endDate_bucket.$lt =
+                    moment(`${dateTo}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ').add(1, 'days').toDate();
+            }
+        }
+        const aggregateSaleRepo = new ttts.repository.AggregateSale(ttts.mongoose.connection);
+        const cursor = aggregateSaleRepo.aggregateSaleModel.find(conditions).cursor();
+        // const client = await mongodb.MongoClient.connect(conStr);
+        // const db = await client.db("ttts-preview")
+        // const collection = await db.collection("transactions")
+        // let cursor = await collection.find(conditions)
+        // The transformer function
+        const transformer = (doc) => {
+            // Return an object with all fields you need in the CSV
+            // For example ...
+            return {
+                "購入番号": doc.payment_no,
+                "パフォーマンスID": doc.performance.id,
+                "座席コード": doc.seat.code,
+                "予約ステータス": doc.reservationStatus,
+                "入塔予約年月日": doc.performance.startDay,
+                "入塔予約時刻": doc.performance.startTime,
+                "劇場名称": doc.theater.name,
+                "スクリーンID": doc.screen.id,
+                "スクリーン名": doc.screen.name,
+                "作品ID": doc.film.id,
+                "作品名称": doc.film.name,
+                "購入者区分": doc.customer.group,
+                "購入者（名）": doc.customer.givenName,
+                "購入者（姓）": doc.customer.familyName,
+                "購入者メール": doc.customer.email,
+                "購入者電話": doc.customer.telephone,
+                "購入日時": doc.orderDate,
+                "決済方法": doc.paymentMethod,
+                "座席グレード名称": doc.seat.gradeName,
+                "座席グレード追加料金": doc.seat.gradeAdditionalCharge,
+                "券種名称": doc.ticketType.name,
+                "チケットコード": doc.ticketType.csvCode,
+                "券種料金": doc.ticketType.charge,
+                "客層": doc.customer.segment,
+                "payment_seat_index": doc.payment_seat_index,
+                "予約単位料金": doc.price,
+                "ユーザーネーム": doc.customer.username,
+                "入場フラグ": doc.checkedin,
+                "入場日時": doc.checkinDate
+            };
+        };
+        // const fields = [
+        //     'paymentNo', 'performance.id', 'seat.code', 'reservationStatus',
+        //     'performance.startDay', 'performance.startTime', 'theater.name', 'screen.id', 'screen.name', 'film.id', 'film.name',
+        //     'customer.group', 'customer.givenName', 'customer.familyName', 'customer.email', 'customer.telephone',
+        //     'orderDate', 'paymentMethod',
+        //     'seat.gradeName', 'seat.gradeAdditionalCharge', 'ticketType.name', 'ticketType.csvCode', 'ticketType.charge',
+        //     'customer.segment', 'paymentSeatIndex', 'price', 'customer.username', 'checkedin', 'checkinDate'
+        // ];
+        // const fieldNames = [
+        //     '購入番号', 'パフォーマンスID', '座席コード', '予約ステータス',
+        //     '入塔予約年月日', '入塔予約時刻', '劇場名称', 'スクリーンID', 'スクリーン名', '作品ID', '作品名称',
+        //     '購入者区分', '購入者（名）', '購入者（姓）', '購入者メール', '購入者電話',
+        //     '購入日時', '決済方法',
+        //     '座席グレード名称', '座席グレード追加料金', '券種名称', 'チケットコード', '券種料金',
+        //     '客層', 'payment_seat_index', '予約単位料金', 'ユーザーネーム', '入場フラグ', '入場日時'
+        // ];
+        // Name of the downloaded file - e.g. "Download.csv"
+        const filename = '売上げレポート';
+        // Set approrpiate download headers
+        // res.setHeader('Content-disposition', `attachment; filename=${filename}`);
+        res.setHeader('Content-disposition', `attachment; filename*=UTF-8\'\'${encodeURIComponent(`${filename}.tsv`)}`);
+        res.setHeader('Content-Type', 'text/csv; charset=Shift_JIS');
+        res.writeHead(200, { 'Content-Type': 'text/csv; charset=Shift_JIS' });
+        // Flush the headers before we start pushing the CSV content
+        res.flushHeaders();
+        // Create a Fast CSV stream which transforms documents to objects
+        var csvStream = yield fastCsv
+            .createWriteStream({ headers: true })
+            .transform(transformer);
+        // .setEncoding("utf8")
+        // res.setHeader('Content-disposition', `attachment; filename*=UTF-8\'\'${encodeURIComponent(`${filename}.tsv`)}`);
+        // res.setHeader('Content-Type', 'text/csv; charset=Shift_JIS');
+        // Pipe/stream the query result to the response via the CSV transformer stream 
+        yield cursor.pipe(csvStream).pipe(res);
+    });
+}
+exports.getAggregateSales = getAggregateSales;
 /**
  * レポート出力検証
  * @param {Request} req
