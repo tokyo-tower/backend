@@ -8,7 +8,7 @@ $(function () {
         return ($(selector).length > 0) ? $(selector).val() : '';
     };
 
-    // レポート出力ボタンイベント
+    // 【リアルタイム】レポート出力ボタンイベント
     $(document).on('click', '.form-salesReportByTransactionEndDate .btn-download', function () {
         var form = $('.form-salesReportByTransactionEndDate');
         var dateFrom = $('input[name="dateFrom"]', form).val();
@@ -32,7 +32,7 @@ $(function () {
         window.open(url);
     });
 
-    // 来塔予定日ごとの売り上げレポート出力ボタンイベント
+    // 【リアルタイム】来塔予定日ごとの売り上げレポート出力ボタンイベント
     $(document).on('click', '.form-salesReportByEventStartDate .btn-download', function () {
         var form = $('.form-salesReportByEventStartDate');
         var eventStartFrom = $('input[name="eventStartFrom"]', form).val();
@@ -49,7 +49,25 @@ $(function () {
         window.open(url);
     });
 
-    // レポート出力ボタンイベント
+
+
+    // 【集計済】来塔予定日ごとの売り上げレポート出力ボタンイベント
+    $(document).on('click', '.form-salesReportByAggregateSalesEventStartDate .btn-download', function () {
+        var form = $('.form-salesReportByAggregateSalesEventStartDate');
+        var eventStartFrom = $('input[name="eventStartFrom"]', form).val();
+        var eventStartThrough = $('input[name="eventStartThrough"]', form).val();
+        var reportType = $('input[name="reportType"]', form).val();
+
+        // now:キャッシュ避け
+        var now = (new Date()).getTime();
+        var url = '/reports/getAggregateSales/' +
+            '?dateFrom=' + eventStartFrom + '&dateTo=' + eventStartThrough +
+            '&reportType=' + reportType +
+            '&dummy=' + now;
+        console.log('[donwload] salesReportByAggregateSalesEventStartDate', url);
+        window.open(url);
+    });    
+    // 【集計済】レポート出力ボタンイベント
     $(document).on('click', '.form-salesReportByAggregateSales .btn-download', function () {
         var form = $('.form-salesReportByAggregateSales');
         var dateFrom = $('input[name="dateFrom"]', form).val();

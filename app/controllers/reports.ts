@@ -159,7 +159,7 @@ export async function getSales(req: Request, res: Response): Promise<void> {
         performanceStartMinute2: getValue(req.query.start_minute2)
     };
 
-    let filename = 'DeaultReport';
+    let filename = 'DefaultReport';
 
     try {
         // バリデーション(時分が片方のみ指定されていたらエラー)
@@ -296,15 +296,35 @@ export async function getSales(req: Request, res: Response): Promise<void> {
 }
 
 /**
- * 一覧データ取得API
+ * 集計済みデータ取得API
  */
 // tslint:disable-next-line:max-func-body-length
 export async function getAggregateSales(req: Request, res: Response): Promise<void> {
     const dateFrom = getValue(req.query.dateFrom);
     const dateTo = getValue(req.query.dateTo);
+    const conditions: any = {};
+    // Name of the downloaded file - e.g. "Download.csv"
+    let filename = 'DefaultReport';
+
+    switch (<ReportType>getValue(req.query.reportType)) {
+        case 'sales':
+            conditions.aggregateUnit = 'SalesByEndDate';
+            filename = '（購入日）売上レポート';
+            break;
+
+        case 'salesByEventStartDate':
+            conditions.aggregateUnit = 'SalesByEventStartDate';
+            filename = '（来塔予定日）売上レポート';
+            break;
+
+        case 'salesByAccount':
+            break;
+
+        default:
+    }
 
     try {
-        const conditions: any = {};
+
         if (dateFrom !== null || dateTo !== null) {
             conditions.transaction_endDate_bucket = {};
             const minEndFrom =
@@ -384,9 +404,6 @@ export async function getAggregateSales(req: Request, res: Response): Promise<vo
         //     '座席グレード名称', '座席グレード追加料金', '券種名称', 'チケットコード', '券種料金',
         //     '客層', 'payment_seat_index', '予約単位料金', 'ユーザーネーム', '入場フラグ', '入場日時'
         // ];
-
-        // Name of the downloaded file - e.g. "Download.csv"
-        const filename = '売上げレポート';
 
         // Set approrpiate download headers
         // res.setHeader('Content-disposition', `attachment; filename=${filename}`);

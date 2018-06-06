@@ -63,7 +63,7 @@ function getSales(req, res) {
             performanceStartHour2: getValue(req.query.start_hour2),
             performanceStartMinute2: getValue(req.query.start_minute2)
         };
-        let filename = 'DeaultReport';
+        let filename = 'DefaultReport';
         try {
             // バリデーション(時分が片方のみ指定されていたらエラー)
             const errorMessage = yield validate(req);
@@ -187,15 +187,30 @@ function getSales(req, res) {
 }
 exports.getSales = getSales;
 /**
- * 一覧データ取得API
+ * 集計済みデータ取得API
  */
 // tslint:disable-next-line:max-func-body-length
 function getAggregateSales(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         const dateFrom = getValue(req.query.dateFrom);
         const dateTo = getValue(req.query.dateTo);
+        const conditions = {};
+        // Name of the downloaded file - e.g. "Download.csv"
+        let filename = 'DefaultReport';
+        switch (getValue(req.query.reportType)) {
+            case 'sales':
+                conditions.aggregateUnit = 'SalesByEndDate';
+                filename = '（購入日）売上レポート';
+                break;
+            case 'salesByEventStartDate':
+                conditions.aggregateUnit = 'SalesByEventStartDate';
+                filename = '（来塔予定日）売上レポート';
+                break;
+            case 'salesByAccount':
+                break;
+            default:
+        }
         try {
-            const conditions = {};
             if (dateFrom !== null || dateTo !== null) {
                 conditions.transaction_endDate_bucket = {};
                 const minEndFrom = (RESERVATION_START_DATE !== undefined) ? moment(RESERVATION_START_DATE) : moment('2017-01-01T00:00:00Z');
@@ -271,8 +286,6 @@ function getAggregateSales(req, res) {
             //     '座席グレード名称', '座席グレード追加料金', '券種名称', 'チケットコード', '券種料金',
             //     '客層', 'payment_seat_index', '予約単位料金', 'ユーザーネーム', '入場フラグ', '入場日時'
             // ];
-            // Name of the downloaded file - e.g. "Download.csv"
-            const filename = '売上げレポート';
             // Set approrpiate download headers
             // res.setHeader('Content-disposition', `attachment; filename=${filename}`);
             res.setHeader('Content-disposition', `attachment; filename*=UTF-8\'\'${encodeURIComponent(`${filename}.tsv`)}`);
