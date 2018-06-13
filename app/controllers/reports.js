@@ -209,10 +209,44 @@ function getAggregateSales(req, res) {
             case 'sales':
                 conditions.aggregateUnit = 'SalesByEndDate';
                 filename = '（購入日）売上レポート';
+                // if (dateFrom !== null || dateTo !== null) {
+                //     conditions.transaction_endDate_bucket = {};
+                //     const minEndFrom =
+                //         (RESERVATION_START_DATE !== undefined) ? moment(RESERVATION_START_DATE) : moment('2017-01-01T00:00:00Z');
+                //     // 登録日From
+                //     if (dateFrom !== null) {
+                //         // 売上げ
+                //         const endFrom = moment(`${getValue(req.query.dateFrom)}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ');
+                //         conditions.transaction_endDate_bucket.$gte = moment.max(endFrom, minEndFrom).toDate();
+                //     }
+                //     // 登録日To
+                //     if (dateTo !== null) {
+                //         // 売上げ
+                //         conditions.transaction_endDate_bucket.$lt =
+                //             moment(`${dateTo}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ').add(1, 'days').toDate();
+                //     }
+                // }
                 break;
             case 'salesByEventStartDate':
                 conditions.aggregateUnit = 'SalesByEventStartDate';
                 filename = '（来塔予定日）売上レポート';
+                // if (dateFrom !== null || dateTo !== null) {
+                //     conditions.performance = { startDay: {} };
+                //     const minEndFrom =
+                //         (RESERVATION_START_DATE !== undefined) ? moment(RESERVATION_START_DATE) : moment('2017-01-01T00:00:00Z');
+                //     // 登録日From
+                //     if (dateFrom !== null) {
+                //         // 売上げ
+                //         const endFrom = moment(`${getValue(req.query.dateFrom)}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ');
+                //         conditions.performance.startDay.$gte = moment.max(endFrom, minEndFrom).format("YYYYMMDD");
+                //     }
+                //     // 登録日To
+                //     if (dateTo !== null) {
+                //         // 売上げ
+                //         conditions.performance.startDay.$lt =
+                //             moment(`${dateTo}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ').add(1, 'days').format("YYYYMMDD");
+                //     }
+                // }
                 break;
             case 'salesByAccount':
                 break;
@@ -263,7 +297,7 @@ function getAggregateSales(req, res) {
                     '購入者（姓）': doc.customer.familyName,
                     購入者メール: doc.customer.email,
                     購入者電話: doc.customer.telephone,
-                    購入日時: doc.orderDate,
+                    購入日時: moment(doc.orderDate).format('YYYY/MM/DD HH:mm:ss'),
                     決済方法: doc.paymentMethod,
                     座席グレード名称: doc.seat.gradeName,
                     座席グレード追加料金: doc.seat.gradeAdditionalCharge,
@@ -275,7 +309,7 @@ function getAggregateSales(req, res) {
                     予約単位料金: doc.price,
                     ユーザーネーム: doc.customer.username,
                     入場フラグ: doc.checkedin,
-                    入場日時: doc.checkinDate
+                    入場日時: doc.checkedin === 'TRUE' ? moment(doc.checkinDate).format('YYYY/MM/DD HH:mm:ss') : ''
                 };
             };
             // const fields = [
@@ -303,7 +337,13 @@ function getAggregateSales(req, res) {
             res.flushHeaders();
             // Create a Fast CSV stream which transforms documents to objects
             const csvStream = fastCsv
-                .createWriteStream({ headers: true })
+                .createWriteStream({
+                headers: true,
+                delimiter: CSV_DELIMITER,
+                quoteColumns: true
+                // quote: '"',
+                // escape: '"'
+            })
                 .transform(transformer);
             // .setEncoding("utf8")
             // res.setHeader('Content-disposition', `attachment; filename*=UTF-8\'\'${encodeURIComponent(`${filename}.tsv`)}`);
