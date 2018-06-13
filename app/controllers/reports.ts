@@ -21,6 +21,15 @@ const POS_CLIENT_ID = process.env.POS_CLIENT_ID;
 const TOP_DECK_OPEN_DATE = process.env.TOP_DECK_OPEN_DATE;
 const RESERVATION_START_DATE = process.env.RESERVATION_START_DATE;
 
+const sortReport4Sales = {
+    "performance.startDay": 1, // トライ回数の少なさ優先
+    "performance.startTime": 1, // 実行予定日時の早さ優先
+    payment_no: 1,
+    reservationStatus: -1,
+    "seat.code": 1,
+    status_sort: 1
+};
+
 // CSV用のステータスコード
 enum Status4csv {
     Reserved = 'RESERVED',
@@ -345,7 +354,7 @@ export async function getAggregateSales(req: Request, res: Response): Promise<vo
         }
 
         const aggregateSaleRepo = new ttts.repository.AggregateSale(ttts.mongoose.connection);
-        const cursor = aggregateSaleRepo.aggregateSaleModel.find(conditions).cursor();
+        const cursor = aggregateSaleRepo.aggregateSaleModel.find(conditions).sort(sortReport4Sales).cursor();
         // const client = await mongodb.MongoClient.connect(conStr);
         // const db = await client.db("ttts-preview")
         // const collection = await db.collection("transactions")

@@ -25,6 +25,14 @@ const debug = createDebug('ttts-backend:controllers:report');
 const POS_CLIENT_ID = process.env.POS_CLIENT_ID;
 const TOP_DECK_OPEN_DATE = process.env.TOP_DECK_OPEN_DATE;
 const RESERVATION_START_DATE = process.env.RESERVATION_START_DATE;
+const sortReport4Sales = {
+    "performance.startDay": 1,
+    "performance.startTime": 1,
+    payment_no: 1,
+    reservationStatus: -1,
+    "seat.code": 1,
+    status_sort: 1
+};
 // CSV用のステータスコード
 var Status4csv;
 (function (Status4csv) {
@@ -229,7 +237,7 @@ function getAggregateSales(req, res) {
                 }
             }
             const aggregateSaleRepo = new ttts.repository.AggregateSale(ttts.mongoose.connection);
-            const cursor = aggregateSaleRepo.aggregateSaleModel.find(conditions).cursor();
+            const cursor = aggregateSaleRepo.aggregateSaleModel.find(conditions).sort(sortReport4Sales).cursor();
             // const client = await mongodb.MongoClient.connect(conStr);
             // const db = await client.db("ttts-preview")
             // const collection = await db.collection("transactions")
