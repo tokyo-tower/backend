@@ -22,11 +22,11 @@ const TOP_DECK_OPEN_DATE = process.env.TOP_DECK_OPEN_DATE;
 const RESERVATION_START_DATE = process.env.RESERVATION_START_DATE;
 
 const sortReport4Sales = {
-    "performance.startDay": 1, // トライ回数の少なさ優先
-    "performance.startTime": 1, // 実行予定日時の早さ優先
+    'performance.startDay': 1, // トライ回数の少なさ優先
+    'performance.startTime': 1, // 実行予定日時の早さ優先
     payment_no: 1,
     reservationStatus: -1,
-    "seat.code": 1,
+    'seat.code': 1,
     status_sort: 1
 };
 
