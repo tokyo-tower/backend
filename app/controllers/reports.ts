@@ -726,22 +726,45 @@ async function searchPlaceOrderTransactions4reportByEventStartDate(
     conditions['result.eventReservations.performance_start_date'] = {
         $exists: true
     };
-    if (searchConditions.eventStartFrom !== null) {
-        conditions['result.eventReservations.performance_start_date'].$gte =
-            moment(`${searchConditions.eventStartFrom}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ').toDate();
-    }
-    if (searchConditions.eventStartThrough !== null) {
-        conditions['result.eventReservations.performance_start_date'].$lt =
-            moment(`${searchConditions.eventStartThrough}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ').add(1, 'day').toDate();
+    // if (searchConditions.eventStartFrom !== null) {
+    //     conditions['result.eventReservations.performance_start_date'].$gte =
+    //         moment(`${searchConditions.eventStartFrom}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ').toDate();
+    // }
+    // if (searchConditions.eventStartThrough !== null) {
+    //     conditions['result.eventReservations.performance_start_date'].$lt =
+    //         moment(`${searchConditions.eventStartThrough}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ').add(1, 'day').toDate();
+    // }
+
+    let returnTransactions: ttts.factory.transaction.placeOrder.ITransaction[] = [];
+    const fromD = moment(`${searchConditions.eventStartFrom}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ');
+    const toD = moment(`${searchConditions.eventStartThrough}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ');
+    const cnt = toD.diff(fromD, 'days');
+    const iterateMin = 15;
+    const performanceCntPerDay = 53;
+    for (let c = 0; c < cnt + 1; c += 1) {
+        const m = moment(`${searchConditions.eventStartFrom}T09:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ').add('days', c);
+        const dateConditios = [];
+        for (let i = 0; i < performanceCntPerDay; i += 1) {
+            if (i === 0) {
+                dateConditios.push(
+                    { 'result.eventReservations.performance_start_date': m.toDate() }
+                );
+            } else {
+                dateConditios.push(
+                    { 'result.eventReservations.performance_start_date': m.add('minutes', iterateMin).toDate() }
+                );
+            }
+        }
+        conditions.$or = dateConditios;
+        debug('finding transactions...', conditions);
+        const transactionRepo = new ttts.repository.Transaction(ttts.mongoose.connection);
+        const transactions = await transactionRepo.transactionModel.find(conditions).exec()
+            .then((docs) => docs.map((doc) => <ttts.factory.transaction.placeOrder.ITransaction>doc.toObject()));
+        debug(`${transactions.length} transactions found.`);
+        returnTransactions = returnTransactions.concat(transactions);
     }
 
-    debug('finding transactions...', conditions);
-    const transactionRepo = new ttts.repository.Transaction(ttts.mongoose.connection);
-    const transactions = await transactionRepo.transactionModel.find(conditions).exec()
-        .then((docs) => docs.map((doc) => <ttts.factory.transaction.placeOrder.ITransaction>doc.toObject()));
-    debug(`${transactions.length} transactions found.`);
-
-    return transactions;
+    return returnTransactions;
 }
 
 async function searchReturnOrderTransactions4reportByEventStartDate(
@@ -763,25 +786,48 @@ async function searchReturnOrderTransactions4reportByEventStartDate(
     }
 
     // イベント開始日時条件を追加
-    conditions['object.transaction.result.eventReservations.performance_start_date'] = {
-        $type: 'date'
-    };
-    if (searchConditions.eventStartFrom !== null) {
-        conditions['object.transaction.result.eventReservations.performance_start_date'].$gte =
-            moment(`${searchConditions.eventStartFrom}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ').toDate();
-    }
-    if (searchConditions.eventStartThrough !== null) {
-        conditions['object.transaction.result.eventReservations.performance_start_date'].$lt =
-            moment(`${searchConditions.eventStartThrough}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ').add(1, 'day').toDate();
+    // conditions['object.transaction.result.eventReservations.performance_start_date'] = {
+    //     $type: 'date'
+    // };
+    // if (searchConditions.eventStartFrom !== null) {
+    //     conditions['object.transaction.result.eventReservations.performance_start_date'].$gte =
+    //         moment(`${searchConditions.eventStartFrom}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ').toDate();
+    // }
+    // if (searchConditions.eventStartThrough !== null) {
+    //     conditions['object.transaction.result.eventReservations.performance_start_date'].$lt =
+    //         moment(`${searchConditions.eventStartThrough}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ').add(1, 'day').toDate();
+    // }
+
+    let returnTransactions: ttts.factory.transaction.returnOrder.ITransaction[] = [];
+    const fromD = moment(`${searchConditions.eventStartFrom}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ');
+    const toD = moment(`${searchConditions.eventStartThrough}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ');
+    const cnt = toD.diff(fromD, 'days');
+    const iterateMin = 15;
+    const performanceCntPerDay = 53;
+    for (let c = 0; c < cnt + 1; c += 1) {
+        const m = moment(`${searchConditions.eventStartFrom}T09:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ').add('days', c);
+        const dateConditios = [];
+        for (let i = 0; i < performanceCntPerDay; i += 1) {
+            if (i === 0) {
+                dateConditios.push(
+                    { 'result.eventReservations.performance_start_date': m.toDate() }
+                );
+            } else {
+                dateConditios.push(
+                    { 'result.eventReservations.performance_start_date': m.add('minutes', iterateMin).toDate() }
+                );
+            }
+        }
+        conditions.$or = dateConditios;
+        debug('finding transactions...', conditions);
+        const transactionRepo = new ttts.repository.Transaction(ttts.mongoose.connection);
+        const transactions = await transactionRepo.transactionModel.find(conditions).exec()
+            .then((docs) => docs.map((doc) => <ttts.factory.transaction.returnOrder.ITransaction>doc.toObject()));
+        debug(`${transactions.length} transactions found.`);
+        returnTransactions = returnTransactions.concat(transactions);
     }
 
-    debug('finding transactions...', conditions);
-    const transactionRepo = new ttts.repository.Transaction(ttts.mongoose.connection);
-    const transactions = await transactionRepo.transactionModel.find(conditions).exec()
-        .then((docs) => docs.map((doc) => <ttts.factory.transaction.returnOrder.ITransaction>doc.toObject()));
-    debug(`${transactions.length} transactions found.`);
-
-    return transactions;
+    return returnTransactions;
 }
 
 async function placeOrderTransactions2reservationDatas(
