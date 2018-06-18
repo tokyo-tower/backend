@@ -810,11 +810,11 @@ async function searchReturnOrderTransactions4reportByEventStartDate(
         for (let i = 0; i < performanceCntPerDay; i += 1) {
             if (i === 0) {
                 dateConditios.push(
-                    { 'result.eventReservations.performance_start_date': m.toDate() }
+                    { 'object.transaction.result.eventReservations.performance_start_date': m.toDate() }
                 );
             } else {
                 dateConditios.push(
-                    { 'result.eventReservations.performance_start_date': m.add('minutes', iterateMin).toDate() }
+                    { 'object.transaction.result.eventReservations.performance_start_date': m.add('minutes', iterateMin).toDate() }
                 );
             }
         }

@@ -648,10 +648,10 @@ function searchReturnOrderTransactions4reportByEventStartDate(searchConditions) 
             const dateConditios = [];
             for (let i = 0; i < performanceCntPerDay; i += 1) {
                 if (i === 0) {
-                    dateConditios.push({ 'result.eventReservations.performance_start_date': m.toDate() });
+                    dateConditios.push({ 'object.transaction.result.eventReservations.performance_start_date': m.toDate() });
                 }
                 else {
-                    dateConditios.push({ 'result.eventReservations.performance_start_date': m.add('minutes', iterateMin).toDate() });
+                    dateConditios.push({ 'object.transaction.result.eventReservations.performance_start_date': m.add('minutes', iterateMin).toDate() });
                 }
             }
             conditions.$or = dateConditios;
