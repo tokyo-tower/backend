@@ -9,6 +9,7 @@ import * as createDebug from 'debug';
 import { Request, Response } from 'express';
 import * as fastCsv from 'fast-csv';
 import { OK } from 'http-status';
+import * as iconv from 'iconv-lite';
 import * as json2csv from 'json2csv';
 import * as moment from 'moment';
 import * as _ from 'underscore';
@@ -320,19 +321,19 @@ export async function getAggregateSales(req: Request, res: Response): Promise<vo
             conditions.aggregateUnit = 'SalesByEndDate';
             filename = '（購入日）売上レポート';
             // if (dateFrom !== null || dateTo !== null) {
-            //     conditions.transaction_endDate_bucket = {};
+            //     conditions.date_bucket = {};
             //     const minEndFrom =
             //         (RESERVATION_START_DATE !== undefined) ? moment(RESERVATION_START_DATE) : moment('2017-01-01T00:00:00Z');
             //     // 登録日From
             //     if (dateFrom !== null) {
             //         // 売上げ
             //         const endFrom = moment(`${getValue(req.query.dateFrom)}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ');
-            //         conditions.transaction_endDate_bucket.$gte = moment.max(endFrom, minEndFrom).toDate();
+            //         conditions.date_bucket.$gte = moment.max(endFrom, minEndFrom).toDate();
             //     }
             //     // 登録日To
             //     if (dateTo !== null) {
             //         // 売上げ
-            //         conditions.transaction_endDate_bucket.$lt =
+            //         conditions.date_bucket.$lt =
             //             moment(`${dateTo}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ').add(1, 'days').toDate();
             //     }
             // }
@@ -369,20 +370,20 @@ export async function getAggregateSales(req: Request, res: Response): Promise<vo
     try {
 
         if (dateFrom !== null || dateTo !== null) {
-            conditions.transaction_endDate_bucket = {};
+            conditions.date_bucket = {};
             const minEndFrom =
                 (RESERVATION_START_DATE !== undefined) ? moment(RESERVATION_START_DATE) : moment('2017-01-01T00:00:00Z');
             // 登録日From
             if (dateFrom !== null) {
                 // 売上げ
                 const endFrom = moment(`${getValue(req.query.dateFrom)}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ');
-                conditions.transaction_endDate_bucket.$gte =
-                    conditions.transaction_endDate_bucket.$gte = moment.max(endFrom, minEndFrom).toDate();
+                conditions.date_bucket.$gte =
+                    conditions.date_bucket.$gte = moment.max(endFrom, minEndFrom).toDate();
             }
             // 登録日To
             if (dateTo !== null) {
                 // 売上げ
-                conditions.transaction_endDate_bucket.$lt =
+                conditions.date_bucket.$lt =
                     moment(`${dateTo}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ').add(1, 'days').toDate();
             }
         }
@@ -462,7 +463,9 @@ export async function getAggregateSales(req: Request, res: Response): Promise<vo
             .createWriteStream({
                 headers: true,
                 delimiter: CSV_DELIMITER,
-                quoteColumns: true
+                quoteColumns: true,
+                rowDelimiter: CSV_LINE_ENDING
+                // includeEndRowDelimiter: true
                 // quote: '"',
                 // escape: '"'
             })
@@ -471,9 +474,14 @@ export async function getAggregateSales(req: Request, res: Response): Promise<vo
 
         // res.setHeader('Content-disposition', `attachment; filename*=UTF-8\'\'${encodeURIComponent(`${filename}.tsv`)}`);
         // res.setHeader('Content-Type', 'text/csv; charset=Shift_JIS');
-
         // Pipe/stream the query result to the response via the CSV transformer stream
-        cursor.pipe(csvStream).pipe(res);
+
+        //sjisに変換して流し込む
+        cursor
+            .pipe(csvStream)
+            .pipe(iconv.decodeStream('utf-8'))
+            .pipe(iconv.encodeStream('windows-31j'))
+            .pipe(res);
     } catch (error) {
         const message: string = error.message;
         res.send(message);
