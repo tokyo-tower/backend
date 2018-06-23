@@ -14,6 +14,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const ttts = require("@motionpicture/ttts-domain");
 const createDebug = require("debug");
+const fastCsv = require("fast-csv");
+const http_status_1 = require("http-status");
+const iconv = require("iconv-lite");
 const json2csv = require("json2csv");
 const moment = require("moment");
 const _ = require("underscore");
@@ -23,6 +26,14 @@ const debug = createDebug('ttts-backend:controllers:report');
 const POS_CLIENT_ID = process.env.POS_CLIENT_ID;
 const TOP_DECK_OPEN_DATE = process.env.TOP_DECK_OPEN_DATE;
 const RESERVATION_START_DATE = process.env.RESERVATION_START_DATE;
+const sortReport4Sales = {
+    'performance.startDay': 1,
+    'performance.startTime': 1,
+    payment_no: 1,
+    reservationStatus: -1,
+    'seat.code': 1,
+    status_sort: 1
+};
 // CSV用のステータスコード
 var Status4csv;
 (function (Status4csv) {
@@ -61,7 +72,7 @@ function getSales(req, res) {
             performanceStartHour2: getValue(req.query.start_hour2),
             performanceStartMinute2: getValue(req.query.start_minute2)
         };
-        let filename = 'DeaultReport';
+        let filename = 'DefaultReport';
         try {
             // バリデーション(時分が片方のみ指定されていたらエラー)
             const errorMessage = yield validate(req);
@@ -184,6 +195,177 @@ function getSales(req, res) {
     });
 }
 exports.getSales = getSales;
+/**
+ * 集計済みデータ取得API
+ */
+// tslint:disable-next-line:max-func-body-length
+function getAggregateSales(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const dateFrom = getValue(req.query.dateFrom);
+        const dateTo = getValue(req.query.dateTo);
+        const conditions = {};
+        // Name of the downloaded file - e.g. "Download.csv"
+        let filename = 'DefaultReport';
+        switch (getValue(req.query.reportType)) {
+            case 'sales':
+                conditions.aggregateUnit = 'SalesByEndDate';
+                filename = '（購入日）売上レポート';
+                // if (dateFrom !== null || dateTo !== null) {
+                //     conditions.date_bucket = {};
+                //     const minEndFrom =
+                //         (RESERVATION_START_DATE !== undefined) ? moment(RESERVATION_START_DATE) : moment('2017-01-01T00:00:00Z');
+                //     // 登録日From
+                //     if (dateFrom !== null) {
+                //         // 売上げ
+                //         const endFrom = moment(`${getValue(req.query.dateFrom)}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ');
+                //         conditions.date_bucket.$gte = moment.max(endFrom, minEndFrom).toDate();
+                //     }
+                //     // 登録日To
+                //     if (dateTo !== null) {
+                //         // 売上げ
+                //         conditions.date_bucket.$lt =
+                //             moment(`${dateTo}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ').add(1, 'days').toDate();
+                //     }
+                // }
+                break;
+            case 'salesByEventStartDate':
+                conditions.aggregateUnit = 'SalesByEventStartDate';
+                filename = '（来塔予定日）売上レポート';
+                // if (dateFrom !== null || dateTo !== null) {
+                //     conditions.performance = { startDay: {} };
+                //     const minEndFrom =
+                //         (RESERVATION_START_DATE !== undefined) ? moment(RESERVATION_START_DATE) : moment('2017-01-01T00:00:00Z');
+                //     // 登録日From
+                //     if (dateFrom !== null) {
+                //         // 売上げ
+                //         const endFrom = moment(`${getValue(req.query.dateFrom)}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ');
+                //         conditions.performance.startDay.$gte = moment.max(endFrom, minEndFrom).format("YYYYMMDD");
+                //     }
+                //     // 登録日To
+                //     if (dateTo !== null) {
+                //         // 売上げ
+                //         conditions.performance.startDay.$lt =
+                //             moment(`${dateTo}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ').add(1, 'days').format("YYYYMMDD");
+                //     }
+                // }
+                break;
+            case 'salesByAccount':
+                break;
+            default:
+        }
+        try {
+            if (dateFrom !== null || dateTo !== null) {
+                conditions.date_bucket = {};
+                const minEndFrom = (RESERVATION_START_DATE !== undefined) ? moment(RESERVATION_START_DATE) : moment('2017-01-01T00:00:00Z');
+                // 登録日From
+                if (dateFrom !== null) {
+                    // 売上げ
+                    const endFrom = moment(`${getValue(req.query.dateFrom)}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ');
+                    conditions.date_bucket.$gte =
+                        conditions.date_bucket.$gte = moment.max(endFrom, minEndFrom).toDate();
+                }
+                // 登録日To
+                if (dateTo !== null) {
+                    // 売上げ
+                    conditions.date_bucket.$lt =
+                        moment(`${dateTo}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ').add(1, 'days').toDate();
+                }
+            }
+            const aggregateSaleRepo = new ttts.repository.AggregateSale(ttts.mongoose.connection);
+            const cursor = aggregateSaleRepo.aggregateSaleModel.find(conditions).sort(sortReport4Sales).cursor();
+            // const client = await mongodb.MongoClient.connect(conStr);
+            // const db = await client.db("ttts-preview")
+            // const collection = await db.collection("transactions")
+            // let cursor = await collection.find(conditions)
+            // The transformer function
+            const transformer = (doc) => {
+                // Return an object with all fields you need in the CSV
+                // For example ...
+                return {
+                    購入番号: doc.payment_no,
+                    パフォーマンスID: doc.performance.id,
+                    座席コード: doc.seat.code,
+                    予約ステータス: doc.reservationStatus,
+                    入塔予約年月日: doc.performance.startDay,
+                    入塔予約時刻: doc.performance.startTime,
+                    劇場名称: doc.theater.name,
+                    スクリーンID: doc.screen.id,
+                    スクリーン名: doc.screen.name,
+                    作品ID: doc.film.id,
+                    作品名称: doc.film.name,
+                    購入者区分: doc.customer.group,
+                    '購入者（名）': doc.customer.givenName,
+                    '購入者（姓）': doc.customer.familyName,
+                    購入者メール: doc.customer.email,
+                    購入者電話: doc.customer.telephone,
+                    購入日時: moment(doc.orderDate).format('YYYY/MM/DD HH:mm:ss'),
+                    決済方法: doc.paymentMethod,
+                    座席グレード名称: doc.seat.gradeName,
+                    座席グレード追加料金: doc.seat.gradeAdditionalCharge,
+                    券種名称: doc.ticketType.name,
+                    チケットコード: doc.ticketType.csvCode,
+                    券種料金: doc.ticketType.charge,
+                    客層: doc.customer.segment,
+                    payment_seat_index: doc.payment_seat_index,
+                    予約単位料金: doc.price,
+                    ユーザーネーム: doc.customer.username,
+                    入場フラグ: doc.checkedin,
+                    入場日時: doc.checkedin === 'TRUE' ? moment(doc.checkinDate).format('YYYY/MM/DD HH:mm:ss') : ''
+                };
+            };
+            // const fields = [
+            //     'paymentNo', 'performance.id', 'seat.code', 'reservationStatus',
+            //     'performance.startDay', 'performance.startTime', 'theater.name', 'screen.id', 'screen.name', 'film.id', 'film.name',
+            //     'customer.group', 'customer.givenName', 'customer.familyName', 'customer.email', 'customer.telephone',
+            //     'orderDate', 'paymentMethod',
+            //     'seat.gradeName', 'seat.gradeAdditionalCharge', 'ticketType.name', 'ticketType.csvCode', 'ticketType.charge',
+            //     'customer.segment', 'paymentSeatIndex', 'price', 'customer.username', 'checkedin', 'checkinDate'
+            // ];
+            // const fieldNames = [
+            //     '購入番号', 'パフォーマンスID', '座席コード', '予約ステータス',
+            //     '入塔予約年月日', '入塔予約時刻', '劇場名称', 'スクリーンID', 'スクリーン名', '作品ID', '作品名称',
+            //     '購入者区分', '購入者（名）', '購入者（姓）', '購入者メール', '購入者電話',
+            //     '購入日時', '決済方法',
+            //     '座席グレード名称', '座席グレード追加料金', '券種名称', 'チケットコード', '券種料金',
+            //     '客層', 'payment_seat_index', '予約単位料金', 'ユーザーネーム', '入場フラグ', '入場日時'
+            // ];
+            // Set approrpiate download headers
+            // res.setHeader('Content-disposition', `attachment; filename=${filename}`);
+            res.setHeader('Content-disposition', `attachment; filename*=UTF-8\'\'${encodeURIComponent(`${filename}.tsv`)}`);
+            res.setHeader('Content-Type', 'text/csv; charset=Shift_JIS');
+            res.writeHead(http_status_1.OK, { 'Content-Type': 'text/csv; charset=Shift_JIS' });
+            // Flush the headers before we start pushing the CSV content
+            res.flushHeaders();
+            // Create a Fast CSV stream which transforms documents to objects
+            const csvStream = fastCsv
+                .createWriteStream({
+                headers: true,
+                delimiter: CSV_DELIMITER,
+                quoteColumns: true,
+                rowDelimiter: CSV_LINE_ENDING
+                // includeEndRowDelimiter: true
+                // quote: '"',
+                // escape: '"'
+            })
+                .transform(transformer);
+            // .setEncoding("utf8")
+            // res.setHeader('Content-disposition', `attachment; filename*=UTF-8\'\'${encodeURIComponent(`${filename}.tsv`)}`);
+            // res.setHeader('Content-Type', 'text/csv; charset=Shift_JIS');
+            // Pipe/stream the query result to the response via the CSV transformer stream
+            //sjisに変換して流し込む
+            cursor
+                .pipe(csvStream)
+                .pipe(iconv.decodeStream('utf-8'))
+                .pipe(iconv.encodeStream('windows-31j'))
+                .pipe(res);
+        }
+        catch (error) {
+            const message = error.message;
+            res.send(message);
+        }
+    });
+}
+exports.getAggregateSales = getAggregateSales;
 /**
  * レポート出力検証
  * @param {Request} req
@@ -400,20 +582,40 @@ function searchPlaceOrderTransactions4reportByEventStartDate(searchConditions) {
         conditions['result.eventReservations.performance_start_date'] = {
             $exists: true
         };
-        if (searchConditions.eventStartFrom !== null) {
-            conditions['result.eventReservations.performance_start_date'].$gte =
-                moment(`${searchConditions.eventStartFrom}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ').toDate();
+        // if (searchConditions.eventStartFrom !== null) {
+        //     conditions['result.eventReservations.performance_start_date'].$gte =
+        //         moment(`${searchConditions.eventStartFrom}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ').toDate();
+        // }
+        // if (searchConditions.eventStartThrough !== null) {
+        //     conditions['result.eventReservations.performance_start_date'].$lt =
+        //         moment(`${searchConditions.eventStartThrough}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ').add(1, 'day').toDate();
+        // }
+        let returnTransactions = [];
+        const fromD = moment(`${searchConditions.eventStartFrom}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ');
+        const toD = moment(`${searchConditions.eventStartThrough}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ');
+        const cnt = toD.diff(fromD, 'days');
+        const iterateMin = 15;
+        const performanceCntPerDay = 53;
+        for (let c = 0; c < cnt + 1; c += 1) {
+            const m = moment(`${searchConditions.eventStartFrom}T09:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ').add('days', c);
+            const dateConditios = [];
+            for (let i = 0; i < performanceCntPerDay; i += 1) {
+                if (i === 0) {
+                    dateConditios.push({ 'result.eventReservations.performance_start_date': m.toDate() });
+                }
+                else {
+                    dateConditios.push({ 'result.eventReservations.performance_start_date': m.add('minutes', iterateMin).toDate() });
+                }
+            }
+            conditions.$or = dateConditios;
+            debug('finding transactions...', conditions);
+            const transactionRepo = new ttts.repository.Transaction(ttts.mongoose.connection);
+            const transactions = yield transactionRepo.transactionModel.find(conditions).exec()
+                .then((docs) => docs.map((doc) => doc.toObject()));
+            debug(`${transactions.length} transactions found.`);
+            returnTransactions = returnTransactions.concat(transactions);
         }
-        if (searchConditions.eventStartThrough !== null) {
-            conditions['result.eventReservations.performance_start_date'].$lt =
-                moment(`${searchConditions.eventStartThrough}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ').add(1, 'day').toDate();
-        }
-        debug('finding transactions...', conditions);
-        const transactionRepo = new ttts.repository.Transaction(ttts.mongoose.connection);
-        const transactions = yield transactionRepo.transactionModel.find(conditions).exec()
-            .then((docs) => docs.map((doc) => doc.toObject()));
-        debug(`${transactions.length} transactions found.`);
-        return transactions;
+        return returnTransactions;
     });
 }
 function searchReturnOrderTransactions4reportByEventStartDate(searchConditions) {
@@ -432,23 +634,43 @@ function searchReturnOrderTransactions4reportByEventStartDate(searchConditions) 
             // conditions['object.transaction.agent.id'] = { $ne: POS_CLIENT_ID };
         }
         // イベント開始日時条件を追加
-        conditions['object.transaction.result.eventReservations.performance_start_date'] = {
-            $type: 'date'
-        };
-        if (searchConditions.eventStartFrom !== null) {
-            conditions['object.transaction.result.eventReservations.performance_start_date'].$gte =
-                moment(`${searchConditions.eventStartFrom}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ').toDate();
+        // conditions['object.transaction.result.eventReservations.performance_start_date'] = {
+        //     $type: 'date'
+        // };
+        // if (searchConditions.eventStartFrom !== null) {
+        //     conditions['object.transaction.result.eventReservations.performance_start_date'].$gte =
+        //         moment(`${searchConditions.eventStartFrom}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ').toDate();
+        // }
+        // if (searchConditions.eventStartThrough !== null) {
+        //     conditions['object.transaction.result.eventReservations.performance_start_date'].$lt =
+        //         moment(`${searchConditions.eventStartThrough}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ').add(1, 'day').toDate();
+        // }
+        let returnTransactions = [];
+        const fromD = moment(`${searchConditions.eventStartFrom}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ');
+        const toD = moment(`${searchConditions.eventStartThrough}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ');
+        const cnt = toD.diff(fromD, 'days');
+        const iterateMin = 15;
+        const performanceCntPerDay = 53;
+        for (let c = 0; c < cnt + 1; c += 1) {
+            const m = moment(`${searchConditions.eventStartFrom}T09:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ').add('days', c);
+            const dateConditios = [];
+            for (let i = 0; i < performanceCntPerDay; i += 1) {
+                if (i === 0) {
+                    dateConditios.push({ 'object.transaction.result.eventReservations.performance_start_date': m.toDate() });
+                }
+                else {
+                    dateConditios.push({ 'object.transaction.result.eventReservations.performance_start_date': m.add('minutes', iterateMin).toDate() });
+                }
+            }
+            conditions.$or = dateConditios;
+            debug('finding transactions...', conditions);
+            const transactionRepo = new ttts.repository.Transaction(ttts.mongoose.connection);
+            const transactions = yield transactionRepo.transactionModel.find(conditions).exec()
+                .then((docs) => docs.map((doc) => doc.toObject()));
+            debug(`${transactions.length} transactions found.`);
+            returnTransactions = returnTransactions.concat(transactions);
         }
-        if (searchConditions.eventStartThrough !== null) {
-            conditions['object.transaction.result.eventReservations.performance_start_date'].$lt =
-                moment(`${searchConditions.eventStartThrough}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ').add(1, 'day').toDate();
-        }
-        debug('finding transactions...', conditions);
-        const transactionRepo = new ttts.repository.Transaction(ttts.mongoose.connection);
-        const transactions = yield transactionRepo.transactionModel.find(conditions).exec()
-            .then((docs) => docs.map((doc) => doc.toObject()));
-        debug(`${transactions.length} transactions found.`);
-        return transactions;
+        return returnTransactions;
     });
 }
 function placeOrderTransactions2reservationDatas(placeOrderTransactions) {
