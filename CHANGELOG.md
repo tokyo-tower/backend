@@ -18,6 +18,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v2.2.0 - 2018-06-23
+
+### Added
+
+- 日次集計済みデータダウンロード機能追加。
+- 既存クエリのチューニング。
+
 ## v2.1.0 - 2018-04-17
 
 ### Added
