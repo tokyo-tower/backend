@@ -85,4 +85,5 @@ reportsRouter.get('/account', (req, res, next) => __awaiter(this, void 0, void 0
     }
 }));
 reportsRouter.get('/getSales', reportsController.getSales);
+reportsRouter.get('/getAggregateSales', reportsController.getAggregateSales);
 exports.default = reportsRouter;
