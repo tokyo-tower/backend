@@ -430,8 +430,8 @@ function searchPlaceOrderTransactions4reportByEndDate(searchConditions) {
             }
         };
         if (POS_CLIENT_ID !== undefined) {
-            // POS購入除外(一時的に除外機能オフ)
-            // conditions['agent.id'] = { $ne: POS_CLIENT_ID };
+            // POS購入除外
+            conditions['agent.id'] = { $ne: POS_CLIENT_ID };
         }
         // 集計期間
         // 予約開始日時の設定があれば、それ以前は除外
@@ -475,8 +475,8 @@ function searchReturnOrderTransactions4reportByEndDate(searchConditions) {
             }
         };
         if (POS_CLIENT_ID !== undefined) {
-            // POS購入除外(一時的に除外機能オフ)
-            // conditions['object.transaction.agent.id'] = { $ne: POS_CLIENT_ID };
+            // POS購入除外
+            conditions['object.transaction.agent.id'] = { $ne: POS_CLIENT_ID };
         }
         // 集計期間
         // 予約開始日時の設定があれば、それ以前は除外
@@ -520,8 +520,8 @@ function searchPlaceOrderTransactions4reportByAccount(searchConditions) {
             }
         };
         if (POS_CLIENT_ID !== undefined) {
-            // POS購入除外(一時的に除外機能オフ)
-            // conditions['agent.id'] = { $ne: POS_CLIENT_ID };
+            // POS購入除外
+            conditions['agent.id'] = { $ne: POS_CLIENT_ID };
         }
         // アカウント
         if (searchConditions.owner_username !== null) {
@@ -575,8 +575,8 @@ function searchPlaceOrderTransactions4reportByEventStartDate(searchConditions) {
             }
         };
         if (POS_CLIENT_ID !== undefined) {
-            // POS購入除外(一時的に除外機能オフ)
-            // conditions['agent.id'] = { $ne: POS_CLIENT_ID };
+            // POS購入除外
+            conditions['agent.id'] = { $ne: POS_CLIENT_ID };
         }
         // イベント開始日時条件を追加
         conditions['result.eventReservations.performance_start_date'] = {
@@ -630,8 +630,8 @@ function searchReturnOrderTransactions4reportByEventStartDate(searchConditions) 
             }
         };
         if (POS_CLIENT_ID !== undefined) {
-            // POS購入除外(一時的に除外機能オフ)
-            // conditions['object.transaction.agent.id'] = { $ne: POS_CLIENT_ID };
+            // POS購入除外
+            conditions['object.transaction.agent.id'] = { $ne: POS_CLIENT_ID };
         }
         // イベント開始日時条件を追加
         // conditions['object.transaction.result.eventReservations.performance_start_date'] = {

@@ -558,8 +558,8 @@ async function searchPlaceOrderTransactions4reportByEndDate(
     };
 
     if (POS_CLIENT_ID !== undefined) {
-        // POS購入除外(一時的に除外機能オフ)
-        // conditions['agent.id'] = { $ne: POS_CLIENT_ID };
+        // POS購入除外
+        conditions['agent.id'] = { $ne: POS_CLIENT_ID };
     }
 
     // 集計期間
@@ -609,8 +609,8 @@ async function searchReturnOrderTransactions4reportByEndDate(
     };
 
     if (POS_CLIENT_ID !== undefined) {
-        // POS購入除外(一時的に除外機能オフ)
-        // conditions['object.transaction.agent.id'] = { $ne: POS_CLIENT_ID };
+        // POS購入除外
+        conditions['object.transaction.agent.id'] = { $ne: POS_CLIENT_ID };
     }
 
     // 集計期間
@@ -660,8 +660,8 @@ async function searchPlaceOrderTransactions4reportByAccount(
     };
 
     if (POS_CLIENT_ID !== undefined) {
-        // POS購入除外(一時的に除外機能オフ)
-        // conditions['agent.id'] = { $ne: POS_CLIENT_ID };
+        // POS購入除外
+        conditions['agent.id'] = { $ne: POS_CLIENT_ID };
     }
 
     // アカウント
@@ -726,8 +726,8 @@ async function searchPlaceOrderTransactions4reportByEventStartDate(
     };
 
     if (POS_CLIENT_ID !== undefined) {
-        // POS購入除外(一時的に除外機能オフ)
-        // conditions['agent.id'] = { $ne: POS_CLIENT_ID };
+        // POS購入除外
+        conditions['agent.id'] = { $ne: POS_CLIENT_ID };
     }
 
     // イベント開始日時条件を追加
@@ -789,8 +789,8 @@ async function searchReturnOrderTransactions4reportByEventStartDate(
     };
 
     if (POS_CLIENT_ID !== undefined) {
-        // POS購入除外(一時的に除外機能オフ)
-        // conditions['object.transaction.agent.id'] = { $ne: POS_CLIENT_ID };
+        // POS購入除外
+        conditions['object.transaction.agent.id'] = { $ne: POS_CLIENT_ID };
     }
 
     // イベント開始日時条件を追加
