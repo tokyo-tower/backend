@@ -60,13 +60,13 @@ $(function () {
 
         // now:キャッシュ避け
         var now = (new Date()).getTime();
-        var url = '/reports/getAggregateSales/' +
-            '?dateFrom=' + eventStartFrom + '&dateTo=' + eventStartThrough +
-            '&reportType=' + reportType +
-            '&dummy=' + now;
+        var url = '/reports/getAggregateSales?' + form.serialize()
+            // + '?dateFrom=' + eventStartFrom + '&dateTo=' + eventStartThrough +
+            // '&reportType=' + reportType +
+            + '&dummy=' + now;
         console.log('[donwload] salesReportByAggregateSalesEventStartDate', url);
         window.open(url);
-    });    
+    });
     // 【集計済】レポート出力ボタンイベント
     $(document).on('click', '.form-salesReportByAggregateSales .btn-download', function () {
         var form = $('.form-salesReportByAggregateSales');
@@ -81,15 +81,15 @@ $(function () {
         var reportType = $('input[name="reportType"]', form).val();
         // now:キャッシュ避け
         var now = (new Date()).getTime();
-        var url = '/reports/getAggregateSales/' +
-            '?dateFrom=' + dateFrom + '&dateTo=' + dateTo +
+        var url = '/reports/getAggregateSales?' + form.serialize()
+            // + '?dateFrom=' + dateFrom + '&dateTo=' + dateTo +
             // '&start_hour1=' + start_hour1 + '&start_minute1=' + start_minute1 +
             // '&start_hour2=' + start_hour2 + '&start_minute2=' + start_minute2 +
-            '&reportType=' + reportType +
-            '&dummy=' + now;
+            // '&reportType=' + reportType +
+            + '&dummy=' + now;
         console.log('[donwload] sales report', url);
         window.open(url);
-    });    
+    });
 
     // アカウント別レポートダウンロード
     var btn_download_accountreport = document.getElementById('btn_download_accountreport');
