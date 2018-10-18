@@ -4,89 +4,39 @@ $(function () {
         language: 'ja'
     });
 
-    var getValue = function (selector) {
-        return ($(selector).length > 0) ? $(selector).val() : '';
-    };
-
     // 【リアルタイム】レポート出力ボタンイベント
     $(document).on('click', '.form-salesReportByTransactionEndDate .btn-download', function () {
         var form = $('.form-salesReportByTransactionEndDate');
-        var dateFrom = $('input[name="dateFrom"]', form).val();
-        var dateTo = $('input[name="dateTo"]', form).val();
-        // for account report
-        // var start_hour1 = getValue('select[name="start_hour1"]');
-        // var start_minute1 = getValue('select[name="start_minute1"]');
-        // var start_hour2 = getValue('select[name="start_hour2"]');
-        // var start_minute2 = getValue('select[name="start_minute2"]');
-        // レポート区分
-        var reportType = $('input[name="reportType"]', form).val();
         // now:キャッシュ避け
         var now = (new Date()).getTime();
-        var url = '/reports/getSales/' +
-            '?dateFrom=' + dateFrom + '&dateTo=' + dateTo +
-            // '&start_hour1=' + start_hour1 + '&start_minute1=' + start_minute1 +
-            // '&start_hour2=' + start_hour2 + '&start_minute2=' + start_minute2 +
-            '&reportType=' + reportType +
-            '&dummy=' + now;
+        var url = '/reports/getSales/?' + form.serialize() + '&dummy=' + now;
         console.log('[donwload] sales report', url);
         window.open(url);
     });
-
     // 【リアルタイム】来塔予定日ごとの売り上げレポート出力ボタンイベント
     $(document).on('click', '.form-salesReportByEventStartDate .btn-download', function () {
         var form = $('.form-salesReportByEventStartDate');
-        var eventStartFrom = $('input[name="eventStartFrom"]', form).val();
-        var eventStartThrough = $('input[name="eventStartThrough"]', form).val();
-        var reportType = $('input[name="reportType"]', form).val();
-
         // now:キャッシュ避け
         var now = (new Date()).getTime();
-        var url = '/reports/getSales/' +
-            '?eventStartFrom=' + eventStartFrom + '&eventStartThrough=' + eventStartThrough +
-            '&reportType=' + reportType +
-            '&dummy=' + now;
+        var url = '/reports/getSales/?' + form.serialize() + '&dummy=' + now;
         console.log('[donwload] salesReportByEventStartDate', url);
         window.open(url);
     });
-
-
-
     // 【集計済】来塔予定日ごとの売り上げレポート出力ボタンイベント
     $(document).on('click', '.form-salesReportByAggregateSalesEventStartDate .btn-download', function () {
         var form = $('.form-salesReportByAggregateSalesEventStartDate');
-        var eventStartFrom = $('input[name="eventStartFrom"]', form).val();
-        var eventStartThrough = $('input[name="eventStartThrough"]', form).val();
-        var reportType = $('input[name="reportType"]', form).val();
-
         // now:キャッシュ避け
         var now = (new Date()).getTime();
-        var url = '/reports/getAggregateSales?' + form.serialize()
-            // + '?dateFrom=' + eventStartFrom + '&dateTo=' + eventStartThrough +
-            // '&reportType=' + reportType +
-            + '&dummy=' + now;
+        var url = '/reports/getAggregateSales?' + form.serialize() + '&dummy=' + now;
         console.log('[donwload] salesReportByAggregateSalesEventStartDate', url);
         window.open(url);
     });
     // 【集計済】レポート出力ボタンイベント
     $(document).on('click', '.form-salesReportByAggregateSales .btn-download', function () {
         var form = $('.form-salesReportByAggregateSales');
-        var dateFrom = $('input[name="dateFrom"]', form).val();
-        var dateTo = $('input[name="dateTo"]', form).val();
-        // for account report
-        // var start_hour1 = getValue('select[name="start_hour1"]');
-        // var start_minute1 = getValue('select[name="start_minute1"]');
-        // var start_hour2 = getValue('select[name="start_hour2"]');
-        // var start_minute2 = getValue('select[name="start_minute2"]');
-        // レポート区分
-        var reportType = $('input[name="reportType"]', form).val();
         // now:キャッシュ避け
         var now = (new Date()).getTime();
-        var url = '/reports/getAggregateSales?' + form.serialize()
-            // + '?dateFrom=' + dateFrom + '&dateTo=' + dateTo +
-            // '&start_hour1=' + start_hour1 + '&start_minute1=' + start_minute1 +
-            // '&start_hour2=' + start_hour2 + '&start_minute2=' + start_minute2 +
-            // '&reportType=' + reportType +
-            + '&dummy=' + now;
+        var url = '/reports/getAggregateSales?' + form.serialize() + '&dummy=' + now;
         console.log('[donwload] sales report', url);
         window.open(url);
     });

@@ -334,7 +334,7 @@ export async function getAggregateSales(req: Request, res: Response): Promise<vo
     const dateFrom = getValue(req.query.dateFrom);
     const dateTo = getValue(req.query.dateTo);
     const eventStartFrom = getValue(req.query.eventStartFrom);
-    const eventStartTo = getValue(req.query.eventStartTo);
+    const eventStartThrough = getValue(req.query.eventStartThrough);
     const conditions: any[] = [];
     // Name of the downloaded file - e.g. "Download.csv"
     let filename = 'DefaultReport';
@@ -417,10 +417,11 @@ export async function getAggregateSales(req: Request, res: Response): Promise<vo
                 }
             });
         }
-        if (eventStartTo !== null) {
+        if (eventStartThrough !== null) {
             conditions.push({
                 'performance.startDay': {
-                    $lt: moment(`${eventStartTo}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ').add(1, 'day').tz('Asia/Tokyo').format('YYYYMMDD')
+                    $lt: moment(`${eventStartThrough}T00:00:00+09:00`, 'YYYY/MM/DDTHH:mm:ssZ')
+                        .add(1, 'day').tz('Asia/Tokyo').format('YYYYMMDD')
                 }
             });
         }
