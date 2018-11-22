@@ -23,7 +23,7 @@ const authClient = new tttsapi.auth.OAuth2({
     clientId: process.env.API_CLIENT_ID,
     clientSecret: process.env.API_CLIENT_SECRET
 });
-// 売り上げレポート出力
+// 売上レポート出力
 reportsRouter.get('', (__, res) => {
     res.render('reports/index', {
         title: 'レポート',
@@ -33,9 +33,10 @@ reportsRouter.get('', (__, res) => {
 });
 reportsRouter.get('/sales', (__, res) => {
     res.render('reports/sales', {
-        title: '売り上げレポート出力',
+        title: '売上レポート出力',
         routeName: 'master.report.sales',
-        layout: 'layouts/master/layout'
+        layout: 'layouts/master/layout',
+        ReportType: reportsController.ReportType
     });
 });
 // アカウント別レポート出力
@@ -84,6 +85,5 @@ reportsRouter.get('/account', (req, res, next) => __awaiter(this, void 0, void 0
         next(error);
     }
 }));
-reportsRouter.get('/getSales', reportsController.getSales);
 reportsRouter.get('/getAggregateSales', reportsController.getAggregateSales);
 exports.default = reportsRouter;

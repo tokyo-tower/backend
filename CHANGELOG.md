@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Changed
 
 - 取引と予約の検索パフォーマンス向上。
+- 売上レポート画面を簡素化
 
 ### Deprecated
 
