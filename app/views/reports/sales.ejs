@@ -1,86 +1,29 @@
 <script src="/js/reportSales.js"></script>
 
 <section>
-    <h1>【リアルタイム】売り上げレポート出力</h1>
+    <h1>売上レポート出力</h1>
     <hr>
-    <form method="post" class="form-salesReportByTransactionEndDate">
+    <form method="post" class="form-salesReport">
         <%- include('../common/master/_hidden') %>
-            <input type="hidden" name="reportType" value="sales">
+        <input type="hidden" name="reportType" value="<%= ReportType.Sales %>">
 
-            <label for="dateFrom">出力期間選択</label>
-            <div class="daterange">
-                <input type="text" class="form-control datepicker" name="dateFrom" id="dateFrom"> ～
-                <input type="text" class="form-control datepicker" name="dateTo" id="dateTo">
-            </div>
+        <label for="dateFrom">売上期間選択</label>
+        <div class="daterange">
+            <input type="text" class="form-control datepicker" name="dateFrom" id="dateFrom"> ～
+            <input type="text" class="form-control datepicker" name="dateTo" id="dateTo">
+        </div>
 
-            <hr>
+        <label for="dateFrom">来塔予定日期間選択</label>
+        <div class="daterange">
+            <input type="text" class="form-control datepicker" name="eventStartFrom" id="eventStartFrom"> ～
+            <input type="text" class="form-control datepicker" name="eventStartThrough" id="eventStartThrough">
+        </div>
 
-            <a class="btn btn-ok btn-download">
-                <span>レポートダウンロード</span>
-            </a>
-    </form>
-</section>
+        <hr>
 
-<section>
-    <h1>【リアルタイム】来塔予定日による売り上げレポート出力</h1>
-    <hr>
-    <form method="post" class="form-salesReportByEventStartDate">
-        <%- include('../common/master/_hidden') %>
-            <input type="hidden" name="reportType" value="salesByEventStartDate">
-
-            <label for="dateFrom">来塔予定日期間選択</label>
-            <div class="daterange">
-                <input type="text" class="form-control datepicker" name="eventStartFrom" id="eventStartFrom"> ～
-                <input type="text" class="form-control datepicker" name="eventStartThrough" id="eventStartThrough">
-            </div>
-
-            <hr>
-
-            <a class="btn btn-ok btn-download">
-                <span>レポートダウンロード</span>
-            </a>
-    </form>
-</section>
-
-<section>
-    <h1>【集計済】売り上げレポート出力</h1>
-    <hr>
-    <form method="post" class="form-salesReportByAggregateSales">
-        <%- include('../common/master/_hidden') %>
-            <input type="hidden" name="reportType" value="sales">
-
-            <label for="dateFrom">出力期間選択</label>
-            <div class="daterange">
-                <input type="text" class="form-control datepicker" name="dateFrom" id="dateFrom"> ～
-                <input type="text" class="form-control datepicker" name="dateTo" id="dateTo">
-            </div>
-
-            <hr>
-
-            <a class="btn btn-ok btn-download">
-                <span>レポートダウンロード</span>
-            </a>
-    </form>
-</section>
-
-<section>
-    <h1>【集計済】来塔予定日による売り上げレポート出力</h1>
-    <hr>
-    <form method="post" class="form-salesReportByAggregateSalesEventStartDate">
-        <%- include('../common/master/_hidden') %>
-            <input type="hidden" name="reportType" value="salesByEventStartDate">
-
-            <label for="dateFrom">来塔予定日期間選択</label>
-            <div class="daterange">
-                <input type="text" class="form-control datepicker" name="eventStartFrom" id="eventStartFrom"> ～
-                <input type="text" class="form-control datepicker" name="eventStartThrough" id="eventStartThrough">
-            </div>
-
-            <hr>
-
-            <a class="btn btn-ok btn-download">
-                <span>レポートダウンロード</span>
-            </a>
+        <a class="btn btn-ok btn-download">
+            <span>レポートダウンロード</span>
+        </a>
     </form>
 </section>
 
