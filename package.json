@@ -19,7 +19,7 @@
   "dependencies": {
     "@motionpicture/express-middleware": "0.0.0",
     "@motionpicture/ttts-api-nodejs-client": "0.0.1",
-    "@motionpicture/ttts-domain": "^13.2.2-alpha.0",
+    "@motionpicture/ttts-domain": "^13.2.2",
     "@types/iconv-lite": "0.0.1",
     "body-parser": "^1.18.2",
     "connect-redis": "^3.3.3",
