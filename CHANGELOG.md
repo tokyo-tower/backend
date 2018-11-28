@@ -10,9 +10,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
-- 取引と予約の検索パフォーマンス向上。
-- 売上レポート画面を簡素化
-
 ### Deprecated
 
 ### Removed
@@ -20,6 +17,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Fixed
 
 ### Security
+
+## v2.2.1 - 2018-11-28
+
+### Changed
+
+- 取引と予約の検索パフォーマンス向上
+- 売上レポート画面を簡素化
 
 ## v2.2.0 - 2018-06-23
 
