@@ -19,6 +19,7 @@
             true,
             "LF"
         ],
+        "newline-per-chained-call": false,
         "no-any": false,
         "no-backbone-get-set-outside-model": false,
         "no-default-export": false,

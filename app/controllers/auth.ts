@@ -9,8 +9,6 @@ import { NextFunction, Request, Response } from 'express';
 import * as request from 'request-promise-native';
 import * as _ from 'underscore';
 
-import * as Message from '../../common/Const/Message';
-
 const debug = createDebug('ttts-backend:controllers:master:auth');
 
 /**
@@ -95,8 +93,8 @@ export async function login(req: Request, res: Response): Promise<void> {
 }
 
 function validate(req: Request): void {
-    req.checkBody('username', Message.Common.required.replace('$fieldName$', 'ID')).notEmpty();
-    req.checkBody('password', Message.Common.required.replace('$fieldName$', 'パスワード')).notEmpty();
+    req.checkBody('username', 'IDが未入力です').notEmpty();
+    req.checkBody('password', 'パスワードが未入力です').notEmpty();
 }
 
 /**

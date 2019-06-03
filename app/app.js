@@ -26,10 +26,6 @@ const session_1 = require("./middlewares/session");
 // ルーター
 const auth_1 = require("./routes/auth");
 const dev_1 = require("./routes/dev");
-const film_1 = require("./routes/master/film");
-const performance_1 = require("./routes/master/performance");
-const ticketType_1 = require("./routes/master/ticketType");
-const ticketTypeGroup_1 = require("./routes/master/ticketTypeGroup");
 const reports_1 = require("./routes/reports");
 const router_1 = require("./routes/router");
 const debug = createDebug('ttts-backend:app');
@@ -76,14 +72,13 @@ if (process.env.NODE_ENV !== 'production') {
 app.use(auth_1.default); // ログイン・ログアウト
 app.use(authentication_1.default); // ユーザー認証
 app.use(router_1.default);
-app.use('/master/films', film_1.default); //作品
-app.use('/master/performances', performance_1.default); //パフォーマンス
-app.use('/master/ticketTypes', ticketType_1.default); //券種
-app.use('/master/ticketTypeGroups', ticketTypeGroup_1.default); //券種グループ
 app.use('/reports', reports_1.default); //レポート出力
 // 404
 app.use(notFoundHandler_1.default);
 // error handlers
 app.use(errorHandler_1.default);
-ttts.mongoose.connect(process.env.MONGOLAB_URI, mongooseConnectionOptions_1.default);
+ttts.mongoose.connect(process.env.MONGOLAB_URI, mongooseConnectionOptions_1.default)
+    .then()
+    // tslint:disable-next-line:no-console
+    .catch(console.error);
 module.exports = app;
