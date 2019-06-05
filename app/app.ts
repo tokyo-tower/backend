@@ -29,10 +29,6 @@ import session from './middlewares/session';
 // ルーター
 import authRouter from './routes/auth';
 import devRouter from './routes/dev';
-import filmMasterRouter from './routes/master/film';
-import performanceMasterRouter from './routes/master/performance';
-import ticketTypeMasterRouter from './routes/master/ticketType';
-import ticketTypeGroupMasterRouter from './routes/master/ticketTypeGroup';
 import reportsRouter from './routes/reports';
 import router from './routes/router';
 
@@ -94,10 +90,6 @@ app.use(authRouter); // ログイン・ログアウト
 app.use(authentication); // ユーザー認証
 
 app.use(router);
-app.use('/master/films', filmMasterRouter); //作品
-app.use('/master/performances', performanceMasterRouter); //パフォーマンス
-app.use('/master/ticketTypes', ticketTypeMasterRouter); //券種
-app.use('/master/ticketTypeGroups', ticketTypeGroupMasterRouter); //券種グループ
 app.use('/reports', reportsRouter); //レポート出力
 
 // 404
@@ -106,6 +98,9 @@ app.use(notFoundHandler);
 // error handlers
 app.use(errorHandler);
 
-ttts.mongoose.connect(<string>process.env.MONGOLAB_URI, mongooseConnectionOptions);
+ttts.mongoose.connect(<string>process.env.MONGOLAB_URI, mongooseConnectionOptions)
+    .then()
+    // tslint:disable-next-line:no-console
+    .catch(console.error);
 
 export = app;

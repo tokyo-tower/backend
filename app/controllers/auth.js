@@ -16,7 +16,6 @@ const tttsapi = require("@motionpicture/ttts-api-nodejs-client");
 const createDebug = require("debug");
 const request = require("request-promise-native");
 const _ = require("underscore");
-const Message = require("../../common/Const/Message");
 const debug = createDebug('ttts-backend:controllers:master:auth');
 /**
  * マスタ管理ログイン
@@ -91,8 +90,8 @@ function login(req, res) {
 }
 exports.login = login;
 function validate(req) {
-    req.checkBody('username', Message.Common.required.replace('$fieldName$', 'ID')).notEmpty();
-    req.checkBody('password', Message.Common.required.replace('$fieldName$', 'パスワード')).notEmpty();
+    req.checkBody('username', 'IDが未入力です').notEmpty();
+    req.checkBody('password', 'パスワードが未入力です').notEmpty();
 }
 /**
  * マスタ管理ログアウト

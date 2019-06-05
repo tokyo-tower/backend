@@ -195,5 +195,6 @@ export async function getAggregateSales(req: Request, res: Response): Promise<vo
  * @returns {string|null}
  */
 function getValue(inputValue: string | null): string | null {
+    // tslint:disable-next-line:no-null-keyword
     return (!_.isEmpty(inputValue)) ? inputValue : null;
 }

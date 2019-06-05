@@ -189,5 +189,6 @@ exports.getAggregateSales = getAggregateSales;
  * @returns {string|null}
  */
 function getValue(inputValue) {
+    // tslint:disable-next-line:no-null-keyword
     return (!_.isEmpty(inputValue)) ? inputValue : null;
 }
