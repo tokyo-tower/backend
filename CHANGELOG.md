@@ -10,19 +10,25 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+## v3.0.0 - 2019-06-05
+
+### Changed
+
 - update typescript
 - install @motioinpicture/ttts-domain@14.x.x
-
-### Deprecated
 
 ### Removed
 
 - マスタ管理ルーター削除
 - jsdoc削除
-
-### Fixed
-
-### Security
 
 ## v2.2.2 - 2018-12-22
 
