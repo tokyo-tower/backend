@@ -14,12 +14,16 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Removed
 
-- 予約インターフェースから不要な属性を削除
-- 予約コレクションからqr_strに対するユニークインデックスを削除
-
 ### Fixed
 
 ### Security
+
+## v3.1.0 - 2019-06-27
+
+### Removed
+
+- 予約インターフェースから不要な属性を削除
+- 予約コレクションからqr_strに対するユニークインデックスを削除
 
 ## v3.0.0 - 2019-06-05
 
