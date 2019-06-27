@@ -10,11 +10,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
-- install @motionpicture/ttts-domain@15.x.x
-
 ### Deprecated
 
 ### Removed
+
+- 予約インターフェースから不要な属性を削除
+- 予約コレクションからqr_strに対するユニークインデックスを削除
 
 ### Fixed
 
