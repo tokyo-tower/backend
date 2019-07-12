@@ -1,4 +1,3 @@
-
 /**
  * レポート出力コントローラー
  */
@@ -16,10 +15,11 @@ const debug = createDebug('ttts-backend:controllers');
 // const POS_CLIENT_ID = process.env.POS_CLIENT_ID;
 // const TOP_DECK_OPEN_DATE = process.env.TOP_DECK_OPEN_DATE;
 const RESERVATION_START_DATE = process.env.RESERVATION_START_DATE;
+const EXCLUDE_STAFF_RESERVATION = process.env.EXCLUDE_STAFF_RESERVATION === '1';
 
 const sortReport4Sales = {
-    'performance.startDay': 1, // トライ回数の少なさ優先
-    'performance.startTime': 1, // 実行予定日時の早さ優先
+    'performance.startDay': 1,
+    'performance.startTime': 1,
     payment_no: 1,
     reservationStatus: -1,
     'seat.code': 1,
@@ -52,7 +52,19 @@ export async function getAggregateSales(req: Request, res: Response): Promise<vo
         switch (req.query.reportType) {
             case ReportType.Sales:
                 conditions.push({ aggregateUnit: 'SalesByEndDate' });
+
+                if (EXCLUDE_STAFF_RESERVATION) {
+                    // 代理予約は除外
+                    conditions.push({
+                        'customer.group': {
+                            $exists: true,
+                            $eq: '01'
+                        }
+                    });
+                }
+
                 filename = '売上レポート';
+
                 break;
 
             default:

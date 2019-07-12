@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Added
 
+- レポートから代理予約を除くオプションを追加
+
 ### Changed
 
 ### Deprecated
