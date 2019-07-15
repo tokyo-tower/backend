@@ -1,10 +1,12 @@
+import { mongoose } from '@motionpicture/ttts-domain';
+
 /**
  * mongoose接続オプション
  * @see http://mongoosejs.com/docs/api.html#index_Mongoose-connect
  * @see http://mongodb.github.io/node-mongodb-native/2.2/api/MongoClient.html
- * @ignore
  */
-const mongooseConnectionOptions = {
+const mongooseConnectionOptions: mongoose.ConnectionOptions = {
+    autoIndex: false,
     autoReconnect: true,
     keepAlive: true,
     connectTimeoutMS: 30000,
