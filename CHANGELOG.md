@@ -12,6 +12,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
+- 注文コレクションのインデックス調整
+
 ### Deprecated
 
 ### Removed
