@@ -8,11 +8,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Added
 
-- レポートから代理予約を除くオプションを追加
-
 ### Changed
-
-- 注文コレクションのインデックス調整
 
 ### Deprecated
 
@@ -21,6 +17,16 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Fixed
 
 ### Security
+
+## v3.2.0 - 2019-07-15
+
+### Added
+
+- レポートから代理予約を除くオプションを追加
+
+### Changed
+
+- 注文コレクションのインデックス調整
 
 ## v3.1.0 - 2019-06-27
 
