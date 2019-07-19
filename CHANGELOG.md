@@ -10,8 +10,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
-- install @tokyotower/domain
-
 ### Deprecated
 
 ### Removed
@@ -19,6 +17,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Fixed
 
 ### Security
+
+## v3.2.1 - 2019-07-19
+
+### Changed
+
+- install @tokyotower/domain
 
 ## v3.2.0 - 2019-07-15
 
