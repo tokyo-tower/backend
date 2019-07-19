@@ -4,7 +4,7 @@
  * @namespace routes.dev
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-const ttts = require("@motionpicture/ttts-domain");
+const ttts = require("@tokyotower/domain");
 const createDebug = require("debug");
 const express = require("express");
 const http_status_1 = require("http-status");

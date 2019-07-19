@@ -1,10 +1,8 @@
 /**
  * expressアプリケーション
- * @ignore
  */
-
 import * as middlewares from '@motionpicture/express-middleware';
-import * as ttts from '@motionpicture/ttts-domain';
+import * as ttts from '@tokyotower/domain';
 import * as bodyParser from 'body-parser';
 import * as cookieParser from 'cookie-parser';
 import * as cors from 'cors';
