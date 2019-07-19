@@ -1,10 +1,9 @@
 "use strict";
 /**
  * expressアプリケーション
- * @ignore
  */
 const middlewares = require("@motionpicture/express-middleware");
-const ttts = require("@motionpicture/ttts-domain");
+const ttts = require("@tokyotower/domain");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
