@@ -2,7 +2,6 @@
  * expressアプリケーション
  */
 import * as middlewares from '@motionpicture/express-middleware';
-import * as ttts from '@tokyotower/domain';
 import * as bodyParser from 'body-parser';
 import * as cookieParser from 'cookie-parser';
 import * as cors from 'cors';
@@ -15,8 +14,6 @@ import * as favicon from 'serve-favicon';
 // tslint:disable-next-line:no-var-requires no-require-imports
 const expressLayouts = require('express-ejs-layouts');
 
-import mongooseConnectionOptions from '../mongooseConnectionOptions';
-
 // ミドルウェア
 import authentication from './middlewares/authentication';
 import errorHandler from './middlewares/errorHandler';
@@ -26,7 +23,6 @@ import session from './middlewares/session';
 
 // ルーター
 import authRouter from './routes/auth';
-import devRouter from './routes/dev';
 import reportsRouter from './routes/reports';
 import router from './routes/router';
 
@@ -78,11 +74,6 @@ app.use(express.static(`${__dirname}/../public`));
 
 app.use(expressValidator()); // バリデーション
 
-// ルーティング登録の順序に注意！
-if (process.env.NODE_ENV !== 'production') {
-    app.use('/dev', devRouter);
-}
-
 app.use(authRouter); // ログイン・ログアウト
 
 app.use(authentication); // ユーザー認証
@@ -95,10 +86,5 @@ app.use(notFoundHandler);
 
 // error handlers
 app.use(errorHandler);
-
-ttts.mongoose.connect(<string>process.env.MONGOLAB_URI, mongooseConnectionOptions)
-    .then()
-    // tslint:disable-next-line:no-console
-    .catch(console.error);
 
 export = app;
