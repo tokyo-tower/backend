@@ -18,6 +18,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v3.3.0 - 2019-07-30
+
+### Changed
+
+- 売上集計をAPIで検索するように変更
+
 ## v3.2.2 - 2019-07-26
 
 ### Changed

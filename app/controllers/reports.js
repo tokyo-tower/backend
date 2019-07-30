@@ -11,30 +11,21 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * レポート出力コントローラー
  */
-const ttts = require("@tokyotower/domain");
+const tttsapi = require("@motionpicture/ttts-api-nodejs-client");
 const createDebug = require("debug");
-const fastCsv = require("fast-csv");
 const http_status_1 = require("http-status");
-const iconv = require("iconv-lite");
 const moment = require("moment-timezone");
 const _ = require("underscore");
 const debug = createDebug('ttts-backend:controllers');
+const authClient = new tttsapi.auth.OAuth2({
+    domain: process.env.API_AUTHORIZE_SERVER_DOMAIN,
+    clientId: process.env.API_CLIENT_ID,
+    clientSecret: process.env.API_CLIENT_SECRET
+});
 // const POS_CLIENT_ID = process.env.POS_CLIENT_ID;
 // const TOP_DECK_OPEN_DATE = process.env.TOP_DECK_OPEN_DATE;
 const RESERVATION_START_DATE = process.env.RESERVATION_START_DATE;
 const EXCLUDE_STAFF_RESERVATION = process.env.EXCLUDE_STAFF_RESERVATION === '1';
-const sortReport4Sales = {
-    'performance.startDay': 1,
-    'performance.startTime': 1,
-    payment_no: 1,
-    reservationStatus: -1,
-    'seat.code': 1,
-    status_sort: 1
-};
-// カラム区切り(タブ)
-const CSV_DELIMITER = '\t';
-// 改行コード(CR+LF)
-const CSV_LINE_ENDING = '\r\n';
 var ReportType;
 (function (ReportType) {
     ReportType["Sales"] = "Sales";
@@ -103,89 +94,24 @@ function getAggregateSales(req, res) {
                     }
                 });
             }
-            // 集計データにストリーミングcursorを作成する
-            const aggregateSaleRepo = new ttts.repository.AggregateSale(ttts.mongoose.connection);
-            debug('finding aggregateSales...', conditions);
-            const cursor = aggregateSaleRepo.aggregateSaleModel.find({ $and: conditions }).sort(sortReport4Sales).cursor();
-            // Mongoドキュメントをcsvデータに変換するtransformer
-            const transformer = (doc) => {
-                // Return an object with all fields you need in the CSV
-                return {
-                    購入番号: doc.payment_no,
-                    パフォーマンスID: doc.performance.id,
-                    座席コード: doc.seat.code,
-                    予約ステータス: doc.reservationStatus,
-                    入塔予約年月日: doc.performance.startDay,
-                    入塔予約時刻: doc.performance.startTime,
-                    劇場名称: doc.theater.name,
-                    スクリーンID: doc.screen.id,
-                    スクリーン名: doc.screen.name,
-                    作品ID: doc.film.id,
-                    作品名称: doc.film.name,
-                    購入者区分: doc.customer.group,
-                    '購入者（名）': doc.customer.givenName,
-                    '購入者（姓）': doc.customer.familyName,
-                    購入者メール: doc.customer.email,
-                    購入者電話: doc.customer.telephone,
-                    購入日時: moment(doc.orderDate).tz('Asia/Tokyo').format('YYYY/MM/DD HH:mm:ss'),
-                    決済方法: doc.paymentMethod,
-                    座席グレード名称: doc.seat.gradeName,
-                    座席グレード追加料金: doc.seat.gradeAdditionalCharge,
-                    券種名称: doc.ticketType.name,
-                    チケットコード: doc.ticketType.csvCode,
-                    券種料金: doc.ticketType.charge,
-                    客層: doc.customer.segment,
-                    payment_seat_index: doc.payment_seat_index,
-                    予約単位料金: doc.price,
-                    ユーザーネーム: doc.customer.username,
-                    入場フラグ: doc.checkedin,
-                    入場日時: doc.checkedin === 'TRUE' ? moment(doc.checkinDate).tz('Asia/Tokyo').format('YYYY/MM/DD HH:mm:ss') : ''
-                };
-            };
-            // const fields = [
-            //     'paymentNo', 'performance.id', 'seat.code', 'reservationStatus',
-            //     'performance.startDay', 'performance.startTime', 'theater.name', 'screen.id', 'screen.name', 'film.id', 'film.name',
-            //     'customer.group', 'customer.givenName', 'customer.familyName', 'customer.email', 'customer.telephone',
-            //     'orderDate', 'paymentMethod',
-            //     'seat.gradeName', 'seat.gradeAdditionalCharge', 'ticketType.name', 'ticketType.csvCode', 'ticketType.charge',
-            //     'customer.segment', 'paymentSeatIndex', 'price', 'customer.username', 'checkedin', 'checkinDate'
-            // ];
-            // const fieldNames = [
-            //     '購入番号', 'パフォーマンスID', '座席コード', '予約ステータス',
-            //     '入塔予約年月日', '入塔予約時刻', '劇場名称', 'スクリーンID', 'スクリーン名', '作品ID', '作品名称',
-            //     '購入者区分', '購入者（名）', '購入者（姓）', '購入者メール', '購入者電話',
-            //     '購入日時', '決済方法',
-            //     '座席グレード名称', '座席グレード追加料金', '券種名称', 'チケットコード', '券種料金',
-            //     '客層', 'payment_seat_index', '予約単位料金', 'ユーザーネーム', '入場フラグ', '入場日時'
-            // ];
-            // Set approrpiate download headers
-            // res.setHeader('Content-disposition', `attachment; filename=${filename}`);
+            const cognitoCredentials = req.session.cognitoCredentials;
+            authClient.setCredentials({
+                refresh_token: cognitoCredentials.refreshToken,
+                // expiry_date: number;
+                access_token: cognitoCredentials.accessToken,
+                token_type: cognitoCredentials.tokenType
+            });
+            const aggregateSalesService = new tttsapi.service.AggregateSales({
+                endpoint: process.env.API_ENDPOINT,
+                auth: authClient
+            });
+            const stream = yield aggregateSalesService.stream({ $and: conditions });
             res.setHeader('Content-disposition', `attachment; filename*=UTF-8\'\'${encodeURIComponent(`${filename}.tsv`)}`);
             res.setHeader('Content-Type', 'text/csv; charset=Shift_JIS');
             res.writeHead(http_status_1.OK, { 'Content-Type': 'text/csv; charset=Shift_JIS' });
             // Flush the headers before we start pushing the CSV content
             res.flushHeaders();
-            // Create a Fast CSV stream which transforms documents to objects
-            const csvStream = fastCsv
-                .createWriteStream({
-                headers: true,
-                delimiter: CSV_DELIMITER,
-                quoteColumns: true,
-                rowDelimiter: CSV_LINE_ENDING
-                // includeEndRowDelimiter: true
-                // quote: '"',
-                // escape: '"'
-            })
-                .transform(transformer);
-            // .setEncoding("utf8")
-            // res.setHeader('Content-disposition', `attachment; filename*=UTF-8\'\'${encodeURIComponent(`${filename}.tsv`)}`);
-            // res.setHeader('Content-Type', 'text/csv; charset=Shift_JIS');
-            // Pipe/stream the query result to the response via the CSV transformer stream
-            // sjisに変換して流し込む
-            cursor.pipe(csvStream)
-                .pipe(iconv.decodeStream('utf-8'))
-                .pipe(iconv.encodeStream('windows-31j'))
-                .pipe(res);
+            stream.pipe(res);
         }
         catch (error) {
             res.send(error.message);

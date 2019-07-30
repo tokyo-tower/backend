@@ -1,4 +1,4 @@
-# TTTSバックエンドウェブアプリケーション
+# TTTS Backend
 
 [![CircleCI](https://circleci.com/gh/motionpicture/ttts-backend.svg?style=svg&circle-token=bf5763849fc394f581d0a8eaf4c841bbdfc1cd93)](https://circleci.com/gh/motionpicture/ttts-backend)
 
@@ -24,11 +24,10 @@
 | `REDIS_HOST`                      | true     |                | redis host                                    |
 | `REDIS_PORT`                      | true     |                | redis port                                    |
 | `REDIS_KEY`                       | true     |                | redis key                                     |
-| `MONGOLAB_URI`                    | true     |                | mongodb接続URI                                |
 | `POS_CLIENT_ID`                   | true     |                | POSクライアントID                             |
 | `TOP_DECK_OPEN_DATE`              | true     |                | トップデッキオープン日時(ISO8601フォーマット) |
 | `RESERVATION_START_DATE`          | true     |                | 予約開始日時(ISO8601フォーマット)             |
 
 ## License
 
-UNLICENSED
+ISC
