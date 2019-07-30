@@ -10,8 +10,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
-- 売上集計をAPIで検索するように変更
-
 ### Deprecated
 
 ### Removed
@@ -19,6 +17,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Fixed
 
 ### Security
+
+## v3.3.0 - 2019-07-30
+
+### Changed
+
+- 売上集計をAPIで検索するように変更
 
 ## v3.2.2 - 2019-07-26
 
