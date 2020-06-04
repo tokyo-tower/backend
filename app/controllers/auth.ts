@@ -1,15 +1,25 @@
 /**
- * マスタ管理者認証コントローラー
- * @namespace controllers.auth
+ * 認証コントローラー
  */
-
 import * as tttsapi from '@motionpicture/ttts-api-nodejs-client';
 import * as createDebug from 'debug';
 import { NextFunction, Request, Response } from 'express';
+import * as jwt from 'jsonwebtoken';
 import * as request from 'request-promise-native';
 import * as _ from 'underscore';
 
 const debug = createDebug('ttts-backend:controllers:master:auth');
+
+export interface IProfile {
+    sub: string;
+    iss: string;
+    'cognito:groups': string[];
+    'cognito:username': string;
+    given_name: string;
+    phone_number: string;
+    family_name: string;
+    email: string;
+}
 
 /**
  * マスタ管理ログイン
@@ -65,14 +75,17 @@ export async function login(req: Request, res: Response): Promise<void> {
                     access_token: cognitoCredentials.accessToken,
                     token_type: cognitoCredentials.tokenType
                 });
-                const adminService = new tttsapi.service.Admin({
-                    endpoint: <string>process.env.API_ENDPOINT,
-                    auth: authClient
-                });
-                const cognitoUser = await adminService.getProfile();
+                await authClient.refreshAccessToken();
+                const profile = <IProfile>jwt.decode((<any>authClient.credentials).id_token);
 
                 // ログイン
-                (<Express.Session>req.session).user = cognitoUser;
+                (<Express.Session>req.session).user = {
+                    username: profile['cognito:username'],
+                    familyName: profile.family_name,
+                    givenName: profile.given_name,
+                    email: profile.email,
+                    telephone: profile.phone_number
+                };
 
                 const cb = (!_.isEmpty(req.query.cb)) ? req.query.cb : '/';
                 res.redirect(cb);
