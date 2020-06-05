@@ -1,14 +1,10 @@
 /**
  * レポート出力管理ルーター
- * @namespace routes.reports
  */
-
+import * as cinerinoapi from '@cinerino/api-nodejs-client';
 import * as tttsapi from '@motionpicture/ttts-api-nodejs-client';
-import * as createDebug from 'debug';
 import { Router } from 'express';
 import * as reportsController from '../controllers/reports';
-
-const debug = createDebug('ttts-backend:routes:report');
 
 const reportsRouter = Router();
 
@@ -46,15 +42,33 @@ reportsRouter.get('/account', async (req, res, next) => {
             access_token: cognitoCredentials.accessToken,
             token_type: cognitoCredentials.tokenType
         });
-        const adminService = new tttsapi.service.Admin({
-            endpoint: <string>process.env.API_ENDPOINT,
+        const iamService = new cinerinoapi.service.IAM({
+            endpoint: <string>process.env.CINERINO_API_ENDPOINT,
             auth: authClient
         });
-        const cognitoUsers = await adminService.search({ group: 'Staff' });
-        debug('cognitoUsers:', cognitoUsers);
+        const searchMembersResult = await iamService.searchMembers({
+            member: { typeOf: { $eq: cinerinoapi.factory.personType.Person } }
+        });
+
+        // ticketClerkロールを持つ管理者のみ表示
+        const cognitoUsers: {
+            username?: string;
+            familyName?: string;
+            givenName: string;
+        }[] = searchMembersResult.data
+            .filter((m) => {
+                return Array.isArray(m.member.hasRole) && m.member.hasRole.some((r) => r.roleName === 'ticketClerk');
+            })
+            .map((m) => {
+                return {
+                    username: m.member.username,
+                    familyName: m.member.name,
+                    givenName: ''
+                };
+            });
 
         if (cognitoUsers.length <= 0) {
-            throw new Error('Staff admin users not found.');
+            throw new Error('購入アカウントが見つかりませんでした');
         }
 
         const hours: string[] = [];

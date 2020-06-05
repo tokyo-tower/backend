@@ -21,6 +21,7 @@
 | `API_CLIENT_SECRET`               | true     |                | APIクライアントシークレット                   |
 | `API_AUTHORIZE_SERVER_DOMAIN`     | true     |                | API認可サーバードメイン                       |
 | `API_RESOURECE_SERVER_IDENTIFIER` | true     |                | APIリソースサーバー識別子                     |
+| `CINERINO_API_ENDPOINT`           | true     |                | Cinerino API Endpoint                         |
 | `REDIS_HOST`                      | true     |                | redis host                                    |
 | `REDIS_PORT`                      | true     |                | redis port                                    |
 | `REDIS_KEY`                       | true     |                | redis key                                     |

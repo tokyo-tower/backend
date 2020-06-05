@@ -1,8 +1,4 @@
 "use strict";
-/**
- * マスタ管理者認証コントローラー
- * @namespace controllers.auth
- */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -12,8 +8,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * 認証コントローラー
+ */
 const tttsapi = require("@motionpicture/ttts-api-nodejs-client");
 const createDebug = require("debug");
+const jwt = require("jsonwebtoken");
 const request = require("request-promise-native");
 const _ = require("underscore");
 const debug = createDebug('ttts-backend:controllers:master:auth');
@@ -65,13 +65,16 @@ function login(req, res) {
                         access_token: cognitoCredentials.accessToken,
                         token_type: cognitoCredentials.tokenType
                     });
-                    const adminService = new tttsapi.service.Admin({
-                        endpoint: process.env.API_ENDPOINT,
-                        auth: authClient
-                    });
-                    const cognitoUser = yield adminService.getProfile();
+                    yield authClient.refreshAccessToken();
+                    const profile = jwt.decode(authClient.credentials.id_token);
                     // ログイン
-                    req.session.user = cognitoUser;
+                    req.session.user = {
+                        username: profile['cognito:username'],
+                        familyName: profile.family_name,
+                        givenName: profile.given_name,
+                        email: profile.email,
+                        telephone: profile.phone_number
+                    };
                     const cb = (!_.isEmpty(req.query.cb)) ? req.query.cb : '/';
                     res.redirect(cb);
                     return;

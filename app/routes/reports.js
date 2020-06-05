@@ -1,8 +1,4 @@
 "use strict";
-/**
- * レポート出力管理ルーター
- * @namespace routes.reports
- */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -12,11 +8,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * レポート出力管理ルーター
+ */
+const cinerinoapi = require("@cinerino/api-nodejs-client");
 const tttsapi = require("@motionpicture/ttts-api-nodejs-client");
-const createDebug = require("debug");
 const express_1 = require("express");
 const reportsController = require("../controllers/reports");
-const debug = createDebug('ttts-backend:routes:report');
 const reportsRouter = express_1.Router();
 const authClient = new tttsapi.auth.OAuth2({
     domain: process.env.API_AUTHORIZE_SERVER_DOMAIN,
@@ -49,14 +47,27 @@ reportsRouter.get('/account', (req, res, next) => __awaiter(this, void 0, void 0
             access_token: cognitoCredentials.accessToken,
             token_type: cognitoCredentials.tokenType
         });
-        const adminService = new tttsapi.service.Admin({
-            endpoint: process.env.API_ENDPOINT,
+        const iamService = new cinerinoapi.service.IAM({
+            endpoint: process.env.CINERINO_API_ENDPOINT,
             auth: authClient
         });
-        const cognitoUsers = yield adminService.search({ group: 'Staff' });
-        debug('cognitoUsers:', cognitoUsers);
+        const searchMembersResult = yield iamService.searchMembers({
+            member: { typeOf: { $eq: cinerinoapi.factory.personType.Person } }
+        });
+        // ticketClerkロールを持つ管理者のみ表示
+        const cognitoUsers = searchMembersResult.data
+            .filter((m) => {
+            return Array.isArray(m.member.hasRole) && m.member.hasRole.some((r) => r.roleName === 'ticketClerk');
+        })
+            .map((m) => {
+            return {
+                username: m.member.username,
+                familyName: m.member.name,
+                givenName: ''
+            };
+        });
         if (cognitoUsers.length <= 0) {
-            throw new Error('Staff admin users not found.');
+            throw new Error('購入アカウントが見つかりませんでした');
         }
         const hours = [];
         // tslint:disable-next-line:no-magic-numbers
