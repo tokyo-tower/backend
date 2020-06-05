@@ -10,8 +10,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
-- TTTS認可サーバーを変更
-
 ### Deprecated
 
 ### Removed
@@ -19,6 +17,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Fixed
 
 ### Security
+
+## v3.4.1 - 2020-06-05
+
+### Changed
+
+- TTTS認可サーバーを変更
 
 ## v3.4.0 - 2020-06-05
 
