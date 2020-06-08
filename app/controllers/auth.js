@@ -13,7 +13,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const tttsapi = require("@motionpicture/ttts-api-nodejs-client");
 const createDebug = require("debug");
-const jwt = require("jsonwebtoken");
 const request = require("request-promise-native");
 const _ = require("underscore");
 const debug = createDebug('ttts-backend:controllers:master:auth');
@@ -66,7 +65,11 @@ function login(req, res) {
                         token_type: cognitoCredentials.tokenType
                     });
                     yield authClient.refreshAccessToken();
-                    const profile = jwt.decode(authClient.credentials.id_token);
+                    const loginTicket = authClient.verifyIdToken({});
+                    const profile = loginTicket.payload;
+                    if (profile === undefined) {
+                        throw new Error('cannot get profile from id_token');
+                    }
                     // ログイン
                     req.session.user = {
                         username: profile['cognito:username'],
