@@ -1,18 +1,16 @@
 /**
  * ユーザー認証ミドルウェア
- * @namespace middlewares.authentication
  */
-
 import * as createDebug from 'debug';
 import { NextFunction, Request, Response } from 'express';
 
-import MasterAdminUser from '../user';
+import { User } from '../user';
 
 const debug = createDebug('ttts-backend:middlewares:authentication');
 
 export default async (req: Request, res: Response, next: NextFunction) => {
     res.locals.req = req;
-    req.masterAdminUser = MasterAdminUser.PARSE(req.session);
+    req.masterAdminUser = User.PARSE(req.session, req.hostname);
     debug('req.masterAdminUser is authenticated?', req.masterAdminUser.isAuthenticated());
 
     res.locals.loginName = (req.masterAdminUser.isAuthenticated())
@@ -33,6 +31,7 @@ export default async (req: Request, res: Response, next: NextFunction) => {
         });
     } else {
         debug('req.originalUrl', req.originalUrl);
-        res.redirect(`/login?cb=${req.originalUrl}`);
+        res.redirect(req.masterAdminUser.generateAuthUrl());
+        // res.redirect(`/login?cb=${req.originalUrl}`);
     }
 };

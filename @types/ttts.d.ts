@@ -1,10 +1,9 @@
-import * as express from 'express';
-import MasterAdminUser from '../app/user';
+import { User } from '../app/user';
 
 declare global {
     namespace Express {
         export interface Request {
-            masterAdminUser?: MasterAdminUser;
+            masterAdminUser?: User;
         }
 
         interface IUser {
