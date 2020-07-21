@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 - update typescript
 - update tslint
+- @cinerino/api-nodejs-client -> @cinerino/sdk
 
 ### Deprecated
 

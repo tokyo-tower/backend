@@ -1,7 +1,7 @@
 /**
  * レポート出力管理ルーター
  */
-import * as cinerinoapi from '@cinerino/api-nodejs-client';
+import * as cinerinoapi from '@cinerino/sdk';
 import * as tttsapi from '@motionpicture/ttts-api-nodejs-client';
 import { Router } from 'express';
 import * as reportsController from '../controllers/reports';
