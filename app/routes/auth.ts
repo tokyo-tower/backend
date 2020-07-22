@@ -2,14 +2,10 @@
  * 認証ルーター
  */
 import { Router } from 'express';
-// import * as authController from '../controllers/auth';
 
 import { User } from '../user';
 
 const authRouter = Router();
-
-// authRouter.all('/login', authController.login);
-// authRouter.all('/logout', authController.logout);
 
 /**
  * サインイン
