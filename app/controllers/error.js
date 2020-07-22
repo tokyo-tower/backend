@@ -4,6 +4,7 @@
  * @namespace controllers.error
  */
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.internalServerError = exports.badRequest = exports.notFound = void 0;
 const http_status_1 = require("http-status");
 function notFound(req, res) {
     res.status(http_status_1.NOT_FOUND).render('error/notFound', {

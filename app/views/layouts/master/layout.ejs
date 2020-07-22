@@ -50,7 +50,7 @@ let pageClassName = (routeName) ? `page-${routeName.replace(/\./g,' page-')}` : 
                     <%= req.masterAdminUser.givenName %>
                 </p>
                 <p>
-                    <a class="btn-logout" href="/logout">
+                    <a class="btn-logout" href="<%= req.masterAdminUser.generateLogoutUrl() %>">
                         <span></span>
                     </a>
                 </p>
